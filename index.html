@@ -244,6 +244,45 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;backg
 .modal-sub{font-size:12px;color:var(--t3);margin-bottom:12px;line-height:1.5;}
 .api-key-inp{font-family:monospace;font-size:12px;border:1px solid var(--bd);border-radius:10px;padding:10px 12px;width:100%;margin-bottom:12px;outline:none;color:var(--t1);-webkit-appearance:none;}
 .api-key-inp:focus{border-color:var(--g);}
+/* ── Store recommendation */
+.store-rec-banner{background:var(--gdk);border-radius:14px;padding:16px;margin-bottom:10px;color:#fff;}
+.store-rec-primary{display:flex;align-items:center;gap:12px;margin-bottom:10px;}
+.store-rec-title{font-size:13px;font-weight:700;color:#fff;}
+.store-rec-saving{font-size:11px;color:rgba(255,255,255,.75);margin-top:2px;}
+.store-rec-total{font-size:22px;font-weight:800;color:#fff;margin-left:auto;}
+.store-rec-reason{font-size:12px;color:rgba(255,255,255,.8);line-height:1.5;margin-bottom:6px;}
+.store-rec-split{font-size:11px;color:rgba(255,255,255,.65);border-top:1px solid rgba(255,255,255,.15);padding-top:8px;margin-top:2px;}
+.store-badge{display:inline-block;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;border-radius:5px;padding:2px 6px;background:rgba(255,255,255,.2);color:#fff;flex-shrink:0;}
+.store-badge-lg{font-size:11px;padding:4px 10px;background:#fff;color:var(--gdk);}
+/* ── Store comparison card */
+.store-compare-card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:14px 16px;margin-bottom:10px;}
+.store-compare-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--t3);margin-bottom:10px;}
+.store-compare-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;padding:6px 8px;border-radius:8px;}
+.store-compare-row.best{background:var(--gbg);}
+.store-bar-wrap{flex:1;height:6px;background:var(--bdl);border-radius:3px;overflow:hidden;}
+.store-bar{height:100%;border-radius:3px;transition:width .4s;}
+.store-compare-price{font-size:13px;font-weight:700;color:var(--t1);flex-shrink:0;display:flex;align-items:center;gap:5px;}
+.store-real-badge{font-size:9px;font-weight:700;background:var(--blbg);color:var(--bl);border-radius:4px;padding:1px 5px;}
+.store-compare-note{font-size:10px;color:var(--t4);margin-top:6px;}
+/* ── Store filter pills */
+.store-filter-row{display:flex;gap:6px;overflow-x:auto;padding-bottom:6px;scrollbar-width:none;margin-bottom:10px;}
+.store-filter-row::-webkit-scrollbar{display:none;}
+.store-pill{flex-shrink:0;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;padding:5px 12px;border-radius:20px;border:1px solid var(--bd);background:#fff;color:var(--t3);cursor:pointer;}
+.store-pill.active{background:var(--gdk);border-color:var(--gdk);color:#fff;}
+/* ── AI shopping list items */
+.ai-shop-item{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:12px 14px;margin-bottom:8px;}
+.ai-shop-top{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:8px;}
+.ai-shop-name{font-size:14px;font-weight:600;color:var(--t1);}
+.ai-shop-qty{font-size:12px;color:var(--t3);}
+.ai-shop-prices{display:flex;flex-wrap:wrap;gap:6px;}
+.ai-price-chip{display:flex;align-items:center;gap:5px;padding:4px 8px;border-radius:8px;border:1px solid var(--bd);background:#fff;}
+.ai-price-chip.cheapest{border-color:var(--g);background:var(--gbg);}
+.ai-price-chip.real{border-style:solid;border-color:var(--bl);}
+.ai-price-val{font-size:13px;font-weight:700;color:var(--t1);}
+.ai-price-chip.cheapest .ai-price-val{color:var(--gd);}
+.real-dot{font-size:8px;color:var(--bl);}
+.ai-shop-note{font-size:11px;color:var(--t3);margin-top:6px;}
+.ai-plan-notes{font-size:12px;color:var(--t3);margin-top:14px;line-height:1.6;padding:0 4px;}
 </style>
 </head>
 <body>
@@ -447,31 +486,80 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;backg
         <span v-if="aiLoading" class="scan-spinner" style="width:16px;height:16px;border-width:2px;margin:0"></span>
         {{ aiLoading ? 'Generating…' : '✦ Generate plan with AI' }}
       </button>
-      <div class="ai-stream" :class="{active: aiLoading || aiStream}" ref="aiStreamEl">{{ aiStream }}</div>
+      <div class="ai-stream" :class="{active: aiLoading}" ref="aiStreamEl">{{ aiStream }}</div>
     </div>
 
-    <div v-if="aiPlan" class="ai-plan-ready" @click="importAiPlan">
-      ✓ Plan ready — {{ aiPlan.days?.length }} days, estimated £{{ aiPlan.weekly_cost_estimate?.toFixed(2) }}<br>
-      <span style="font-size:12px;font-weight:500;opacity:.8">Tap to import as a new meal plan preset</span>
-    </div>
-
-    <div v-if="aiPlan?.shopping_list?.length">
-      <div class="sdiv" style="margin-top:16px">AI Shopping List</div>
-      <div v-for="item in aiPlan.shopping_list" :key="item.name" class="si" style="margin-bottom:6px">
-        <div class="ibody">
-          <div class="iname">{{ item.name }}</div>
-          <div class="imeta">
-            <span class="iqty">{{ item.qty }}</span>
-            <span class="ipr">~£{{ item.estimated_price?.toFixed(2) }}</span>
-            <span class="opt">{{ item.section }}</span>
+    <!-- Store recommendation banner -->
+    <template v-if="aiPlan">
+      <div v-if="aiPlan.recommendation" class="store-rec-banner">
+        <div class="store-rec-primary">
+          <span class="store-badge store-badge-lg">{{ aiPlan.recommendation.primary_store?.toUpperCase() }}</span>
+          <div>
+            <div class="store-rec-title">Best value this week</div>
+            <div class="store-rec-saving" v-if="storeComparison.saving > 0">Saves ~£{{ storeComparison.saving.toFixed(2) }} vs next cheapest</div>
           </div>
+          <div class="store-rec-total">~£{{ storeComparison.primaryTotal?.toFixed(2) }}</div>
+        </div>
+        <div class="store-rec-reason">{{ aiPlan.recommendation.reasoning }}</div>
+        <div v-if="aiPlan.recommendation.secondary_store" class="store-rec-split">
+          Also get <strong>{{ aiPlan.recommendation.secondary_items?.join(', ') }}</strong> from {{ aiPlan.recommendation.secondary_store }}
         </div>
       </div>
-    </div>
 
-    <div v-if="aiPlan?.notes" style="font-size:12px;color:var(--t3);margin-top:14px;line-height:1.6;padding:0 4px">
-      {{ aiPlan.notes }}
-    </div>
+      <!-- Store comparison table -->
+      <div class="store-compare-card">
+        <div class="store-compare-title">Full basket comparison</div>
+        <div class="store-compare-row" v-for="(sc, store) in storeComparison.byStore" :key="store"
+             :class="{best: store === aiPlan.recommendation?.primary_store}">
+          <span class="store-badge" style="background:var(--bdl);color:var(--t2)">{{ store }}</span>
+          <div class="store-bar-wrap">
+            <div class="store-bar" :style="{width: (sc.total / storeComparison.maxTotal * 100)+'%',
+              background: store === aiPlan.recommendation?.primary_store ? 'var(--g)' : 'var(--bd)'}"></div>
+          </div>
+          <span class="store-compare-price">
+            £{{ sc.total.toFixed(2) }}
+            <span v-if="sc.real_prices > 0" class="store-real-badge">{{ sc.real_prices }} real</span>
+          </span>
+        </div>
+        <div class="store-compare-note">Prices marked "real" come from your scanned receipts. Others are AI estimates.</div>
+      </div>
+
+      <!-- Import button -->
+      <div class="ai-plan-ready" @click="importAiPlan" style="cursor:pointer">
+        ✓ {{ aiPlan.days?.length }}-day plan ready · Tap to import as a meal plan preset
+      </div>
+
+      <!-- Shopping list by store -->
+      <div class="sdiv" style="margin-top:16px">Shopping List</div>
+
+      <!-- Store filter pills -->
+      <div class="store-filter-row">
+        <button v-for="store in aiPlanStores" :key="store"
+          :class="['store-pill', {active: aiShopFilter === store}]"
+          @click="aiShopFilter = aiShopFilter === store ? 'all' : store">
+          {{ store }}
+        </button>
+        <button :class="['store-pill', {active: aiShopFilter === 'all'}]" @click="aiShopFilter='all'">All</button>
+      </div>
+
+      <div v-for="item in filteredAiShopList" :key="item.name" class="ai-shop-item">
+        <div class="ai-shop-top">
+          <div class="ai-shop-name">{{ item.name }}</div>
+          <div class="ai-shop-qty">{{ item.qty }}</div>
+        </div>
+        <div class="ai-shop-prices">
+          <div v-for="(price, store) in item.prices" :key="store"
+               :class="['ai-price-chip', {cheapest: store === item.best_store, real: item.real_prices?.[store]}]">
+            <span class="store-badge">{{ store }}</span>
+            <span class="ai-price-val">£{{ price.toFixed(2) }}</span>
+            <span v-if="item.real_prices?.[store]" class="real-dot" title="From your receipts">●</span>
+          </div>
+        </div>
+        <div v-if="item.notes" class="ai-shop-note">{{ item.notes }}</div>
+      </div>
+
+      <div v-if="aiPlan.notes" class="ai-plan-notes">{{ aiPlan.notes }}</div>
+    </template>
   </div>
 
   <div v-show="activeTab==='shop'">
@@ -887,6 +975,7 @@ data(){return{
   aiLoading:false,
   aiStream:'',
   aiPlan:null,
+  aiShopFilter:'all',
   // Settings
   showSettings:false,
   apiKey:'',
@@ -895,6 +984,36 @@ data(){return{
   productDb:[],
 }},
 computed:{
+  // ── Store comparison derived from aiPlan shopping list
+  storeComparison(){
+    if(!this.aiPlan?.shopping_list?.length) return {byStore:{},primaryTotal:0,maxTotal:0,saving:0};
+    const byStore={};
+    this.aiPlan.shopping_list.forEach(item=>{
+      Object.entries(item.prices||{}).forEach(([store,price])=>{
+        if(!byStore[store])byStore[store]={total:0,real_prices:0};
+        byStore[store].total+=price;
+        if(item.real_prices?.[store])byStore[store].real_prices++;
+      });
+    });
+    const totals=Object.values(byStore).map(s=>s.total).sort((a,b)=>a-b);
+    const primary=this.aiPlan.recommendation?.primary_store;
+    const primaryTotal=primary?byStore[primary]?.total:totals[0];
+    const saving=totals.length>1?totals[1]-totals[0]:0;
+    const maxTotal=Math.max(...Object.values(byStore).map(s=>s.total));
+    return{byStore,primaryTotal,saving:Math.max(0,saving),maxTotal};
+  },
+  aiPlanStores(){
+    if(!this.aiPlan?.shopping_list?.length)return[];
+    const stores=new Set();
+    this.aiPlan.shopping_list.forEach(i=>Object.keys(i.prices||{}).forEach(s=>stores.add(s)));
+    return [...stores];
+  },
+  filteredAiShopList(){
+    if(!this.aiPlan?.shopping_list)return[];
+    if(this.aiShopFilter==='all')return this.aiPlan.shopping_list;
+    return this.aiPlan.shopping_list.filter(i=>i.best_store===this.aiShopFilter||(i.prices&&this.aiShopFilter in i.prices));
+  },
+
   allPresets(){return[...PRESETS,...this.customPresets];},
   activePreset(){return this.allPresets.find(p=>p.id===this.activePresetId)||PRESETS[0];},
   curChecks(){return this.allChecks[this.activePresetId]||{};},
@@ -1335,22 +1454,72 @@ Rules: raw=exactly as printed, name=human readable, weight=pack size or null, pr
 
   skipItem(item){item.skipped=true;},
 
-  // ── AI Meal Plan — direct Claude streaming
+  // ── AI Meal Plan — direct Claude streaming with per-store price comparison
   async generatePlan(){
     if(!this.apiKey){this.showSettings=true;return;}
-    this.aiLoading=true;this.aiStream='';this.aiPlan=null;
+    this.aiLoading=true;this.aiStream='';this.aiPlan=null;this.aiShopFilter='all';
 
-    const SYSTEM=`You are a keto meal planning expert. Generate practical weekly meal plans for someone on a strict ketogenic diet using UK supermarket ingredients (especially Lidl and Tesco). All meals must be <50g carbs/day total, high fat, moderate protein. Keep meals simple — max 5 ingredients, 4 steps. Prefer air fryer cooking. Include exact gram weights. Calculate macros accurately.`;
+    // Build context from user's local price DB so AI can use real prices where known
+    const knownPrices=this.productDb.filter(p=>p.prices?.length).map(p=>`${p.name}: ${p.prices.map(pr=>`${pr.store} £${pr.price}`).join(', ')}`).join('\n');
+
+    const SYSTEM=`You are a UK keto meal planning and grocery shopping expert. You know current UK supermarket prices well, especially Lidl, Aldi, Tesco, and ASDA. Generate practical, realistic keto meal plans using ingredients available at UK discount supermarkets. All meals must be ketogenic (<50g carbs/day total). Prefer air fryer cooking. Use exact gram weights. Calculate macros accurately: protein×4 + fat×9 + carbs×4 = kcal.`;
 
     const USER=`Generate a ${this.aiGoals.days}-day keto meal plan.
-Targets/day: ~${this.aiGoals.calories} kcal, ~${this.aiGoals.protein}g protein, ~${this.aiGoals.fat}g fat, <${this.aiGoals.carbs}g carbs.
-Budget: ~£${this.aiGoals.budget}/week.
 
-Return JSON ONLY:
-{"days":[{"id":"mon","label":"Monday","meals":[{"name":"Meal","type":"Breakfast","ings":[["Ingredient","weight"]],"steps":["Step"],"macros":{"p":30,"f":20,"c":5}}],"daily_macros":{"p":150,"f":130,"c":28,"kcal":1942}}],"shopping_list":[{"name":"Chicken breast","qty":"1.5kg","estimated_price":3.99,"section":"protein"}],"weekly_cost_estimate":52.50,"notes":"Brief summary"}`;
+Daily targets: ~${this.aiGoals.calories} kcal · ~${this.aiGoals.protein}g protein · ~${this.aiGoals.fat}g fat · <${this.aiGoals.carbs}g carbs
+Weekly budget: ~£${this.aiGoals.budget}
+${knownPrices?`\nPrices I already know from my receipts:\n${knownPrices}\n`:''}
+For the shopping list, provide current estimated prices at each of these UK stores: lidl, aldi, tesco, asda.
+Mark which store is cheapest per item. Some items may not be available at all stores — omit those prices.
+Then provide a store recommendation: which single store covers most items cheapest, and if splitting between 2 stores saves significant money.
+
+Return ONLY this JSON structure (no markdown, no explanation):
+{
+  "days": [
+    {
+      "id": "mon",
+      "label": "Monday",
+      "meals": [
+        {
+          "name": "Spinach cheddar omelette",
+          "type": "Breakfast",
+          "ings": [["Eggs","3 (180g)"],["Mature cheddar","30g"]],
+          "steps": ["Beat eggs","Cook in butter"],
+          "macros": {"p":32,"f":25,"c":3}
+        }
+      ],
+      "daily_macros": {"p":155,"f":132,"c":27,"kcal":1952}
+    }
+  ],
+  "shopping_list": [
+    {
+      "name": "Chicken breast",
+      "qty": "1.5kg",
+      "section": "protein",
+      "prices": {"lidl":3.49,"aldi":3.29,"tesco":4.50,"asda":4.20},
+      "best_store": "aldi",
+      "notes": "Buy 2×750g packs at Lidl if Aldi not convenient"
+    }
+  ],
+  "store_comparison": {
+    "lidl": {"total": 48.50},
+    "aldi": {"total": 46.80},
+    "tesco": {"total": 58.30},
+    "asda": {"total": 55.10}
+  },
+  "recommendation": {
+    "primary_store": "aldi",
+    "secondary_store": "tesco",
+    "primary_items": ["chicken breast","eggs","greek yogurt"],
+    "secondary_items": ["salmon","smoked mackerel"],
+    "reasoning": "Aldi covers 85% of your list at lowest prices. Only salmon and smoked mackerel are reliably better at Tesco.",
+    "total_estimated": 50.20
+  },
+  "notes": "Brief plan summary"
+}`;
 
     try{
-      const res=await this.claudeCall([{role:'user',content:USER}],{system:SYSTEM,max_tokens:4096,stream:true});
+      const res=await this.claudeCall([{role:'user',content:USER}],{system:SYSTEM,max_tokens:5000,stream:true});
       const reader=res.body.getReader();
       const dec=new TextDecoder();
       let buf='';
@@ -1373,9 +1542,34 @@ Return JSON ONLY:
           }catch{}
         }
       }
-      // Parse final JSON
+
+      // Parse the completed JSON
       const m=this.aiStream.match(/\{[\s\S]*\}/);
-      if(m)try{this.aiPlan=JSON.parse(m[0]);}catch(e){console.warn('Plan parse:',e);}
+      if(m){
+        try{
+          const plan=JSON.parse(m[0]);
+          // Overlay real prices from local receipt DB onto AI estimates
+          if(plan.shopping_list){
+            plan.shopping_list=plan.shopping_list.map(item=>{
+              const dbMatch=this.productDb.find(p=>p.name.toLowerCase().includes(item.name.toLowerCase().split(' ')[0]));
+              if(dbMatch?.prices?.length){
+                item.real_prices={};
+                dbMatch.prices.forEach(rp=>{
+                  item.real_prices[rp.store]=rp.price;
+                  // Override AI estimate with real price
+                  if(!item.prices)item.prices={};
+                  item.prices[rp.store]=rp.price;
+                });
+                // Recompute best_store with real data
+                const entries=Object.entries(item.prices);
+                if(entries.length)item.best_store=entries.reduce((a,b)=>a[1]<=b[1]?a:b)[0];
+              }
+              return item;
+            });
+          }
+          this.aiPlan=plan;
+        }catch(e){console.warn('Plan JSON parse error:',e);alert('Plan generated but could not be parsed. Try again.');}
+      }
     }catch(e){alert('AI plan failed: '+e.message);}
     finally{this.aiLoading=false;}
   },
