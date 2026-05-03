@@ -1,0 +1,1449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Keto Lidl">
+<meta name="theme-color" content="#15803D">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<title>Keto Cut — Lidl</title>
+<script src="vue.min.js"></script>
+<style>
+:root{
+  --g:#16A34A;--gbg:#F0FDF4;--gd:#15803D;--gdk:#166534;
+  --or:#C2410C;--orbg:#FFF7ED;
+  --bl:#1D4ED8;--blbg:#EFF6FF;
+  --ybg:#FFFBEB;--ybr:#FDE68A;--ytx:#92400E;
+  --bg:#F5F5F0;--card:#fff;--bd:#E5E7EB;--bdl:#F3F4F6;
+  --t1:#111827;--t2:#374151;--t3:#6B7280;--t4:#9CA3AF;
+  --st:env(safe-area-inset-top,0px);--sb:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;background:var(--bg);color:var(--t1);-webkit-text-size-adjust:100%;}
+.hdr{position:sticky;top:0;z-index:100;background:var(--gdk);padding-top:var(--st);}
+.htop{display:flex;align-items:center;justify-content:space-between;padding:12px 16px 8px;}
+.atitle{font-size:17px;font-weight:800;color:#fff;letter-spacing:.04em;}
+.lidl{display:inline-block;font-size:10px;font-weight:700;background:#FFD700;color:#003DA5;border-radius:4px;padding:1px 5px;letter-spacing:.06em;margin-left:6px;vertical-align:middle;margin-bottom:2px;}
+.asub{font-size:11px;color:rgba(255,255,255,.65);margin-top:2px;}
+.mpills{display:flex;gap:5px;}
+.mp{background:rgba(255,255,255,.15);border-radius:8px;padding:4px 8px;text-align:center;min-width:36px;}
+.mpv{font-size:14px;font-weight:700;color:#fff;line-height:1;}
+.mpl{font-size:9px;color:rgba(255,255,255,.65);margin-top:1px;}
+/* Preset selector */
+.psel-row{overflow-x:auto;padding:0 12px 6px;scrollbar-width:none;-webkit-overflow-scrolling:touch;}
+.psel-row::-webkit-scrollbar{display:none;}
+.psel{display:flex;gap:5px;align-items:center;}
+.pselbtn{display:flex;align-items:center;gap:3px;flex-shrink:0;padding:5px 11px;border-radius:20px;background:rgba(255,255,255,.13);color:rgba(255,255,255,.75);font-size:12px;font-weight:500;border:none;cursor:pointer;white-space:nowrap;transition:background .15s,color .15s;}
+.pselbtn.active{background:#fff;color:var(--gdk);font-weight:700;}
+.pselbtn.pnew{background:transparent;border:1px dashed rgba(255,255,255,.35);color:rgba(255,255,255,.6);}
+.pdel{font-size:13px;line-height:1;margin-left:1px;opacity:.55;padding-left:2px;}
+/* Day tabs */
+.tabs{display:flex;overflow-x:auto;padding:0 12px 10px;gap:6px;scrollbar-width:none;-webkit-overflow-scrolling:touch;}
+.tabs::-webkit-scrollbar{display:none;}
+.tab{flex-shrink:0;padding:6px 14px;border-radius:20px;background:rgba(255,255,255,.15);color:rgba(255,255,255,.8);font-size:13px;font-weight:500;border:none;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:5px;transition:background .15s,color .15s;}
+.tab.active{background:#fff;color:var(--gdk);font-weight:700;}
+.cdot{width:5px;height:5px;border-radius:50%;background:#FCD34D;flex-shrink:0;}
+/* Content */
+.con{padding:12px 14px calc(24px + var(--sb));max-width:600px;margin:0 auto;}
+.dlbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--t3);margin-bottom:10px;display:flex;align-items:center;gap:7px;}
+.dlbl::after{content:'';flex:1;height:1px;background:var(--bd);}
+/* Meal card */
+.mc{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:13px 15px;margin-bottom:9px;}
+.mh{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:9px;}
+.mn{font-size:15px;font-weight:600;color:var(--t1);line-height:1.3;flex:1;}
+.mtags{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px;}
+.tag{font-size:10px;font-weight:600;border-radius:4px;padding:2px 6px;}
+.tag-af{background:var(--orbg);color:var(--or);}
+.tag-port{background:var(--gbg);color:var(--gd);}
+.tag-on{background:var(--blbg);color:var(--bl);}
+.mtype{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--t4);flex-shrink:0;padding-top:3px;}
+/* Meal macros row */
+.mmacros{display:flex;gap:8px;margin-bottom:8px;}
+.mmc{font-size:11px;font-weight:600;color:var(--t3);background:var(--bdl);border-radius:5px;padding:2px 7px;}
+.mmc span{color:var(--t1);}
+.ings{border-top:1px solid var(--bdl);}
+.ing{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--bdl);font-size:13px;color:var(--t2);}
+.ing:last-child{border-bottom:none;}
+.iq{font-size:12px;color:var(--t3);flex-shrink:0;margin-left:10px;}
+/* Steps toggle button */
+.sbtn{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:600;color:var(--gd);background:none;border:none;border-top:1px solid var(--bdl);cursor:pointer;padding:8px 0 2px;margin-top:6px;width:100%;}
+.sarr{display:inline-block;font-size:9px;transition:transform .15s;line-height:1;}
+.sbtn.open .sarr{transform:rotate(90deg);}
+.scount{font-weight:400;color:var(--t3);}
+/* Step progress bar — Nielsen #1: Visibility of system status */
+.sprog{height:3px;background:var(--bdl);border-radius:2px;margin:8px 0 4px;overflow:hidden;}
+.sprog-fill{height:100%;background:var(--g);border-radius:2px;transition:width .3s;}
+.sbtn-hint{font-size:11px;font-weight:400;color:var(--t4);margin-left:auto;}
+.sbtn-done{font-size:11px;font-weight:600;color:var(--g);margin-left:auto;}
+/* Steps list */
+.slist{margin-top:4px;}
+/* Each step is tappable — tap to mark done */
+.step{display:flex;gap:10px;align-items:flex-start;padding:7px 6px;border-bottom:1px solid var(--bdl);font-size:13px;color:var(--t2);line-height:1.45;cursor:pointer;border-radius:6px;transition:background .12s;}
+.step:last-child{border-bottom:none;}
+.step:active{background:var(--gbg);}
+/* Active step — the next step to do — visual hierarchy: dominates screen */
+.step.sactive{background:var(--gbg);}
+.step.sactive .sn{background:var(--gd);color:#fff;font-weight:800;}
+.step.sactive>span:last-child{color:var(--t1);font-weight:500;}
+/* Done step — recedes visually (lower in hierarchy) */
+.step.sdone{opacity:.5;}
+.step.sdone .sn{background:var(--g);color:#fff;}
+.step.sdone>span:last-child{text-decoration:line-through;color:var(--t4);}
+.sn{flex-shrink:0;width:20px;height:20px;border-radius:50%;background:var(--gbg);color:var(--gd);font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;margin-top:2px;transition:background .15s,color .15s;}
+/* Shop */
+.shop-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.shop-h{font-size:15px;font-weight:700;color:var(--t1);}
+.btn-clear{font-size:12px;font-weight:600;color:var(--gd);background:var(--gbg);border:none;border-radius:8px;padding:6px 12px;cursor:pointer;}
+.slbl{display:flex;align-items:center;gap:7px;margin:14px 0 6px;}
+.sdot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.stxt{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--t3);}
+.srow{margin-bottom:5px;}
+.si{display:flex;align-items:center;gap:11px;padding:10px 12px;background:var(--card);border:1px solid var(--bd);border-radius:11px;cursor:pointer;user-select:none;transition:opacity .2s;min-height:50px;}
+.si.checked{opacity:.4;}
+.si.checked .iname{text-decoration:line-through;color:var(--t3);}
+.si.editing{border-radius:11px 11px 0 0;border-bottom-color:transparent;}
+.chk{width:23px;height:23px;border-radius:50%;border:2px solid var(--bd);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:border-color .15s,background .15s;background:#fff;}
+.si.checked .chk{border-color:var(--g);background:var(--g);}
+.chk svg{display:none;}.si.checked .chk svg{display:block;}
+.ibody{flex:1;min-width:0;}
+.iname{font-size:14px;color:var(--t1);line-height:1.3;}
+.imeta{display:flex;align-items:center;gap:8px;margin-top:2px;flex-wrap:wrap;}
+.iqty{font-size:12px;color:var(--t3);}
+.ipr{font-size:12px;color:var(--t4);}
+.opt{font-size:10px;background:var(--bdl);color:var(--t3);border-radius:4px;padding:1px 5px;font-weight:500;}
+.edbtn{flex-shrink:0;background:none;border:none;cursor:pointer;padding:6px 4px;color:var(--t4);display:flex;align-items:center;}
+/* Edit panel */
+.ep{background:#F9FAFB;border:1px solid var(--bd);border-top:none;border-radius:0 0 11px 11px;padding:10px 12px;margin-bottom:5px;}
+.ep input{font-family:inherit;font-size:13px;border:1px solid var(--bd);border-radius:8px;padding:7px 10px;color:var(--t1);background:#fff;outline:none;-webkit-appearance:none;width:100%;}
+.ep input:focus{border-color:var(--g);}
+.ep-n{margin-bottom:6px;}
+.ep-row{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px;}
+.ep-btns{display:flex;gap:6px;justify-content:flex-end;}
+.ep-rst{font-size:12px;font-weight:500;background:none;border:1px solid var(--bd);color:var(--t3);border-radius:8px;padding:6px 10px;cursor:pointer;margin-right:auto;}
+.ep-can{font-size:12px;font-weight:500;background:var(--bdl);color:var(--t3);border:none;border-radius:8px;padding:6px 12px;cursor:pointer;}
+.ep-sav{font-size:12px;font-weight:700;background:var(--g);color:#fff;border:none;border-radius:8px;padding:6px 14px;cursor:pointer;}
+/* Totals */
+.tots{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px;}
+.totc{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:12px 14px;}
+.totl{font-size:11px;color:var(--t3);margin-bottom:3px;}
+.totv{font-size:22px;font-weight:800;color:var(--t1);}
+.totn{font-size:11px;color:var(--t4);font-style:italic;text-align:center;margin-top:8px;line-height:1.45;}
+/* Restock */
+.rsc{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:13px 15px;margin-bottom:9px;}
+.rsh{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--t3);margin-bottom:9px;}
+.rsr{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--bdl);font-size:13px;gap:8px;}
+.rsr:last-child{border-bottom:none;}
+.rsn{color:var(--t2);flex:1;}.rsf{font-size:12px;color:var(--t4);flex-shrink:0;}
+.sdiv{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--t3);display:flex;align-items:center;gap:8px;margin:18px 0 10px;}
+.sdiv::after{content:'';flex:1;height:1px;background:var(--bd);}
+/* Modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px;}
+.modal{background:#fff;border-radius:18px;padding:22px 20px;width:100%;max-width:340px;}
+.modal-title{font-size:17px;font-weight:700;color:var(--t1);margin-bottom:14px;}
+.modal-input{font-family:inherit;font-size:14px;border:1px solid var(--bd);border-radius:10px;padding:10px 12px;color:var(--t1);outline:none;width:100%;margin-bottom:12px;-webkit-appearance:none;display:block;}
+.modal-input:focus{border-color:var(--g);}
+.modal-lbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--t3);margin-bottom:8px;}
+.modal-opts{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px;}
+.modal-opt{font-size:12px;font-weight:500;padding:6px 12px;border-radius:8px;border:1px solid var(--bd);background:#fff;color:var(--t2);cursor:pointer;}
+.modal-opt.active{background:var(--gbg);border-color:var(--g);color:var(--gd);font-weight:700;}
+.modal-btns{display:flex;gap:8px;justify-content:flex-end;}
+.modal-can{font-size:13px;font-weight:500;background:var(--bdl);color:var(--t3);border:none;border-radius:10px;padding:9px 16px;cursor:pointer;}
+.modal-cre{font-size:13px;font-weight:700;background:var(--g);color:#fff;border:none;border-radius:10px;padding:9px 18px;cursor:pointer;}
+/* Add/remove meals */
+.meal-del{background:none;border:none;color:var(--t4);cursor:pointer;font-size:17px;line-height:1;padding:0 3px;flex-shrink:0;margin-left:4px;transition:color .15s;}
+.meal-del:hover{color:#EF4444;}
+.add-btn{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:9px 14px;background:transparent;border:1px dashed var(--bd);border-radius:11px;color:var(--t3);font-size:13px;font-weight:500;cursor:pointer;margin-bottom:12px;transition:border-color .15s,color .15s;}
+.add-btn:hover{border-color:var(--g);color:var(--gd);}
+.ep-del{font-size:12px;font-weight:500;background:none;border:1px solid #FCA5A5;color:#EF4444;border-radius:8px;padding:6px 10px;cursor:pointer;}
+/* Section editor */
+.sec-edt-icon{background:none;border:none;color:var(--t4);cursor:pointer;font-size:13px;margin-left:auto;padding:2px 6px;line-height:1;border-radius:5px;transition:color .15s;}
+.sec-edt-icon:hover{color:var(--gd);}
+.sec-editor{background:#F9FAFB;border:1px solid var(--bd);border-radius:10px;padding:10px 12px;margin-bottom:8px;}
+.sec-ed-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.sec-ed-row input[type=text]{font-family:inherit;font-size:13px;border:1px solid var(--bd);border-radius:8px;padding:7px 10px;flex:1;outline:none;-webkit-appearance:none;color:var(--t1);}
+.sec-ed-row input[type=text]:focus{border-color:var(--g);}
+.sec-color-pick{width:36px;height:36px;border:1px solid var(--bd);border-radius:8px;padding:2px;cursor:pointer;background:#fff;flex-shrink:0;}
+.sec-edt-btns{display:flex;gap:6px;justify-content:flex-end;}
+.sec-del{font-size:12px;font-weight:500;background:none;border:1px solid #FCA5A5;color:#EF4444;border-radius:8px;padding:6px 10px;cursor:pointer;margin-right:auto;}
+.sec-can{font-size:12px;font-weight:500;background:var(--bdl);color:var(--t3);border:none;border-radius:8px;padding:6px 12px;cursor:pointer;}
+.sec-sav{font-size:12px;font-weight:700;background:var(--g);color:#fff;border:none;border-radius:8px;padding:6px 14px;cursor:pointer;}
+/* Tall scrollable modal */
+.modal.tall{max-height:88vh;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+.mf-lbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--t3);margin-bottom:6px;}
+.mf-types{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px;}
+.mf-type{font-size:12px;font-weight:500;padding:5px 10px;border-radius:8px;border:1px solid var(--bd);background:#fff;color:var(--t2);cursor:pointer;}
+.mf-type.active{background:var(--gbg);border-color:var(--g);color:var(--gd);font-weight:700;}
+.mf-tags{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px;}
+.mf-tag{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--t2);cursor:pointer;}
+.mf-ing-row{display:grid;grid-template-columns:1fr .55fr auto;gap:5px;margin-bottom:5px;}
+.mf-ing-row input,.mf-step-row input{font-family:inherit;font-size:13px;border:1px solid var(--bd);border-radius:8px;padding:7px 9px;width:100%;outline:none;-webkit-appearance:none;color:var(--t1);}
+.mf-ing-row input:focus,.mf-step-row input:focus{border-color:var(--g);}
+.mf-step-row{display:grid;grid-template-columns:20px 1fr auto;gap:6px;margin-bottom:5px;align-items:center;}
+.mf-del-row{background:none;border:none;color:var(--t4);font-size:17px;cursor:pointer;padding:0 4px;line-height:1;}
+.mf-add-row{font-size:12px;font-weight:600;color:var(--gd);background:none;border:none;cursor:pointer;padding:4px 0;display:flex;align-items:center;gap:4px;}
+.mf-sel{width:100%;font-family:inherit;font-size:13px;border:1px solid var(--bd);border-radius:8px;padding:8px 10px;color:var(--t1);background:#fff;outline:none;-webkit-appearance:none;margin-bottom:10px;}
+/* ── Undo toast — Nielsen #3: User control & freedom */
+.toast-wrap{position:fixed;bottom:calc(20px + var(--sb));left:50%;transform:translateX(-50%);z-index:300;pointer-events:none;}
+.toast{background:#1F2937;color:#fff;border-radius:12px;padding:10px 16px;font-size:13px;font-weight:500;display:flex;align-items:center;gap:12px;white-space:nowrap;opacity:0;transform:translateY(10px);transition:opacity .2s,transform .2s;pointer-events:none;box-shadow:0 4px 20px rgba(0,0,0,.25);}
+.toast.show{opacity:1;transform:translateY(0);pointer-events:auto;}
+.toast-undo{font-size:13px;font-weight:700;color:#86EFAC;background:none;border:none;cursor:pointer;padding:0;line-height:1;}
+/* ── Scan tab */
+.scan-hero{background:var(--gdk);border-radius:14px;padding:20px 18px;margin-bottom:14px;color:#fff;text-align:center;}
+.scan-hero-title{font-size:17px;font-weight:800;margin-bottom:6px;}
+.scan-hero-sub{font-size:13px;opacity:.75;margin-bottom:16px;}
+.scan-upload-btn{display:inline-flex;align-items:center;gap:8px;background:#fff;color:var(--gdk);font-size:14px;font-weight:700;border:none;border-radius:12px;padding:11px 22px;cursor:pointer;}
+.scan-upload-btn:active{opacity:.85;}
+.scan-input{display:none;}
+.scan-preview{width:100%;max-height:220px;object-fit:cover;border-radius:12px;margin-bottom:12px;display:block;}
+.scan-processing{text-align:center;padding:24px;color:var(--t3);font-size:14px;}
+.scan-spinner{width:28px;height:28px;border:3px solid var(--bdl);border-top-color:var(--g);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 10px;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.scan-result-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.scan-store-badge{font-size:12px;font-weight:700;background:var(--gbg);color:var(--gd);border-radius:8px;padding:4px 10px;}
+.scan-total{font-size:12px;color:var(--t3);}
+.scan-item{background:var(--card);border:1px solid var(--bd);border-radius:11px;padding:11px 13px;margin-bottom:7px;}
+.scan-item-top{display:flex;align-items:flex-start;gap:10px;}
+.scan-item-name{flex:1;}
+.scan-item-raw{font-size:10px;color:var(--t4);font-family:monospace;}
+.scan-item-interpreted{font-size:14px;font-weight:600;color:var(--t1);}
+.scan-item-price{font-size:14px;font-weight:700;color:var(--gd);flex-shrink:0;}
+.scan-item-macros{margin-top:6px;display:flex;gap:6px;flex-wrap:wrap;}
+.scan-macro-pill{font-size:10px;font-weight:600;border-radius:5px;padding:2px 7px;background:var(--gbg);color:var(--gd);}
+.scan-macro-pill.low{background:var(--ybg);color:var(--ytx);}
+.scan-item-actions{margin-top:8px;display:flex;gap:6px;}
+.scan-btn-confirm{font-size:12px;font-weight:700;background:var(--g);color:#fff;border:none;border-radius:8px;padding:6px 14px;cursor:pointer;}
+.scan-btn-skip{font-size:12px;font-weight:500;background:var(--bdl);color:var(--t3);border:none;border-radius:8px;padding:6px 12px;cursor:pointer;}
+.scan-btn-match{font-size:12px;font-weight:600;background:var(--blbg);color:var(--bl);border:none;border-radius:8px;padding:6px 12px;cursor:pointer;}
+.conf-dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:4px;}
+.conf-high{background:#16A34A;}.conf-medium{background:#D97706;}.conf-low{background:#EF4444;}
+.scan-summary{background:var(--gbg);border-radius:12px;padding:14px 16px;margin-top:12px;font-size:13px;color:var(--gd);font-weight:600;text-align:center;}
+/* ── AI Meal Plan generation */
+.ai-panel{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:16px;margin-bottom:12px;}
+.ai-panel-title{font-size:14px;font-weight:700;color:var(--t1);margin-bottom:12px;display:flex;align-items:center;gap:7px;}
+.ai-panel-title::before{content:'✦';color:var(--gd);}
+.ai-inputs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
+.ai-inp-group{display:flex;flex-direction:column;gap:4px;}
+.ai-inp-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--t3);}
+.ai-inp{font-family:inherit;font-size:14px;border:1px solid var(--bd);border-radius:8px;padding:8px 10px;color:var(--t1);background:#fff;outline:none;-webkit-appearance:none;width:100%;}
+.ai-inp:focus{border-color:var(--g);}
+.ai-generate-btn{width:100%;padding:12px;background:var(--gdk);color:#fff;font-size:14px;font-weight:700;border:none;border-radius:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;}
+.ai-generate-btn:disabled{opacity:.5;cursor:not-allowed;}
+.ai-stream{background:var(--bdl);border-radius:10px;padding:12px 14px;font-size:12px;color:var(--t2);margin-top:10px;max-height:200px;overflow-y:auto;font-family:monospace;white-space:pre-wrap;display:none;}
+.ai-stream.active{display:block;}
+.ai-plan-ready{background:var(--gbg);border-radius:10px;padding:13px 15px;margin-top:10px;font-size:13px;color:var(--gd);font-weight:600;}
+/* ── Price refresh */
+.ipr-live{font-size:11px;color:var(--gd);font-weight:600;}
+.ipr-stale{font-size:11px;color:var(--ytx);}
+.price-refresh-btn{background:none;border:none;font-size:11px;color:var(--bl);cursor:pointer;padding:0;text-decoration:underline;}
+/* ── Settings */
+.settings-btn{background:rgba(255,255,255,.15);border:none;border-radius:8px;padding:6px 10px;color:#fff;font-size:13px;cursor:pointer;}
+.settings-btn.has-key{background:rgba(134,239,172,.2);color:#86EFAC;}
+.modal-sub{font-size:12px;color:var(--t3);margin-bottom:12px;line-height:1.5;}
+.api-key-inp{font-family:monospace;font-size:12px;border:1px solid var(--bd);border-radius:10px;padding:10px 12px;width:100%;margin-bottom:12px;outline:none;color:var(--t1);-webkit-appearance:none;}
+.api-key-inp:focus{border-color:var(--g);}
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- ── Semantic <header> tag (HTML5 sectioning element) -->
+<header class="hdr">
+  <div class="htop">
+    <div>
+      <div class="atitle">KETO CUT <span class="lidl">LIDL</span></div>
+      <!-- Dynamic subtitle — computed from calculateDailyMacros() -->
+      <div class="asub">{{ activePreset.name }} · {{ dynamicSubtitle }}</div>
+    </div>
+    <!-- Macro pills — now driven by calculateDailyMacros(), not hardcoded -->
+    <div class="mpills" v-if="activeTab!=='shop'">
+      <div class="mp"><div class="mpv">{{ currentDayMacros.p }}</div><div class="mpl">P</div></div>
+      <div class="mp"><div class="mpv">{{ currentDayMacros.f }}</div><div class="mpl">F</div></div>
+      <div class="mp"><div class="mpv">{{ currentDayMacros.c }}</div><div class="mpl">C</div></div>
+    </div>
+    <div class="mpills" v-else>
+      <div class="mp"><div class="mpv" style="font-size:10px;line-height:1.4">SHOP</div></div>
+    </div>
+  </div>
+  <!-- ── <nav> for plan presets (semantic navigation landmark) -->
+  <nav class="psel-row" aria-label="Meal plans">
+    <div class="psel">
+      <button v-for="p in allPresets" :key="p.id" :class="['pselbtn',{active:p.id===activePresetId}]" @click="switchPreset(p.id)">
+        {{ p.name }}<span v-if="!p.builtin" class="pdel" @click.stop="deletePreset(p.id)">×</span>
+      </button>
+      <button class="pselbtn pnew" @click="openNewModal">+ New plan</button>
+    </div>
+  </nav>
+  <!-- ── <nav> for day tabs (semantic navigation landmark) -->
+  <nav class="tabs" aria-label="Day navigation">
+    <button v-for="d in activeDays" :key="d.id" :class="['tab',{active:activeTab===d.id}]" @click="activeTab=d.id">
+      {{ d.short }}<span v-if="d.dot" class="cdot"></span>
+    </button>
+    <button :class="['tab',{active:activeTab==='shop'}]" @click="activeTab='shop'">🛒 Shop</button>
+    <button :class="['tab',{active:activeTab==='scan'}]" @click="activeTab='scan'">📷 Scan</button>
+    <button :class="['tab',{active:activeTab==='aiplan'}]" @click="activeTab='aiplan'">✦ AI Plan</button>
+  </nav>
+  <div style="padding:0 12px 8px;display:flex;justify-content:flex-end;">
+    <button :class="['settings-btn',{['has-key']:!!apiKey}]" @click="showSettings=true">
+      {{ apiKey ? '✓ API key set' : '⚙ Set API key' }}
+    </button>
+  </div>
+</header>
+
+<!-- ── Semantic <main> tag (primary page content) -->
+<main class="con">
+  <template v-for="d in activeDays" :key="d.id">
+    <div v-show="activeTab===d.id">
+      <div class="dlbl">{{ d.label }}</div>
+      <!-- ── Each meal card is semantically an <article> (self-contained content) -->
+      <article v-for="m in d.meals" :key="m._uid" class="mc">
+        <div class="mh">
+          <div style="flex:1">
+            <div class="mn">{{ m.name }}</div>
+            <div v-if="m.afr||m.port||m.on" class="mtags">
+              <span v-if="m.afr" class="tag tag-af">Air fryer</span>
+              <span v-if="m.port" class="tag tag-port">Portable</span>
+              <span v-if="m.on" class="tag tag-on">ON Protein</span>
+            </div>
+          </div>
+          <div class="mtype">{{ m.type }}</div>
+          <!-- aria-label makes icon-only button accessible to screen readers -->
+          <button class="meal-del" @click.stop="removeMealWithUndo(m._uid)" title="Remove meal" aria-label="Remove meal">×</button>
+        </div>
+        <!-- Per-meal macro summary row — functional requirement: display macros -->
+        <div v-if="m.macros && (m.macros.p||m.macros.f||m.macros.c)" class="mmacros">
+          <span class="mmc"><span>{{ m.macros.p }}</span>g P</span>
+          <span class="mmc"><span>{{ m.macros.f }}</span>g F</span>
+          <span class="mmc"><span>{{ m.macros.c }}</span>g C</span>
+          <span class="mmc" style="margin-left:auto">≈<span>{{ mealKcal(m) }}</span> kcal</span>
+        </div>
+        <div class="ings">
+          <div v-for="ing in m.ings" :key="ing[0]" class="ing">{{ ing[0] }}<span class="iq">{{ ing[1] }}</span></div>
+        </div>
+        <!-- Steps toggle — shows X/total count (Nielsen #1: Visibility of system status) -->
+        <button :class="['sbtn',{open:stepsOpen[m._uid]}]" @click="toggleSteps(m._uid)">
+          <span class="sarr">▶</span> Steps
+          <span class="scount">· {{ stepsDone(m._uid) }}/{{ m.steps.length }}</span>
+          <span v-if="allStepsDone(m._uid,m.steps.length)" class="sbtn-done">✓ Done</span>
+          <span v-else-if="stepsOpen[m._uid]" class="sbtn-hint">tap to mark done</span>
+        </button>
+        <div v-show="stepsOpen[m._uid]" class="slist">
+          <!-- Progress bar: width% = (done / total) * 100 — arithmetic operator -->
+          <div class="sprog"><div class="sprog-fill" :style="{width:stepProgress(m._uid,m.steps.length)+'%'}"></div></div>
+          <!-- Each step is tappable — toggles done/undone state -->
+          <div v-for="(s,i) in m.steps" :key="i"
+               :class="['step',{sdone:isStepDone(m._uid,i),sactive:isStepActive(m._uid,i,m.steps.length)}]"
+               @click="toggleStep(m._uid,i)"
+               :aria-label="'Step '+(i+1)+': '+s">
+            <span class="sn">{{ isStepDone(m._uid,i)?'✓':i+1 }}</span>
+            <span>{{ s }}</span>
+          </div>
+        </div>
+      </article>
+      <button class="add-btn" @click="openAddMeal(d.id)">+ Add meal to {{ d.short }}</button>
+    </div>
+  </template>
+
+  <!-- ── Scan Receipt tab -->
+  <div v-show="activeTab==='scan'">
+    <div class="scan-hero">
+      <div class="scan-hero-title">Scan a Receipt</div>
+      <div class="scan-hero-sub">Works with Lidl, Aldi, Tesco — any store. Prices and macros saved automatically.</div>
+      <label class="scan-upload-btn">
+        📷 Take photo or upload
+        <input class="scan-input" type="file" accept="image/*" capture="environment" @change="onReceiptFile">
+      </label>
+    </div>
+
+    <img v-if="scanPreview" :src="scanPreview" class="scan-preview" alt="Receipt preview">
+
+    <div v-if="scanLoading" class="scan-processing">
+      <div class="scan-spinner"></div>
+      Reading receipt with AI…
+    </div>
+
+    <template v-if="scanResult">
+      <div class="scan-result-header">
+        <span class="scan-store-badge">{{ scanResult.store || 'Unknown store' }}</span>
+        <span class="scan-total">{{ scanResult.date }} · Total {{ scanResult.total ? '£'+scanResult.total.toFixed(2) : '' }}</span>
+      </div>
+
+      <div v-for="(item, idx) in scanResult.items" :key="idx" class="scan-item" v-if="!item.skipped">
+        <div class="scan-item-top">
+          <div class="scan-item-name">
+            <div class="scan-item-raw">{{ item.raw }}</div>
+            <div class="scan-item-interpreted">{{ item.name }}</div>
+            <div v-if="item.weight" style="font-size:11px;color:var(--t3);margin-top:1px">{{ item.weight }}</div>
+          </div>
+          <div class="scan-item-price">£{{ item.price?.toFixed(2) }}</div>
+        </div>
+
+        <div class="scan-item-macros" v-if="item.product">
+          <span class="conf-dot" :class="'conf-'+item.nutrition_confidence"></span>
+          <span class="scan-macro-pill" v-if="item.product.calories">{{ item.product.calories }} kcal</span>
+          <span class="scan-macro-pill">{{ item.product.protein }}g P</span>
+          <span class="scan-macro-pill">{{ item.product.fat }}g F</span>
+          <span class="scan-macro-pill" :class="{low: item.product.carbs > 5}">{{ item.product.carbs }}g C</span>
+          <span style="font-size:10px;color:var(--t3);margin-left:4px">per 100g</span>
+        </div>
+        <div v-else-if="item.matchLoading" style="font-size:12px;color:var(--t3);margin-top:6px">Finding nutritional data…</div>
+        <div v-else style="font-size:12px;color:var(--ytx);margin-top:6px">
+          Nutrition not found
+          <button class="price-refresh-btn" @click="matchNutrition(item)">match manually</button>
+        </div>
+
+        <div class="scan-item-actions">
+          <button class="scan-btn-confirm" @click="confirmItem(item, idx)" :disabled="item.confirmed">
+            {{ item.confirmed ? '✓ Saved' : 'Save to DB' }}
+          </button>
+          <button class="scan-btn-skip" @click="skipItem(item, idx)">Skip</button>
+        </div>
+      </div>
+
+      <div v-if="scanResult.items.filter(i=>!i.skipped && !i.confirmed).length === 0" class="scan-summary">
+        ✓ All items processed — prices and nutrition saved to your database
+      </div>
+    </template>
+
+    <div v-if="!scanLoading && !scanResult" style="padding:20px 0;text-align:center;color:var(--t3);font-size:13px;">
+      Tap the button above to scan a Lidl Plus receipt, a Tesco receipt, or any supermarket receipt.
+      <br><br>Prices and nutritional data are saved to your personal database and shared to help other keto shoppers.
+    </div>
+  </div>
+
+  <!-- ── AI Meal Plan tab -->
+  <div v-show="activeTab==='aiplan'">
+    <div class="ai-panel">
+      <div class="ai-panel-title">Generate a Keto Meal Plan</div>
+      <div class="ai-inputs">
+        <div class="ai-inp-group">
+          <label class="ai-inp-label">Calories / day</label>
+          <input class="ai-inp" type="number" v-model.number="aiGoals.calories" placeholder="2000">
+        </div>
+        <div class="ai-inp-group">
+          <label class="ai-inp-label">Protein (g)</label>
+          <input class="ai-inp" type="number" v-model.number="aiGoals.protein" placeholder="150">
+        </div>
+        <div class="ai-inp-group">
+          <label class="ai-inp-label">Fat (g)</label>
+          <input class="ai-inp" type="number" v-model.number="aiGoals.fat" placeholder="130">
+        </div>
+        <div class="ai-inp-group">
+          <label class="ai-inp-label">Max carbs (g)</label>
+          <input class="ai-inp" type="number" v-model.number="aiGoals.carbs" placeholder="30">
+        </div>
+        <div class="ai-inp-group">
+          <label class="ai-inp-label">Budget (£/week)</label>
+          <input class="ai-inp" type="number" v-model.number="aiGoals.budget" placeholder="60">
+        </div>
+        <div class="ai-inp-group">
+          <label class="ai-inp-label">Days</label>
+          <input class="ai-inp" type="number" v-model.number="aiGoals.days" min="1" max="7" placeholder="7">
+        </div>
+      </div>
+      <button class="ai-generate-btn" @click="generatePlan" :disabled="aiLoading">
+        <span v-if="aiLoading" class="scan-spinner" style="width:16px;height:16px;border-width:2px;margin:0"></span>
+        {{ aiLoading ? 'Generating…' : '✦ Generate plan with AI' }}
+      </button>
+      <div class="ai-stream" :class="{active: aiLoading || aiStream}" ref="aiStreamEl">{{ aiStream }}</div>
+    </div>
+
+    <div v-if="aiPlan" class="ai-plan-ready" @click="importAiPlan">
+      ✓ Plan ready — {{ aiPlan.days?.length }} days, estimated £{{ aiPlan.weekly_cost_estimate?.toFixed(2) }}<br>
+      <span style="font-size:12px;font-weight:500;opacity:.8">Tap to import as a new meal plan preset</span>
+    </div>
+
+    <div v-if="aiPlan?.shopping_list?.length">
+      <div class="sdiv" style="margin-top:16px">AI Shopping List</div>
+      <div v-for="item in aiPlan.shopping_list" :key="item.name" class="si" style="margin-bottom:6px">
+        <div class="ibody">
+          <div class="iname">{{ item.name }}</div>
+          <div class="imeta">
+            <span class="iqty">{{ item.qty }}</span>
+            <span class="ipr">~£{{ item.estimated_price?.toFixed(2) }}</span>
+            <span class="opt">{{ item.section }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div v-if="aiPlan?.notes" style="font-size:12px;color:var(--t3);margin-top:14px;line-height:1.6;padding:0 4px">
+      {{ aiPlan.notes }}
+    </div>
+  </div>
+
+  <div v-show="activeTab==='shop'">
+    <div class="shop-top">
+      <div class="shop-h">{{ activePreset.name }}</div>
+      <button v-show="hasChecked" class="btn-clear" @click="clearChecked">Clear checked</button>
+    </div>
+
+    <template v-for="sec in activeSections" :key="sec.key">
+      <div class="slbl"><span class="sdot" :style="{background:sec.color}"></span><span class="stxt">{{ sec.name }}</span><button class="sec-edt-icon" @click.stop="openSectionEdit(sec.key)" title="Edit category" aria-label="Edit category">✎</button></div>
+      <div v-if="editingSection===sec.key" class="sec-editor">
+        <div class="sec-ed-row">
+          <input type="text" v-model="secEditName" placeholder="Category name">
+          <input type="color" class="sec-color-pick" v-model="secEditColor">
+        </div>
+        <div class="sec-edt-btns">
+          <button class="sec-del" @click="deleteSection(sec.key)">Delete</button>
+          <button class="sec-can" @click="editingSection=null">Cancel</button>
+          <button class="sec-sav" @click="saveSection(sec.key)">Save</button>
+        </div>
+      </div>
+      <div v-for="item in sectionItems(sec.key)" :key="item.id" class="srow">
+        <div :class="['si',{checked:isChecked(item.id),editing:editingId===item.id}]" @click="toggleItem(item.id)">
+          <div class="chk"><svg width="12" height="10" viewBox="0 0 12 10" fill="none"><path d="M1 5l3.5 3.5L11 1" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div class="ibody">
+            <div class="iname">{{ getEd(item.id,'name') || item.name }}</div>
+            <div class="imeta">
+              <span class="iqty">{{ getEd(item.id,'qty') || item.qty }}</span>
+              <span class="ipr">{{ getEd(item.id,'price') || fmtP(item.price) }}</span>
+              <span v-if="item.optional" class="opt">optional</span>
+            </div>
+          </div>
+          <button class="edbtn" @click.stop="openEdit(item)" aria-label="Edit item"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M16 3l5 5L7 21H3v-4L16 3z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        </div>
+        <div v-show="editingId===item.id" class="ep">
+          <div class="ep-n"><input class="ep-ni" type="text" v-model="editName" placeholder="Item name"></div>
+          <div class="ep-row"><input class="ep-qi" type="text" v-model="editQty" placeholder="Qty"><input class="ep-pi" type="text" v-model="editPrice" placeholder="Price"></div>
+          <div class="ep-btns">
+            <!-- Nielsen #5: confirm in removeItem() prevents accidental deletion -->
+            <button class="ep-del" @click.stop="removeItem(item.id)">Delete</button>
+            <button class="ep-rst" @click.stop="resetEdit(item.id)">Reset</button>
+            <button class="ep-can" @click.stop="cancelEdit">Cancel</button>
+            <button class="ep-sav" @click.stop="saveEdit(item.id)">Save</button>
+          </div>
+        </div>
+      </div>
+    </template>
+
+    <div v-if="showAddSection" class="sec-editor">
+      <div class="sec-ed-row">
+        <input type="text" v-model="newSecName" placeholder="Category name (e.g. Deli)">
+        <input type="color" class="sec-color-pick" v-model="newSecColor">
+      </div>
+      <div class="sec-edt-btns">
+        <button class="sec-can" @click="showAddSection=false">Cancel</button>
+        <button class="sec-sav" @click="submitAddSection">Add</button>
+      </div>
+    </div>
+    <button v-else class="add-btn" style="margin-bottom:6px" @click="openAddSection">+ Add category</button>
+    <button class="add-btn" @click="openAddItem">+ Add item</button>
+
+    <div class="tots">
+      <div class="totc"><div class="totl">Essentials only</div><div class="totv">{{ essTotal }}</div></div>
+      <div class="totc"><div class="totl">With all optionals</div><div class="totv">{{ allTotal }}</div></div>
+    </div>
+    <p class="totn">Real weekly cost once pantry stocked · ON protein bought separately</p>
+    <div class="sdiv">Restock Guide</div>
+    <div class="rsc">
+      <div class="rsh">How often to reorder</div>
+      <div class="rsr"><span class="rsn">ON Gold Standard Hydro 1.6kg</span><span class="rsf">every ~4.5 wks</span></div>
+      <div class="rsr"><span class="rsn">ON Gold Standard Isolate 930g</span><span class="rsf">every ~2.5 wks</span></div>
+      <div class="rsr"><span class="rsn">Butter 250g block</span><span class="rsf">every ~2 wks</span></div>
+      <div class="rsr"><span class="rsn">Olive oil 500ml</span><span class="rsf">every ~3 wks</span></div>
+      <div class="rsr"><span class="rsn">Frozen berries 500g</span><span class="rsf">every ~2.5 wks</span></div>
+      <div class="rsr"><span class="rsn">Chia seeds / nuts mix</span><span class="rsf">every ~8 wks</span></div>
+      <div class="rsr"><span class="rsn">Dark chocolate 100g bar</span><span class="rsf">every ~7 wks</span></div>
+    </div>
+  </div>
+</main>
+
+<!-- ── Undo toast — Nielsen #3: User control & freedom -->
+<div class="toast-wrap">
+  <div :class="['toast',{show:toast.show}]">
+    {{ toast.msg }}
+    <button class="toast-undo" @click="undoLastRemove">Undo</button>
+  </div>
+</div>
+
+<!-- ── New plan modal -->
+<div v-if="showNewModal" class="modal-overlay" @click.self="showNewModal=false">
+  <div class="modal">
+    <div class="modal-title">New Plan</div>
+    <input class="modal-input" v-model="newName" placeholder="Plan name (e.g. Week 3)" @keyup.enter="createPreset">
+    <div class="modal-lbl">Copy shopping list from</div>
+    <div class="modal-opts">
+      <button v-for="p in allPresets" :key="p.id" :class="['modal-opt',{active:newBase===p.id}]" @click="newBase=p.id">{{ p.name }}</button>
+    </div>
+    <div class="modal-btns">
+      <button class="modal-can" @click="showNewModal=false">Cancel</button>
+      <button class="modal-cre" @click="createPreset">Create</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Add meal modal -->
+<div v-if="showAddMeal" class="modal-overlay" @click.self="showAddMeal=false">
+  <div class="modal tall">
+    <div class="modal-title">Add meal · {{ addMealDayLabel }}</div>
+    <div class="mf-lbl">Meal name</div>
+    <input class="modal-input" v-model="newMeal.name" placeholder="e.g. Garlic butter wings">
+    <div class="mf-lbl">Type</div>
+    <div class="mf-types">
+      <button v-for="t in ['Breakfast','Lunch','Dinner','Snack','Evening']" :key="t" :class="['mf-type',{active:newMeal.type===t}]" @click="newMeal.type=t">{{ t }}</button>
+    </div>
+    <div class="mf-lbl">Tags</div>
+    <div class="mf-tags">
+      <label class="mf-tag"><input type="checkbox" v-model="newMeal.afr"> Air fryer</label>
+      <label class="mf-tag"><input type="checkbox" v-model="newMeal.port"> Portable</label>
+      <label class="mf-tag"><input type="checkbox" v-model="newMeal.on"> ON Protein</label>
+    </div>
+    <div class="mf-lbl">Ingredients</div>
+    <div v-for="(row,i) in newIngRows" :key="i" class="mf-ing-row">
+      <input type="text" v-model="newIngRows[i][0]" placeholder="Ingredient">
+      <input type="text" v-model="newIngRows[i][1]" placeholder="Qty">
+      <button class="mf-del-row" @click="newIngRows.splice(i,1)">×</button>
+    </div>
+    <button class="mf-add-row" @click="newIngRows.push(['',''])">+ ingredient</button>
+    <div class="mf-lbl" style="margin-top:10px">Steps</div>
+    <div v-for="(s,i) in newStepRows" :key="i" class="mf-step-row">
+      <span class="sn">{{ i+1 }}</span>
+      <input type="text" v-model="newStepRows[i]" placeholder="Step description">
+      <button class="mf-del-row" @click="newStepRows.splice(i,1)">×</button>
+    </div>
+    <button class="mf-add-row" @click="newStepRows.push('')">+ step</button>
+    <div class="modal-btns" style="margin-top:16px">
+      <button class="modal-can" @click="showAddMeal=false">Cancel</button>
+      <button class="modal-cre" @click="submitAddMeal">Add meal</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Add item modal -->
+<div v-if="showAddItem" class="modal-overlay" @click.self="showAddItem=false">
+  <div class="modal">
+    <div class="modal-title">Add item</div>
+    <input class="modal-input" v-model="newItem.name" placeholder="Item name">
+    <div class="ep-row" style="margin-bottom:10px">
+      <input class="modal-input" style="margin-bottom:0" v-model="newItem.qty" placeholder="Qty (e.g. 500g)">
+      <input class="modal-input" style="margin-bottom:0" v-model="newItem.price" placeholder="Price (e.g. 1.99)">
+    </div>
+    <div class="mf-lbl">Section</div>
+    <select class="mf-sel" v-model="newItem.section">
+      <option v-for="s in activeSections" :key="s.key" :value="s.key">{{ s.name }}</option>
+    </select>
+    <label class="mf-tag" style="margin-bottom:16px">
+      <input type="checkbox" v-model="newItem.optional"> Optional item
+    </label>
+    <div class="modal-btns">
+      <button class="modal-can" @click="showAddItem=false">Cancel</button>
+      <button class="modal-cre" @click="submitAddItem">Add item</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Settings modal -->
+<div v-if="showSettings" class="modal-overlay" @click.self="showSettings=false">
+  <div class="modal">
+    <div class="modal-title">AI Settings</div>
+    <p class="modal-sub">Your API key is stored only on this device (localStorage). It is never sent anywhere except directly to Anthropic's API for receipt scanning and meal plan generation.</p>
+    <div class="mf-lbl">Anthropic API Key</div>
+    <input class="api-key-inp" type="password" v-model="apiKeyInput" placeholder="sk-ant-...">
+    <div class="modal-btns">
+      <button class="modal-can" @click="showSettings=false">Cancel</button>
+      <button v-if="apiKey" class="ep-del" style="margin-right:auto" @click="clearApiKey">Remove key</button>
+      <button class="modal-cre" @click="saveApiKey">Save</button>
+    </div>
+  </div>
+</div>
+
+</div><!-- #app -->
+
+<script>
+const {createApp}=Vue;
+
+// ── Factory functions — named constructors keep data declarations readable
+// M: macros object {p,f,c} holds grams of protein, fat, carbs per meal
+const M=(name,type,afr,port,on,ings,steps,macros)=>({name,type,afr,port,on,ings,steps,macros:macros||{p:0,f:0,c:0}});
+const I=(id,name,qty,price,optional,section)=>({id,name,qty,price,optional,section});
+const D=(id,short,label,dot,meals)=>({id,short,label,dot,meals});
+
+const SECTIONS=[
+  {key:'protein',name:'Protein',color:'#16A34A'},
+  {key:'dairy',name:'Dairy & Cheese',color:'#2563EB'},
+  {key:'veg',name:'Veg',color:'#7C3AED'},
+  {key:'fats',name:'Fats & Oils',color:'#B45309'},
+  {key:'nuts',name:'Nuts & Seeds',color:'#92400E'},
+  {key:'pantry',name:'Pantry (check stock)',color:'#6B7280'},
+];
+
+// ── Macro values are estimated from ingredient weights using standard keto values.
+//    Calories = (protein * 4) + (fat * 9) + (carbs * 4)  — arithmetic operators
+const PRESETS=[
+{id:'af1',name:'Air Fryer Week',builtin:true,
+days:[
+D('mon','Mon','Monday',false,[
+  M('Spinach cheddar omelette','Breakfast',false,false,false,[['Eggs','3 (180g)'],['Spinach','50g'],['Mature cheddar','30g'],['Butter','10g']],['Beat 3 eggs with fork, season with salt & pepper','Melt butter in non-stick pan on medium until foamy','Add spinach, stir until wilted — 30 sec, push to one side','Pour eggs in — let edges set 1 min without stirring','Scatter cheddar over one half, fold and slide onto plate'],{p:32,f:25,c:3}),
+  M('Chicken thigh & feta salad','Lunch',true,false,false,[['Chicken thighs bone-in','2 (~280g)'],['Spinach','50g'],['Tomatoes','80g'],['Feta','40g'],['Olive oil','15g']],['Preheat air fryer to 200°C for 3 min','Pat thighs completely dry — essential for crispy skin','Season both sides with salt, pepper, garlic powder','Place skin-side up in basket — no overlapping','Cook 200°C · 25–28 min, rest 2 min, slice meat off bone','Toss spinach and tomatoes with olive oil, season','Crumble feta, lay sliced chicken on top and serve'],{p:42,f:30,c:5}),
+  M('Garlic butter wings & zucchini','Dinner',true,false,false,[['Chicken wings','400g'],['Zucchini','150g'],['Butter','10g'],['Garlic','5g']],['Pat wings completely dry — key to crispiness','Season with salt, pepper, garlic powder','Preheat air fryer to 200°C for 3 min, arrange wings in single layer','Cook 200°C · 22–25 min · flip at 11-min mark','Slice zucchini into batons, toss with olive oil and salt','Add zucchini at 180°C for last 12 min of wing cook','Melt butter, mix in minced garlic, toss wings just before serving'],{p:52,f:35,c:6}),
+  M('ON shake + yogurt bowl','Snack',false,false,true,[['ON Hydro/Isolate','50g'],['Greek yogurt','150g'],['Chia seeds','10g'],['Frozen berries','40g']],['Measure 50g ON protein into a bowl','Add 150g Greek yogurt, mix until smooth','Stir in chia seeds — thicken as they sit','Top with frozen berries and eat immediately'],{p:60,f:8,c:15}),
+]),
+D('tue','Tue','Tuesday',false,[
+  M('Bacon egg scramble','Breakfast',true,false,false,[['Eggs','3 (180g)'],['Bacon','60g'],['Mushrooms','80g'],['Butter','10g']],['Preheat air fryer to 180°C for 3 min','Lay bacon flat in basket — cook 180°C · 8 min until crisp','Add mushrooms alongside, continue 10 more min','Melt butter in a pan on low-medium heat','Crack in 3 eggs, scramble slowly — 2–3 min for soft creamy curds','Plate bacon, mushrooms and scrambled eggs together'],{p:35,f:30,c:3}),
+  M('Tuna spinach salad','Lunch',false,false,false,[['Tuna tinned','150g'],['Spinach','50g'],['Tomatoes','80g'],['Olive oil','15g']],['Drain tinned tuna, press with fork to remove excess liquid','Toss spinach and tomatoes with olive oil, salt and pepper','Flake tuna over the top — keep it chunky','Optional: squeeze of lemon for brightness'],{p:34,f:16,c:4}),
+  M('Crispy chicken thighs & broccoli','Dinner',true,false,false,[['Chicken thighs bone-in','2 (~300g)'],['Broccoli','120g'],['Butter','10g'],['Garlic','5g']],['Preheat air fryer to 200°C for 3 min','Pat thighs dry — season with salt, pepper, garlic powder','Cook skin-side up 200°C · 25–28 min','At 18-min mark: add broccoli tossed in olive oil at 190°C · 10 min','Toss broccoli with 10g butter while hot, rest thighs 2 min'],{p:50,f:30,c:8}),
+  M('ON shake + yogurt','Snack',false,false,true,[['ON Hydro/Isolate','50g'],['Greek yogurt','150g']],['Shake 50g ON with 300ml cold water until combined','Eat 150g Greek yogurt alongside or stir in for thickness'],{p:52,f:5,c:8}),
+]),
+D('wed','Wed','Wednesday · College day',true,[
+  M('ON protein yogurt bowl','Breakfast',false,false,true,[['Greek yogurt','200g'],['ON Hydro/Isolate','50g'],['Chia seeds','15g'],['Frozen berries','40g']],['Spoon 200g Greek yogurt into a bowl','Add 50g ON protein, stir vigorously until smooth','Stir in chia seeds — absorb moisture and thicken','Top with frozen berries — ready in 5 min once thawed'],{p:55,f:8,c:18}),
+  M('Chicken breast keto box','Lunch',true,true,false,[['Chicken breast','250g'],['Broccoli','120g'],['Olive oil','15g']],['Prep Tuesday night — preheat AF to 200°C for 3 min','Pat breast dry, brush with olive oil, season with salt & pepper','Cook 200°C · 18 min · flip at 9 min, rest 3 min before slicing','Toss broccoli in olive oil, cook 190°C · 10 min alongside','Slice chicken, pack with broccoli into sealed container — refrigerate overnight'],{p:50,f:10,c:6}),
+  M('ON shaker','Snack',false,true,true,[['ON Hydro/Isolate','50g']],['Add 50g protein to shaker with 300ml cold water','Seal and shake 10–15 seconds until fully mixed'],{p:24,f:2,c:3}),
+  M('Beef mince zucchini skillet','Dinner',true,false,false,[['Beef mince 10%','200g'],['Zucchini','150g'],['Olive oil','10g'],['Garlic','5g']],['Preheat air fryer to 200°C for 3 min','Fold foil into a shallow tray with folded-up edges to hold juices','Add mince, break into pieces, season with salt, pepper, garlic','Cook 200°C · 12 min · stir and break up at the 6-min mark','Add zucchini half-moons at 180°C for last 12 min, mix and serve'],{p:38,f:22,c:5}),
+  M('Cottage cheese & almonds','Evening',false,false,false,[['Cottage cheese','200g'],['Almonds','20g']],['Spoon 200g cottage cheese into a bowl','Scatter almonds on top','Optional: pinch of salt or cinnamon'],{p:28,f:14,c:5}),
+]),
+D('thu','Thu','Thursday · College day',true,[
+  M('Spinach cheddar omelette','Breakfast',false,false,false,[['Eggs','3 (180g)'],['Spinach','50g'],['Mature cheddar','30g'],['Butter','10g']],['Beat 3 eggs with fork, season with salt & pepper','Melt butter in pan until foamy, add spinach 30 sec','Pour eggs in — set edges 1 min, add cheddar, fold and serve'],{p:32,f:25,c:3}),
+  M('Tuna feta salad','Lunch',false,true,false,[['Tuna tinned','150g'],['Spinach','50g'],['Feta','40g'],['Tomatoes','80g'],['Olive oil','15g']],['Drain tinned tuna','Layer spinach, tomatoes, crumbled feta and tuna in a sealed container','Pack olive oil separately — pour on just before eating'],{p:36,f:20,c:4}),
+  M('ON shaker','Snack',false,true,true,[['ON Hydro/Isolate','50g']],['Add 50g protein to shaker with 300ml cold water, shake until mixed'],{p:24,f:2,c:3}),
+  M('Crispy chicken thighs & mushrooms','Dinner',true,false,false,[['Chicken thighs bone-in','2 (~300g)'],['Mushrooms','100g'],['Butter','10g'],['Garlic','5g']],['Preheat air fryer to 200°C for 3 min','Pat thighs dry, season with salt, pepper, garlic powder','Cook skin-side up 200°C · 25–28 min','At 16-min: add mushrooms tossed with butter and garlic at 180°C · 12 min','Rest thighs 2 min — mushrooms golden and juicy'],{p:50,f:30,c:4}),
+  M('Greek yogurt','Evening',false,false,false,[['Greek yogurt','150g']],['Spoon 150g Greek yogurt into a bowl','Optional: pinch of cinnamon or a few frozen berries'],{p:14,f:5,c:7}),
+]),
+D('fri','Fri','Friday · College day',true,[
+  M('Smoked salmon eggs','Breakfast',false,false,false,[['Eggs','3 (180g)'],['Smoked salmon','80g'],['Spinach','40g'],['Butter','10g']],['Wilt spinach in dry pan 30 sec, remove to plate','Melt butter in same pan, fry or scramble 3 eggs — 2–3 min','Smoked salmon needs no cooking — plate directly from pack','Serve eggs over wilted spinach with salmon alongside'],{p:36,f:26,c:2}),
+  M('Chicken breast caesar box','Lunch',true,true,false,[['Chicken breast','250g'],['Spinach','50g'],['Parmesan','20g'],['Olive oil','15g']],['Prep Thursday night — preheat AF to 200°C for 3 min','Pat breast dry, coat with olive oil, season with salt & pepper','Cook 200°C · 18 min · flip at 9 min, rest 3 min, slice','Pack spinach into container, top with sliced chicken','Grate parmesan over top, drizzle with olive oil, seal and refrigerate'],{p:52,f:18,c:4}),
+  M('ON shaker','Snack',false,true,true,[['ON Hydro/Isolate','50g']],['Add 50g protein to shaker with 300ml cold water, shake until mixed'],{p:24,f:2,c:3}),
+  M('Salmon & zucchini','Dinner',true,false,false,[['Salmon fillet','140g'],['Zucchini','150g'],['Butter','10g']],['Preheat air fryer to 180°C for 3 min','Pat salmon dry — season with salt, pepper, squeeze of lemon','Place salmon skin-side down in basket','Slice zucchini into batons, toss with a little olive oil','Cook salmon + zucchini together 180°C · 10–12 min','Toss zucchini with 10g butter right off the heat'],{p:30,f:20,c:5}),
+  M('Yogurt & dark chocolate','Evening',false,false,false,[['Greek yogurt','150g'],['Dark chocolate 85%','15g']],['Spoon 150g Greek yogurt into a bowl','Break dark chocolate into small pieces on top','Let chocolate soften 1–2 min against the cold yogurt'],{p:14,f:10,c:12}),
+]),
+D('sat','Sat','Saturday · Main shop day',false,[
+  M('ON protein yogurt bowl','Breakfast',false,false,true,[['Greek yogurt','200g'],['ON Hydro/Isolate','50g'],['Chia seeds','10g'],['Frozen berries','40g']],['Spoon 200g Greek yogurt into a bowl','Add 50g ON protein, stir until smooth','Stir in chia seeds, top with frozen berries','Chill 10 min for thicker consistency if preferred'],{p:55,f:8,c:18}),
+  M('Sardine avocado salad','Lunch',false,false,false,[['Sardines tinned','120g'],['Avocado','100g'],['Spinach','40g'],['Olive oil','10g']],['Drain sardines, roughly break apart with a fork','Halve avocado, remove stone, scoop and slice flesh','Toss spinach with olive oil, salt and pepper','Layer spinach, avocado, sardines — squeeze of lemon if available'],{p:26,f:20,c:4}),
+  M('Sticky garlic wings & broccoli','Dinner',true,false,false,[['Chicken wings','400g'],['Broccoli','120g'],['Butter','10g'],['Garlic','5g']],['Pat wings very dry with kitchen roll','Season with salt, garlic powder, black pepper','Preheat air fryer to 200°C for 3 min, arrange in single layer','Cook 200°C · 22–25 min · flip at halfway','Add broccoli tossed in olive oil at 190°C for last 10 min','Toss broccoli with 10g butter off heat, wings with garlic butter before serving'],{p:52,f:35,c:8}),
+  M('Cottage cheese & walnuts','Snack',false,false,false,[['Cottage cheese','200g'],['Walnuts','20g']],['Spoon 200g cottage cheese into a bowl','Top with 20g walnuts and a pinch of salt if desired'],{p:28,f:18,c:5}),
+]),
+D('sun','Sun','Sunday',false,[
+  M('Bacon & eggs','Breakfast',true,false,false,[['Eggs','3 (180g)'],['Bacon','60g'],['Mushrooms','80g'],['Butter','10g']],['Preheat air fryer to 180°C for 3 min','Add bacon strips and mushrooms to basket together','Cook 180°C · 8–10 min — bacon crisps, mushrooms golden','Melt 10g butter in a pan, fry 3 eggs to your preference','Plate everything together, season with salt and pepper'],{p:32,f:28,c:2}),
+  M('Chicken thigh keto bowl','Lunch',true,false,false,[['Chicken thighs bone-in','2 (~280g)'],['Spinach','50g'],['Tomatoes','80g'],['Olive oil','15g']],['Preheat air fryer to 200°C for 3 min','Pat thighs dry, season with salt, pepper, garlic powder','Cook skin-side up 200°C · 25–28 min, rest 2 min','Slice meat off bone, toss spinach and tomatoes with olive oil','Plate salad base, lay sliced chicken on top'],{p:42,f:28,c:5}),
+  M('Crispy chicken thighs & zucchini','Dinner',true,false,false,[['Chicken thighs bone-in','2 (~300g)'],['Zucchini','150g'],['Butter','10g'],['Garlic','5g']],['Preheat air fryer to 200°C for 3 min','Pat thighs dry — season generously with salt, pepper, garlic powder','Cook skin-side up 200°C · 25–28 min','At 15-min: add zucchini batons at 180°C for last 12 min','Toss zucchini with butter right off heat, rest thighs 2 min'],{p:50,f:30,c:6}),
+  M('ON shake + yogurt & pecans','Snack',false,false,true,[['ON Hydro/Isolate','50g'],['Greek yogurt','150g'],['Pecans','15g']],['Mix 50g ON protein with 150g Greek yogurt until smooth','Scatter 15g pecans on top','Eat immediately or refrigerate up to 4 hours'],{p:56,f:16,c:16}),
+]),
+],
+items:[
+  I('p1','Chicken wings','1kg bag',2.29,false,'protein'),
+  I('p2','Chicken thighs (bone-in, skin-on)','1.5kg pack',3.25,false,'protein'),
+  I('p3','Chicken breast','750g',2.75,false,'protein'),
+  I('p4','Eggs','×18 (3×6)',1.80,false,'protein'),
+  I('p5','Salmon fillet','140g (×1)',2.00,false,'protein'),
+  I('p6','Smoked salmon','80g',2.00,false,'protein'),
+  I('p7','Tuna tinned (Nixe)','×4',2.40,false,'protein'),
+  I('p8','Sardines tinned','×2',1.40,false,'protein'),
+  I('p9','Beef mince (10% fat)','400g',2.50,false,'protein'),
+  I('p10','Bacon','120g',1.50,false,'protein'),
+  I('p11','Greek yogurt (full fat)','~1.5kg',2.50,false,'protein'),
+  I('p12','Cottage cheese','400g',1.20,false,'protein'),
+  I('d1','Butter','250g block',1.50,false,'dairy'),
+  I('d2','Mature cheddar','120g',1.00,false,'dairy'),
+  I('d3','Feta','120g',1.20,false,'dairy'),
+  I('d4','Parmesan','50g',0.80,false,'dairy'),
+  I('d5','Double cream','100ml',0.60,true,'dairy'),
+  I('v1','Spinach','500g',1.00,false,'veg'),
+  I('v2','Zucchini / courgette','700g',1.20,false,'veg'),
+  I('v3','Broccoli','500g',0.89,false,'veg'),
+  I('v4','Mushrooms','260g',0.80,false,'veg'),
+  I('v5','Tomatoes','400g',0.89,false,'veg'),
+  I('v6','Avocado','×2',1.20,false,'veg'),
+  I('v7','Garlic','×1 bulb',0.30,false,'veg'),
+  I('v8','Onion','×1',0.15,true,'veg'),
+  I('v9','Kale / spring greens','100g',0.50,true,'veg'),
+  I('f1','Extra virgin olive oil','500ml',2.50,false,'fats'),
+  I('n1','Almonds','200g bag',1.99,false,'nuts'),
+  I('n2','Walnuts','200g bag',1.99,false,'nuts'),
+  I('n3','Pecans','200g bag',2.50,false,'nuts'),
+  I('n4','Chia seeds','200g bag',1.50,false,'nuts'),
+  I('pa1','Frozen berries','500g bag',1.50,false,'pantry'),
+  I('pa2','Dark chocolate (85%)','100g bar',1.20,false,'pantry'),
+  I('pa3','Lemons','×2',0.60,false,'pantry'),
+  I('pa4','Himalayan salt','1 pack',0.99,true,'pantry'),
+  I('pa5','Cinnamon','1 jar',1.20,true,'pantry'),
+  I('pa6','Stevia','1 pack',2.00,true,'pantry'),
+]},
+{id:'bs1',name:'Beef & Salmon',builtin:true,
+days:[
+D('mon','Mon','Monday',false,[
+  M('Smoked mackerel & scrambled eggs','Breakfast',false,false,false,[['Smoked mackerel','2 fillets (~160g)'],['Eggs','3 (180g)'],['Spinach','40g'],['Butter','10g']],['Wilt spinach in a dry pan 30 sec, remove to plate','Melt butter in same pan on medium heat','Crack in 3 eggs, scramble slowly with spatula — 2–3 min','Smoked mackerel needs no cooking — flake onto plate','Serve scrambled eggs over spinach with mackerel alongside'],{p:40,f:28,c:2}),
+  M('Tuna avocado bowl','Lunch',false,false,false,[['Tuna tinned','150g'],['Avocado','100g'],['Spinach','50g'],['Olive oil','10g']],['Drain tinned tuna thoroughly','Halve avocado, remove stone, scoop flesh and slice into chunks','Toss spinach with olive oil, salt and pepper in a bowl','Add avocado and tuna on top — keep tuna chunky'],{p:36,f:20,c:5}),
+  M('AF beef mince patties & broccoli','Dinner',true,false,false,[['Beef mince 20%','200g'],['Broccoli','120g'],['Butter','10g'],['Garlic','5g']],['Form mince into 2 flat patties, season with salt, pepper, garlic','Preheat air fryer to 200°C for 3 min','Cook patties 200°C · 12 min · flip at 6 min','Toss broccoli in olive oil, add at 190°C for last 10 min','Toss broccoli with butter off heat, serve alongside patties'],{p:40,f:22,c:7}),
+  M('Greek yogurt & walnuts','Snack',false,false,false,[['Greek yogurt','150g'],['Walnuts','20g']],['Spoon 150g Greek yogurt into a bowl','Scatter 20g walnuts on top with a pinch of salt if desired'],{p:15,f:18,c:8}),
+]),
+D('tue','Tue','Tuesday',false,[
+  M('Bacon & cheddar omelette','Breakfast',true,false,false,[['Eggs','3 (180g)'],['Bacon','60g'],['Mature cheddar','30g'],['Butter','10g']],['Preheat air fryer to 180°C, cook bacon 8 min until crisp','Beat 3 eggs with fork, season with salt & pepper','Melt butter in pan on medium, pour in eggs — set edges 1 min','Add cheddar and crispy bacon, fold omelette in half and serve'],{p:35,f:28,c:3}),
+  M('Cream cheese & tuna wraps','Lunch',false,true,false,[['Tuna tinned','150g'],['Cream cheese','50g'],['Spinach','30g'],['Tomatoes','60g']],['Drain tuna, mix with cream cheese and season','Lay spinach leaves flat as wrap bases','Spoon tuna mix onto spinach, add sliced tomatoes','Roll up firmly, pack in container for college'],{p:34,f:18,c:5}),
+  M('AF pork belly strips & asparagus','Dinner',true,false,false,[['Pork belly strips','200g'],['Asparagus','120g'],['Olive oil','10g'],['Garlic','5g']],['Preheat air fryer to 200°C for 3 min','Score pork belly skin with a knife, season with salt and garlic','Cook skin-side up 200°C · 20–22 min — skin should crackle','At 12-min mark: add asparagus tossed in olive oil at 190°C · 10 min','Rest pork 2 min — serve with asparagus spears'],{p:30,f:40,c:4}),
+  M('Cottage cheese & almonds','Snack',false,false,false,[['Cottage cheese','200g'],['Almonds','20g']],['Spoon 200g cottage cheese into a bowl','Scatter almonds on top','Optional: pinch of salt or cinnamon'],{p:28,f:14,c:5}),
+]),
+D('wed','Wed','Wednesday · College day',true,[
+  M('ON protein yogurt bowl','Breakfast',false,false,true,[['Greek yogurt','200g'],['ON Hydro/Isolate','50g'],['Chia seeds','15g'],['Frozen berries','40g']],['Spoon 200g Greek yogurt into a bowl','Add 50g ON protein, stir vigorously until smooth','Stir in chia seeds, top with frozen berries'],{p:55,f:8,c:18}),
+  M('Beef mince box','Lunch',true,true,false,[['Beef mince 20%','200g'],['Spinach','50g'],['Tomatoes','80g'],['Olive oil','10g']],['Prep Tuesday night — cook mince in AF at 200°C · 10 min in foil tray','Season with salt, pepper, garlic — stir at 5-min mark','Cool, pack with raw spinach and tomatoes into sealed container','Drizzle olive oil over just before eating at college'],{p:40,f:20,c:5}),
+  M('ON shaker','Snack',false,true,true,[['ON Hydro/Isolate','50g']],['Add 50g protein to shaker with 300ml cold water','Seal and shake 10–15 seconds until fully mixed'],{p:24,f:2,c:3}),
+  M('AF salmon & mushrooms','Dinner',true,false,false,[['Salmon fillet','130g'],['Mushrooms','120g'],['Butter','10g'],['Garlic','5g']],['Preheat air fryer to 180°C for 3 min','Pat salmon dry, season with salt, pepper, lemon','Place salmon skin-side down, add mushrooms tossed in butter and garlic','Cook 180°C · 12 min — salmon flakes, mushrooms golden','Serve immediately with resting juices from the basket'],{p:30,f:18,c:4}),
+  M('Dark chocolate & almonds','Evening',false,false,false,[['Dark chocolate 85%','20g'],['Almonds','15g']],['Break 20g dark chocolate into pieces','Eat alongside 15g almonds as a slow evening snack'],{p:5,f:18,c:8}),
+]),
+D('thu','Thu','Thursday · College day',true,[
+  M('Bacon & eggs','Breakfast',true,false,false,[['Eggs','3 (180g)'],['Bacon','60g'],['Butter','10g']],['Preheat air fryer to 180°C, cook bacon 8–10 min until crisp','Melt butter in a pan, fry 3 eggs to your preference','Plate bacon and eggs together, season with salt and pepper'],{p:32,f:28,c:2}),
+  M('Avocado & tuna salad box','Lunch',false,true,false,[['Tuna tinned','150g'],['Avocado','100g'],['Spinach','40g'],['Olive oil','10g']],['Drain tuna, pack into sealable container with spinach','Slice avocado just before leaving to prevent browning','Drizzle olive oil over, season with salt and pepper'],{p:34,f:20,c:5}),
+  M('ON shaker','Snack',false,true,true,[['ON Hydro/Isolate','50g']],['Add 50g protein to shaker with 300ml cold water, shake until mixed'],{p:24,f:2,c:3}),
+  M('AF pork belly strips & broccoli','Dinner',true,false,false,[['Pork belly strips','200g'],['Broccoli','120g'],['Butter','10g']],['Preheat air fryer to 200°C for 3 min','Score pork skin, season with salt, pepper, garlic powder','Cook skin-side up 200°C · 20–22 min','Add broccoli in olive oil at 190°C for last 10 min, toss with butter'],{p:30,f:40,c:6}),
+  M('Greek yogurt','Evening',false,false,false,[['Greek yogurt','150g']],['Spoon 150g Greek yogurt into a bowl, eat as evening snack'],{p:14,f:5,c:7}),
+]),
+D('fri','Fri','Friday · College day',true,[
+  M('Smoked mackerel & eggs','Breakfast',false,false,false,[['Smoked mackerel','1 fillet (~80g)'],['Eggs','3 (180g)'],['Butter','10g']],['Melt butter in pan on medium heat','Scramble 3 eggs slowly — 2–3 min for soft curds','Plate with smoked mackerel flaked alongside — no cooking needed'],{p:38,f:26,c:2}),
+  M('Salmon & cream cheese box','Lunch',false,true,false,[['Salmon fillet','130g'],['Cream cheese','40g'],['Spinach','40g'],['Cucumber','60g']],['Prep Thursday night — cook salmon in AF 180°C · 12 min, cool','Flake salmon into sealed container with spinach and cucumber slices','Spoon cream cheese alongside — spread on salmon before eating'],{p:32,f:22,c:3}),
+  M('ON shaker','Snack',false,true,true,[['ON Hydro/Isolate','50g']],['Add 50g protein to shaker with 300ml cold water, shake until mixed'],{p:24,f:2,c:3}),
+  M('AF beef patties & asparagus','Dinner',true,false,false,[['Beef mince 20%','200g'],['Asparagus','120g'],['Olive oil','10g'],['Butter','10g']],['Form mince into 2 patties, season with salt, pepper, garlic','Cook in AF at 200°C · 12 min · flip at 6 min','Add asparagus in olive oil at 190°C for last 10 min','Toss asparagus with butter off heat, serve alongside'],{p:40,f:22,c:5}),
+  M('Yogurt & dark chocolate','Evening',false,false,false,[['Greek yogurt','150g'],['Dark chocolate 85%','15g']],['Spoon 150g Greek yogurt into a bowl','Break dark chocolate into small pieces on top','Let soften 1–2 min before eating'],{p:14,f:10,c:12}),
+]),
+D('sat','Sat','Saturday · Main shop day',false,[
+  M('ON protein yogurt bowl','Breakfast',false,false,true,[['Greek yogurt','200g'],['ON Hydro/Isolate','50g'],['Chia seeds','10g'],['Frozen berries','40g']],['Spoon 200g Greek yogurt into a bowl','Add 50g ON protein, stir until smooth','Stir in chia seeds, top with frozen berries'],{p:55,f:8,c:18}),
+  M('Sardine & avocado salad','Lunch',false,false,false,[['Sardines tinned','120g'],['Avocado','100g'],['Spinach','40g'],['Olive oil','10g']],['Drain sardines, break apart with a fork','Halve avocado, remove stone, slice flesh','Toss spinach with olive oil, salt and pepper','Layer spinach, avocado, sardines — squeeze lemon if available'],{p:26,f:20,c:4}),
+  M('AF beef burgers & mushrooms','Dinner',true,false,false,[['Beef mince 20%','250g'],['Mushrooms','150g'],['Butter','10g'],['Garlic','5g']],['Form mince into 2 thick burgers, season generously','Preheat air fryer to 200°C for 3 min','Cook burgers 200°C · 14 min · flip at 7 min','Add mushrooms tossed in butter and garlic at 180°C for last 10 min','Rest burgers 2 min — mushrooms should be deeply golden'],{p:45,f:28,c:4}),
+  M('Cottage cheese & walnuts','Snack',false,false,false,[['Cottage cheese','200g'],['Walnuts','20g']],['Spoon 200g cottage cheese into a bowl','Top with 20g walnuts and a pinch of salt'],{p:28,f:18,c:5}),
+]),
+D('sun','Sun','Sunday',false,[
+  M('Bacon & eggs','Breakfast',true,false,false,[['Eggs','3 (180g)'],['Bacon','60g'],['Mushrooms','80g'],['Butter','10g']],['Preheat air fryer to 180°C for 3 min','Add bacon and mushrooms to basket — cook 180°C · 8–10 min','Melt butter in a pan, fry 3 eggs to your preference','Plate everything together, season with salt and pepper'],{p:32,f:28,c:2}),
+  M('Tuna feta bowl','Lunch',false,false,false,[['Tuna tinned','150g'],['Feta','40g'],['Spinach','50g'],['Tomatoes','80g'],['Olive oil','15g']],['Drain tinned tuna thoroughly','Toss spinach and tomatoes with olive oil, season','Add tuna on top, crumble feta over everything','Mix gently and serve'],{p:38,f:20,c:5}),
+  M('AF salmon & asparagus','Dinner',true,false,false,[['Salmon fillet','130g'],['Asparagus','120g'],['Butter','10g'],['Olive oil','10g']],['Preheat air fryer to 180°C for 3 min','Pat salmon dry, season with salt, pepper, lemon','Place skin-side down in basket alongside asparagus in olive oil','Cook 180°C · 12 min — salmon flakes, asparagus tender-crisp','Toss asparagus with 10g butter right off the heat'],{p:30,f:18,c:5}),
+  M('ON shake + yogurt','Snack',false,false,true,[['ON Hydro/Isolate','50g'],['Greek yogurt','150g'],['Walnuts','15g']],['Mix 50g ON with 150g Greek yogurt until smooth','Scatter 15g walnuts on top, eat immediately'],{p:56,f:14,c:14}),
+]),
+],
+items:[
+  I('p1','Beef mince (20% fat)','800g',3.50,false,'protein'),
+  I('p2','Salmon fillets','2×130g',3.99,false,'protein'),
+  I('p3','Pork belly strips','500g',2.99,false,'protein'),
+  I('p4','Eggs','×18 (3×6)',1.80,false,'protein'),
+  I('p5','Bacon','200g',2.00,false,'protein'),
+  I('p6','Smoked mackerel','2 fillets',1.99,false,'protein'),
+  I('p7','Tuna tinned (Nixe)','×4',2.40,false,'protein'),
+  I('p8','Sardines tinned','×2',1.40,false,'protein'),
+  I('p9','Greek yogurt (full fat)','~1.5kg',2.50,false,'protein'),
+  I('p10','Cottage cheese','400g',1.20,false,'protein'),
+  I('d1','Butter','250g block',1.50,false,'dairy'),
+  I('d2','Mature cheddar','120g',1.00,false,'dairy'),
+  I('d3','Cream cheese','150g',0.90,false,'dairy'),
+  I('d4','Feta','120g',1.20,false,'dairy'),
+  I('d5','Parmesan','50g',0.80,true,'dairy'),
+  I('v1','Spinach','500g',1.00,false,'veg'),
+  I('v2','Broccoli','500g',0.89,false,'veg'),
+  I('v3','Asparagus','250g',1.20,false,'veg'),
+  I('v4','Mushrooms','300g',0.80,false,'veg'),
+  I('v5','Tomatoes','400g',0.89,false,'veg'),
+  I('v6','Avocado','×2',1.20,false,'veg'),
+  I('v7','Garlic','×1 bulb',0.30,false,'veg'),
+  I('v8','Cucumber','×1',0.45,true,'veg'),
+  I('v9','Red pepper','×2',0.89,true,'veg'),
+  I('f1','Extra virgin olive oil','500ml',2.50,false,'fats'),
+  I('n1','Almonds','200g bag',1.99,false,'nuts'),
+  I('n2','Walnuts','200g bag',1.99,false,'nuts'),
+  I('n3','Chia seeds','200g bag',1.50,false,'nuts'),
+  I('pa1','Frozen berries','500g bag',1.50,false,'pantry'),
+  I('pa2','Dark chocolate (85%)','100g bar',1.20,false,'pantry'),
+  I('pa3','Lemons','×2',0.60,false,'pantry'),
+  I('pa4','Dijon mustard','1 jar',0.79,true,'pantry'),
+  I('pa5','Smoked paprika','1 jar',0.99,true,'pantry'),
+]},
+];
+
+createApp({
+data(){return{
+  activeTab:'mon',
+  activePresetId:'af1',
+  customPresets:[],
+  allChecks:{},
+  allEdits:{},
+  mutations:{},
+  stepsOpen:{},
+  // stepsProgress tracks which steps the user has tapped done per meal
+  // key = meal _uid, value = object of {stepIndex: boolean}
+  stepsProgress:{},
+  editingId:null,
+  editName:'',editQty:'',editPrice:'',
+  showNewModal:false,
+  newName:'',newBase:'af1',
+  showAddMeal:false,
+  addMealDay:null,
+  newMeal:{name:'',type:'Dinner',afr:false,port:false,on:false},
+  newIngRows:[['','']],
+  newStepRows:[''],
+  showAddItem:false,
+  newItem:{name:'',qty:'',price:'',section:'protein',optional:false},
+  SECTIONS,
+  editingSection:null,
+  secEditName:'',
+  secEditColor:'#6B7280',
+  showAddSection:false,
+  newSecName:'',
+  newSecColor:'#6B7280',
+  // Toast state for undo — Nielsen #3: User control & freedom
+  toast:{show:false,msg:'',timer:null},
+  // Scan tab
+  scanPreview:null,
+  scanLoading:false,
+  scanResult:null,
+  // AI Plan tab
+  aiGoals:{calories:2000,protein:150,fat:130,carbs:30,budget:60,days:7},
+  aiLoading:false,
+  aiStream:'',
+  aiPlan:null,
+  // Settings
+  showSettings:false,
+  apiKey:'',
+  apiKeyInput:'',
+  // Local product DB (persisted to localStorage)
+  productDb:[],
+}},
+computed:{
+  allPresets(){return[...PRESETS,...this.customPresets];},
+  activePreset(){return this.allPresets.find(p=>p.id===this.activePresetId)||PRESETS[0];},
+  curChecks(){return this.allChecks[this.activePresetId]||{};},
+  curEdits(){return this.allEdits[this.activePresetId]||{};},
+  curMuts(){return this.mutations[this.activePresetId]||{};},
+  activeDays(){
+    const rm=new Set(this.curMuts.removedMealKeys||[]);
+    return this.activePreset.days.map(d=>({
+      ...d,
+      meals:[
+        ...d.meals.filter(m=>!rm.has(d.id+':'+m.name)).map(m=>({...m,_uid:d.id+':'+m.name})),
+        ...(this.curMuts.addedMeals?.[d.id]||[]).filter(m=>!rm.has(m._uid)),
+      ]
+    }));
+  },
+  activeItems(){
+    const ri=new Set(this.curMuts.removedItemIds||[]);
+    return[
+      ...this.activePreset.items.filter(i=>!ri.has(i.id)),
+      ...(this.curMuts.addedItems||[]).filter(i=>!ri.has(i.id)),
+    ];
+  },
+  addMealDayLabel(){
+    if(!this.addMealDay)return'';
+    const d=this.activePreset.days.find(d=>d.id===this.addMealDay);
+    return d?d.label:'';
+  },
+  activeSections(){return this.curMuts.sections||SECTIONS;},
+  hasChecked(){return Object.values(this.curChecks).some(Boolean);},
+
+  // ── calculateDailyMacros result for the active day tab
+  currentDayMacros(){
+    if(this.activeTab==='shop')return{p:0,f:0,c:0,kcal:0};
+    return this.calculateDailyMacros(this.activeTab);
+  },
+  // Dynamic subtitle — shows live calculated macros, not hardcoded string
+  dynamicSubtitle(){
+    if(this.activeTab==='shop')return'Weekly shopping list';
+    const m=this.currentDayMacros;
+    if(!m.kcal)return'No meals logged';
+    return`${m.kcal} kcal · ${m.p}g P · ${m.f}g F · ${m.c}g C`;
+  },
+
+  essTotal(){
+    let t=0;
+    this.activeItems.forEach(item=>{
+      if(item.optional)return;
+      const v=parseFloat((this.getEd(item.id,'price')||this.fmtP(item.price)).replace(/[^0-9.]/g,''));
+      if(!isNaN(v))t+=v;
+    });
+    return'~£'+t.toFixed(2);
+  },
+  allTotal(){
+    let t=0;
+    this.activeItems.forEach(item=>{
+      const v=parseFloat((this.getEd(item.id,'price')||this.fmtP(item.price)).replace(/[^0-9.]/g,''));
+      if(!isNaN(v))t+=v;
+    });
+    return'~£'+t.toFixed(2);
+  },
+},
+methods:{
+  fmtP(p){return'~£'+(+p).toFixed(2);},
+  getEd(id,field){return(this.curEdits[id]||{})[field]||'';},
+  sectionItems(key){return this.activeItems.filter(i=>i.section===key);},
+  isChecked(id){return!!this.curChecks[id];},
+
+  // ── FUNCTION: calculateDailyMacros(dayId)
+  // Iterates through all meals on a given day and sums their macros.
+  // Uses FOR loop iteration + arithmetic operators: protein*4 + fat*9 + carbs*4
+  calculateDailyMacros(dayId){
+    const day=this.activeDays.find(d=>d.id===dayId);
+    if(!day)return{p:0,f:0,c:0,kcal:0};
+    let p=0,f=0,c=0;
+    for(const meal of day.meals){
+      if(meal.macros){
+        p+=meal.macros.p||0;  // + addition operator accumulating totals
+        f+=meal.macros.f||0;
+        c+=meal.macros.c||0;
+      }
+    }
+    // Calorie formula: protein and carbs yield 4 kcal/g, fat yields 9 kcal/g
+    const kcal=Math.round(p*4 + f*9 + c*4);
+    return{p,f,c,kcal};
+  },
+
+  // ── FUNCTION: mealKcal(meal) — returns kcal for a single meal
+  mealKcal(meal){
+    if(!meal.macros)return 0;
+    return Math.round(meal.macros.p*4 + meal.macros.f*9 + meal.macros.c*4);
+  },
+
+  // ── Step tracking — Nielsen #1: Visibility of system status
+  toggleStep(uid,index){
+    const current={...(this.stepsProgress[uid]||{})};
+    current[index]=!current[index];
+    this.stepsProgress={...this.stepsProgress,[uid]:current};
+  },
+  isStepDone(uid,index){
+    return!!(this.stepsProgress[uid]||{})[index];
+  },
+  // The "active" step is the first incomplete one — it gets visual dominance (hierarchy)
+  isStepActive(uid,index,total){
+    for(let i=0;i<total;i++){
+      if(!this.isStepDone(uid,i))return i===index;
+    }
+    return false; // all steps done
+  },
+  stepsDone(uid){
+    return Object.values(this.stepsProgress[uid]||{}).filter(Boolean).length;
+  },
+  allStepsDone(uid,total){
+    return total>0&&this.stepsDone(uid)===total;
+  },
+  // Progress % = (done / total) * 100 — arithmetic for the progress bar width
+  stepProgress(uid,total){
+    if(!total)return 0;
+    return Math.round((this.stepsDone(uid)/total)*100);
+  },
+
+  toggleItem(id){
+    if(this.editingId===id)return;
+    const pc=this.allChecks[this.activePresetId]||{};
+    this.allChecks={...this.allChecks,[this.activePresetId]:{...pc,[id]:!pc[id]}};
+    this.save();
+  },
+  clearChecked(){
+    this.allChecks={...this.allChecks,[this.activePresetId]:{}};
+    this.save();
+  },
+  toggleSteps(uid){
+    this.stepsOpen={...this.stepsOpen,[uid]:!this.stepsOpen[uid]};
+  },
+  openEdit(item){
+    if(this.editingId===item.id){this.editingId=null;return;}
+    const ed=this.curEdits[item.id]||{};
+    this.editName=ed.name||item.name;
+    this.editQty=ed.qty||item.qty;
+    this.editPrice=ed.price||this.fmtP(item.price);
+    this.editingId=item.id;
+    this.$nextTick(()=>{const el=document.querySelector('.ep-ni');if(el)el.focus();});
+  },
+  cancelEdit(){this.editingId=null;},
+  saveEdit(id){
+    const pe=this.allEdits[this.activePresetId]||{};
+    this.allEdits={...this.allEdits,[this.activePresetId]:{...pe,[id]:{name:this.editName,qty:this.editQty,price:this.editPrice}}};
+    this.editingId=null;
+    this.save();
+  },
+  resetEdit(id){
+    const pe={...(this.allEdits[this.activePresetId]||{})};
+    delete pe[id];
+    this.allEdits={...this.allEdits,[this.activePresetId]:pe};
+    this.editingId=null;
+    this.save();
+  },
+
+  // ── Undo toast — Nielsen #3: User control & freedom
+  // Stores the uid so undoLastRemove() can pop it from removedMealKeys
+  removeMealWithUndo(uid){
+    const m=this.mutations[this.activePresetId]||{};
+    this.mutations={...this.mutations,[this.activePresetId]:{...m,removedMealKeys:[...(m.removedMealKeys||[]),uid]}};
+    this.save();
+    this.showToast('Meal removed');
+  },
+  undoLastRemove(){
+    const m=this.mutations[this.activePresetId]||{};
+    const keys=[...(m.removedMealKeys||[])];
+    if(!keys.length)return;
+    keys.pop(); // remove the last deletion from the stack
+    this.mutations={...this.mutations,[this.activePresetId]:{...m,removedMealKeys:keys}};
+    this.toast.show=false;
+    if(this.toast.timer)clearTimeout(this.toast.timer);
+    this.save();
+  },
+  showToast(msg){
+    if(this.toast.timer)clearTimeout(this.toast.timer);
+    this.toast.msg=msg;
+    this.toast.show=true;
+    // Auto-dismiss after 4 seconds
+    this.toast.timer=setTimeout(()=>{this.toast.show=false;},4000);
+  },
+
+  // ── Nielsen #5: Error prevention — confirm before destructive delete
+  removeItem(id){
+    if(!confirm('Remove this item from the shopping list?'))return;
+    const m=this.mutations[this.activePresetId]||{};
+    this.mutations={...this.mutations,[this.activePresetId]:{...m,removedItemIds:[...(m.removedItemIds||[]),id]}};
+    if(this.editingId===id)this.editingId=null;
+    this.save();
+  },
+
+  openAddMeal(dayId){
+    this.addMealDay=dayId;
+    this.newMeal={name:'',type:'Dinner',afr:false,port:false,on:false};
+    this.newIngRows=[['','']];
+    this.newStepRows=[''];
+    this.showAddMeal=true;
+  },
+  submitAddMeal(){
+    if(!this.newMeal.name.trim())return;
+    const uid=this.addMealDay+':add_'+Date.now();
+    const meal={...this.newMeal,name:this.newMeal.name.trim(),ings:this.newIngRows.filter(r=>r[0].trim()).map(r=>[r[0].trim(),r[1].trim()]),steps:this.newStepRows.filter(s=>s.trim()).map(s=>s.trim()),_uid:uid};
+    const m=this.mutations[this.activePresetId]||{};
+    const am={...(m.addedMeals||{})};
+    am[this.addMealDay]=[...(am[this.addMealDay]||[]),meal];
+    this.mutations={...this.mutations,[this.activePresetId]:{...m,addedMeals:am}};
+    this.showAddMeal=false;
+    this.save();
+  },
+  openAddItem(){
+    this.newItem={name:'',qty:'',price:'',section:'protein',optional:false};
+    this.showAddItem=true;
+  },
+  submitAddItem(){
+    if(!this.newItem.name.trim())return;
+    const price=parseFloat(String(this.newItem.price).replace(/[^0-9.]/g,''))||0;
+    const item={id:'ai'+Date.now(),name:this.newItem.name.trim(),qty:this.newItem.qty.trim(),price,optional:this.newItem.optional,section:this.newItem.section};
+    const m=this.mutations[this.activePresetId]||{};
+    this.mutations={...this.mutations,[this.activePresetId]:{...m,addedItems:[...(m.addedItems||[]),item]}};
+    this.showAddItem=false;
+    this.save();
+  },
+  openSectionEdit(key){
+    if(this.editingSection===key){this.editingSection=null;return;}
+    const sec=this.activeSections.find(s=>s.key===key);
+    if(!sec)return;
+    this.secEditName=sec.name;
+    this.secEditColor=sec.color;
+    this.editingSection=key;
+    this.showAddSection=false;
+  },
+  saveSection(key){
+    const secs=this.activeSections.map(s=>s.key===key?{...s,name:this.secEditName.trim()||s.name,color:this.secEditColor}:{...s});
+    const m=this.mutations[this.activePresetId]||{};
+    this.mutations={...this.mutations,[this.activePresetId]:{...m,sections:secs}};
+    this.editingSection=null;
+    this.save();
+  },
+  deleteSection(key){
+    const hasItems=this.sectionItems(key).length>0;
+    if(hasItems&&!confirm('This category has items. Delete anyway? Items will be uncategorised.'))return;
+    const secs=this.activeSections.filter(s=>s.key!==key);
+    const m=this.mutations[this.activePresetId]||{};
+    this.mutations={...this.mutations,[this.activePresetId]:{...m,sections:secs}};
+    this.editingSection=null;
+    this.save();
+  },
+  openAddSection(){
+    this.newSecName='';
+    this.newSecColor='#6B7280';
+    this.editingSection=null;
+    this.showAddSection=true;
+  },
+  submitAddSection(){
+    if(!this.newSecName.trim())return;
+    const key='sec_'+Date.now();
+    const secs=[...this.activeSections,{key,name:this.newSecName.trim(),color:this.newSecColor}];
+    const m=this.mutations[this.activePresetId]||{};
+    this.mutations={...this.mutations,[this.activePresetId]:{...m,sections:secs}};
+    this.showAddSection=false;
+    this.save();
+  },
+  switchPreset(id){
+    this.activePresetId=id;
+    this.activeTab='mon';
+    this.editingId=null;
+    this.save();
+  },
+  openNewModal(){
+    this.newName='';
+    this.newBase=this.activePresetId;
+    this.showNewModal=true;
+  },
+  createPreset(){
+    if(!this.newName.trim())return;
+    const base=this.allPresets.find(p=>p.id===this.newBase)||PRESETS[0];
+    const baseId=base.builtin?base.id:(base.baseId||PRESETS[0].id);
+    const id='c'+Date.now();
+    const np={id,name:this.newName.trim(),builtin:false,baseId,days:base.days,items:base.items.map(i=>({...i}))};
+    this.customPresets=[...this.customPresets,np];
+    this.showNewModal=false;
+    this.switchPreset(id);
+  },
+  deletePreset(id){
+    if(!confirm('Delete this plan?'))return;
+    this.customPresets=this.customPresets.filter(p=>p.id!==id);
+    if(this.activePresetId===id)this.switchPreset(PRESETS[0].id);
+    this.save();
+  },
+  // ── Settings
+  saveApiKey(){
+    this.apiKey=this.apiKeyInput.trim();
+    localStorage.setItem('keto_anthropic_key',this.apiKey);
+    this.showSettings=false;
+    this.showToast('API key saved');
+  },
+  clearApiKey(){
+    this.apiKey='';
+    this.apiKeyInput='';
+    localStorage.removeItem('keto_anthropic_key');
+    this.showSettings=false;
+  },
+
+  // ── Claude API helper (direct browser call)
+  async claudeCall(messages,{model='claude-sonnet-4-6',max_tokens=2048,system=null,stream=false}={}){
+    if(!this.apiKey)throw new Error('No API key set. Tap "⚙ Set API key" in the header.');
+    const body={model,max_tokens,messages};
+    if(system)body.system=system;
+    if(stream)body.stream=true;
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{
+        'x-api-key':this.apiKey,
+        'anthropic-version':'2023-06-01',
+        'anthropic-dangerous-allow-browser':'true',
+        'content-type':'application/json',
+      },
+      body:JSON.stringify(body)
+    });
+    if(!res.ok){
+      const err=await res.json().catch(()=>({}));
+      throw new Error(err.error?.message||`API error ${res.status}`);
+    }
+    if(stream)return res;
+    const data=await res.json();
+    return data.content[0].text;
+  },
+
+  // ── Receipt scanning — direct Claude Vision call
+  async onReceiptFile(e){
+    const file=e.target.files[0];
+    if(!file)return;
+    if(!this.apiKey){this.showSettings=true;return;}
+    this.scanResult=null;
+    this.scanPreview=URL.createObjectURL(file);
+    this.scanLoading=true;
+
+    try{
+      const base64=await new Promise((res,rej)=>{
+        const r=new FileReader();
+        r.onload=()=>res(r.result.split(',')[1]);
+        r.onerror=rej;
+        r.readAsDataURL(file);
+      });
+
+      const raw=await this.claudeCall([{
+        role:'user',
+        content:[
+          {type:'image',source:{type:'base64',media_type:file.type,data:base64}},
+          {type:'text',text:`Parse this supermarket receipt. Return ONLY valid JSON:
+{"store":"Lidl","date":"2024-01-15","items":[{"raw":"CHKN BRST 750G","name":"Chicken Breast","weight":"750g","quantity":1,"price":3.49}],"total":24.50}
+Rules: raw=exactly as printed, name=human readable, weight=pack size or null, price=GBP number, date=YYYY-MM-DD or null, total=final paid or null.`}
+        ]
+      }]);
+
+      const jsonMatch=raw.match(/\{[\s\S]*\}/);
+      if(!jsonMatch)throw new Error('Could not extract JSON from receipt scan');
+      const parsed=JSON.parse(jsonMatch[0]);
+
+      this.scanResult={...parsed,items:parsed.items.map(i=>({...i,matched:false,confirmed:false,skipped:false,product:null,matchLoading:false}))};
+      // Auto-fetch nutrition for all items in parallel
+      await Promise.all(this.scanResult.items.map(item=>this.matchNutrition(item)));
+    }catch(err){
+      alert('Scan failed: '+err.message);
+    }finally{
+      this.scanLoading=false;
+    }
+  },
+
+  // ── Nutritional matching: local DB → Open Food Facts → USDA → Claude
+  async matchNutrition(item){
+    if(item.product||item.matchLoading)return;
+    item.matchLoading=true;
+    try{
+      // 1. Local DB
+      const term=item.name.toLowerCase().split(' ').slice(0,2).join(' ');
+      const local=this.productDb.find(p=>p.name.toLowerCase().includes(term));
+      if(local){item.product=local;item.nutrition_confidence='high';return;}
+
+      // 2. Open Food Facts (CORS-enabled, free)
+      try{
+        const offRes=await fetch(`https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(item.name)}&search_simple=1&action=process&json=1&page_size=3&lc=en&cc=gb`,{signal:AbortSignal.timeout(6000)});
+        const offData=await offRes.json();
+        if(offData.products?.length){
+          const p=offData.products[0];const n=p.nutriments||{};
+          const product={id:Date.now()+'_'+Math.random(),name:item.name,barcode:p.code||null,calories:n['energy-kcal_100g']??null,protein:n['proteins_100g']??null,fat:n['fat_100g']??null,carbs:n['carbohydrates_100g']??null,fiber:n['fiber_100g']??null,source:'openfoodfacts',confidence:'high'};
+          this.saveProductToDb(product);
+          item.product=product;item.nutrition_confidence='high';return;
+        }
+      }catch(e){console.warn('OFF:',e.message);}
+
+      // 3. USDA FoodData (CORS-enabled, free)
+      try{
+        const usdaRes=await fetch(`https://api.nal.usda.gov/fdc/v1/foods/search?query=${encodeURIComponent(item.name)}&pageSize=3&api_key=DEMO_KEY`,{signal:AbortSignal.timeout(6000)});
+        const usdaData=await usdaRes.json();
+        if(usdaData.foods?.length){
+          const f=usdaData.foods[0];
+          const get=(id)=>f.foodNutrients?.find(n=>n.nutrientId===id)?.value??null;
+          const product={id:Date.now()+'_'+Math.random(),name:item.name,barcode:null,calories:get(1008),protein:get(1003),fat:get(1004),carbs:get(1005),fiber:get(1079),source:'usda',confidence:'medium'};
+          this.saveProductToDb(product);
+          item.product=product;item.nutrition_confidence='medium';return;
+        }
+      }catch(e){console.warn('USDA:',e.message);}
+
+      // 4. Claude estimation fallback
+      if(this.apiKey){
+        try{
+          const est=await this.claudeCall([{role:'user',content:`Estimate nutrition per 100g for "${item.name}" (UK supermarket). Return ONLY JSON: {"calories":0,"protein":0,"fat":0,"carbs":0,"fiber":0}. Use null for unknowns.`}],{model:'claude-haiku-4-5-20251001',max_tokens:128});
+          const m=est.match(/\{[\s\S]*\}/);
+          if(m){
+            const vals=JSON.parse(m[0]);
+            const product={id:Date.now()+'_'+Math.random(),name:item.name,barcode:null,...vals,source:'ai_estimated',confidence:'low'};
+            this.saveProductToDb(product);
+            item.product=product;item.nutrition_confidence='low';
+          }
+        }catch(e){console.warn('Claude est:',e.message);}
+      }
+    }finally{item.matchLoading=false;}
+  },
+
+  saveProductToDb(product){
+    if(!this.productDb.find(p=>p.name===product.name)){
+      this.productDb=[...this.productDb,product];
+      localStorage.setItem('keto_products_v1',JSON.stringify(this.productDb));
+    }
+  },
+
+  confirmItem(item){
+    if(!item.product)return alert('No nutritional data yet — wait for matching to finish or skip this item.');
+    // Save price to product record
+    if(!item.product.prices)item.product.prices=[];
+    item.product.prices.push({store:this.scanResult.store?.toLowerCase()||'unknown',price:item.price,pack_size:item.weight,date:new Date().toISOString().split('T')[0]});
+    this.saveProductToDb(item.product);
+    item.confirmed=true;
+    this.showToast('Saved: '+item.name);
+  },
+
+  skipItem(item){item.skipped=true;},
+
+  // ── AI Meal Plan — direct Claude streaming
+  async generatePlan(){
+    if(!this.apiKey){this.showSettings=true;return;}
+    this.aiLoading=true;this.aiStream='';this.aiPlan=null;
+
+    const SYSTEM=`You are a keto meal planning expert. Generate practical weekly meal plans for someone on a strict ketogenic diet using UK supermarket ingredients (especially Lidl and Tesco). All meals must be <50g carbs/day total, high fat, moderate protein. Keep meals simple — max 5 ingredients, 4 steps. Prefer air fryer cooking. Include exact gram weights. Calculate macros accurately.`;
+
+    const USER=`Generate a ${this.aiGoals.days}-day keto meal plan.
+Targets/day: ~${this.aiGoals.calories} kcal, ~${this.aiGoals.protein}g protein, ~${this.aiGoals.fat}g fat, <${this.aiGoals.carbs}g carbs.
+Budget: ~£${this.aiGoals.budget}/week.
+
+Return JSON ONLY:
+{"days":[{"id":"mon","label":"Monday","meals":[{"name":"Meal","type":"Breakfast","ings":[["Ingredient","weight"]],"steps":["Step"],"macros":{"p":30,"f":20,"c":5}}],"daily_macros":{"p":150,"f":130,"c":28,"kcal":1942}}],"shopping_list":[{"name":"Chicken breast","qty":"1.5kg","estimated_price":3.99,"section":"protein"}],"weekly_cost_estimate":52.50,"notes":"Brief summary"}`;
+
+    try{
+      const res=await this.claudeCall([{role:'user',content:USER}],{system:SYSTEM,max_tokens:4096,stream:true});
+      const reader=res.body.getReader();
+      const dec=new TextDecoder();
+      let buf='';
+
+      while(true){
+        const{done,value}=await reader.read();
+        if(done)break;
+        buf+=dec.decode(value,{stream:true});
+        const lines=buf.split('\n');buf=lines.pop();
+        for(const line of lines){
+          if(!line.startsWith('data:'))continue;
+          const raw=line.slice(5).trim();
+          if(raw==='[DONE]')continue;
+          try{
+            const ev=JSON.parse(raw);
+            if(ev.type==='content_block_delta'&&ev.delta?.type==='text_delta'){
+              this.aiStream+=ev.delta.text;
+              if(this.$refs.aiStreamEl)this.$refs.aiStreamEl.scrollTop=9999;
+            }
+          }catch{}
+        }
+      }
+      // Parse final JSON
+      const m=this.aiStream.match(/\{[\s\S]*\}/);
+      if(m)try{this.aiPlan=JSON.parse(m[0]);}catch(e){console.warn('Plan parse:',e);}
+    }catch(e){alert('AI plan failed: '+e.message);}
+    finally{this.aiLoading=false;}
+  },
+
+  importAiPlan(){
+    if(!this.aiPlan?.days?.length)return;
+    const id='ai'+Date.now();
+    const name='AI Plan '+new Date().toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+    const preset={
+      id, name, builtin:false,
+      days:this.aiPlan.days.map(d=>({
+        ...d,
+        dot:false,
+        meals:d.meals.map(m=>({
+          ...m,
+          _uid:d.id+':'+m.name,
+          afr:false,port:false,on:false,
+          ings:m.ings||[],
+          steps:m.steps||[]
+        }))
+      })),
+      items:(this.aiPlan.shopping_list||[]).map((item,i)=>({
+        id:'ai_item_'+i,
+        name:item.name,
+        qty:item.qty,
+        price:item.estimated_price||0,
+        optional:false,
+        section:item.section||'pantry'
+      }))
+    };
+    this.customPresets=[...this.customPresets,preset];
+    this.switchPreset(id);
+    this.activeTab='mon';
+    this.save();
+    this.showToast('AI plan imported!');
+  },
+
+  save(){
+    try{
+      localStorage.setItem('keto_pid_v5',this.activePresetId);
+      localStorage.setItem('keto_chk_v5',JSON.stringify(this.allChecks));
+      localStorage.setItem('keto_ed_v5',JSON.stringify(this.allEdits));
+      localStorage.setItem('keto_mut_v5',JSON.stringify(this.mutations));
+      localStorage.setItem('keto_cus_v5',JSON.stringify(this.customPresets));
+    }catch(e){}
+  },
+  load(){
+    try{
+      this.activePresetId=localStorage.getItem('keto_pid_v5')||'af1';
+      this.allChecks=JSON.parse(localStorage.getItem('keto_chk_v5'))||{};
+      this.allEdits=JSON.parse(localStorage.getItem('keto_ed_v5'))||{};
+      this.mutations=JSON.parse(localStorage.getItem('keto_mut_v5'))||{};
+      const raw=JSON.parse(localStorage.getItem('keto_cus_v5'))||[];
+      this.customPresets=raw.map(cp=>{
+        const base=PRESETS.find(p=>p.id===(cp.baseId||'af1'))||PRESETS[0];
+        return{...cp,days:base.days};
+      });
+      this.apiKey=localStorage.getItem('keto_anthropic_key')||'';
+      this.apiKeyInput=this.apiKey;
+      this.productDb=JSON.parse(localStorage.getItem('keto_products_v1'))||[];
+    }catch(e){}
+  },
+},
+mounted(){
+  this.load();
+  if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+},
+}).mount('#app');
+</script>
+</body>
+</html>
