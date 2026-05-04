@@ -278,6 +278,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;backg
 .real-dot{font-size:8px;color:var(--bl);}
 .ai-shop-note{font-size:11px;color:var(--t3);margin-top:6px;}
 .ai-plan-notes{font-size:12px;color:var(--t3);margin-top:14px;line-height:1.6;padding:0 4px;}
+.ai-shop-remove{background:none;border:none;color:var(--t4);font-size:20px;line-height:1;cursor:pointer;padding:0 2px;margin-left:auto;flex-shrink:0;transition:color .15s;}
+.ai-shop-remove:hover{color:#EF4444;}
+.recents-bar{margin-bottom:10px;}
+.recents-toggle{font-size:12px;font-weight:600;color:var(--t3);background:none;border:none;cursor:pointer;padding:4px 0;}
+.recents-list{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;}
+.recents-item{font-size:12px;font-weight:500;color:var(--gd);background:var(--gbg);border:1px dashed var(--g);border-radius:8px;padding:5px 10px;cursor:pointer;display:flex;align-items:center;gap:4px;}
+.recents-item:active{opacity:.7;}
 </style>
 </head>
 <body>
@@ -532,10 +539,25 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;backg
         <button :class="['store-pill', {active: aiShopFilter === 'all'}]" @click="aiShopFilter='all'">All</button>
       </div>
 
+      <!-- Recently removed -->
+      <div v-if="recentlyRemoved.length" class="recents-bar">
+        <button class="recents-toggle" @click="showRecents=!showRecents">
+          Recently removed ({{ recentlyRemoved.length }}) {{ showRecents ? '▲' : '▼' }}
+        </button>
+        <div v-if="showRecents" class="recents-list">
+          <button v-for="item in recentlyRemoved" :key="item.name"
+            class="recents-item" @click="restoreAiShopItem(item)">
+            + {{ item.name }}
+            <span v-if="item.best_store" class="opt" style="margin-left:4px">{{ item.best_store }}</span>
+          </button>
+        </div>
+      </div>
+
       <div v-for="item in filteredAiShopList" :key="item.name" class="ai-shop-item">
         <div class="ai-shop-top">
           <div class="ai-shop-name">{{ item.name }}</div>
           <div class="ai-shop-qty">{{ item.qty }}</div>
+          <button class="ai-shop-remove" @click="removeAiShopItem(item.name)" title="Remove item">×</button>
         </div>
         <div class="ai-shop-prices">
           <div v-for="(price, store) in item.prices" :key="store"
@@ -952,6 +974,8 @@ data(){return{
   aiStream:'',
   aiPlan:null,
   aiShopFilter:'all',
+  recentlyRemoved:[],
+  showRecents:false,
   // Local product DB (persisted to localStorage)
   productDb:[],
 }},
@@ -1385,6 +1409,22 @@ Rules: raw=exactly as printed, name=human readable, weight=pack size or null, pr
     }finally{item.matchLoading=false;}
   },
 
+  removeAiShopItem(name){
+    const removed=this.aiPlan.shopping_list_all?.find(i=>i.name===name)||{name};
+    this.aiPlan.shopping_list=this.aiPlan.shopping_list.filter(i=>i.name!==name);
+    this.recentlyRemoved=[removed,...this.recentlyRemoved.filter(i=>i.name!==name)].slice(0,10);
+    this.showToast('Removed: '+name);
+  },
+
+  restoreAiShopItem(item){
+    if(!this.aiPlan?.shopping_list)return;
+    if(!this.aiPlan.shopping_list.find(i=>i.name===item.name)){
+      this.aiPlan.shopping_list=[...this.aiPlan.shopping_list,item];
+    }
+    this.recentlyRemoved=this.recentlyRemoved.filter(i=>i.name!==item.name);
+    this.showToast('Restored: '+item.name);
+  },
+
   saveProductToDb(product){
     if(!this.productDb.find(p=>p.name===product.name)){
       this.productDb=[...this.productDb,product];
@@ -1516,6 +1556,8 @@ Return ONLY this JSON structure (no markdown, no explanation):
               return item;
             });
           }
+          plan.shopping_list_all=[...plan.shopping_list];
+          this.recentlyRemoved=[];
           this.aiPlan=plan;
         }catch(e){console.warn('Plan JSON parse error:',e);alert('Plan generated but could not be parsed. Try again.');}
       }
