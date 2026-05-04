@@ -5,11 +5,11 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Keto Lidl">
+<meta name="apple-mobile-web-app-title" content="DietAisle">
 <meta name="theme-color" content="#15803D">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
-<title>Keto Cut — Lidl</title>
+<title>DietAisle</title>
 <script src="vue.min.js"></script>
 <style>
 :root{
@@ -26,7 +26,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;backg
 .hdr{position:sticky;top:0;z-index:100;background:var(--gdk);padding-top:var(--st);}
 .htop{display:flex;align-items:center;justify-content:space-between;padding:12px 16px 8px;}
 .atitle{font-size:17px;font-weight:800;color:#fff;letter-spacing:.04em;}
-.lidl{display:inline-block;font-size:10px;font-weight:700;background:#FFD700;color:#003DA5;border-radius:4px;padding:1px 5px;letter-spacing:.06em;margin-left:6px;vertical-align:middle;margin-bottom:2px;}
 .asub{font-size:11px;color:rgba(255,255,255,.65);margin-top:2px;}
 .mpills{display:flex;gap:5px;}
 .mp{background:rgba(255,255,255,.15);border-radius:8px;padding:4px 8px;text-align:center;min-width:36px;}
@@ -294,7 +293,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;backg
 <header class="hdr">
   <div class="htop">
     <div>
-      <div class="atitle">KETO CUT <span class="lidl">LIDL</span></div>
+      <div class="atitle">DietAisle</div>
       <!-- Dynamic subtitle — computed from calculateDailyMacros() -->
       <div class="asub">{{ activePreset.name }} · {{ dynamicSubtitle }}</div>
     </div>
@@ -445,14 +444,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;backg
 
     <div v-if="!scanLoading && !scanResult" style="padding:20px 0;text-align:center;color:var(--t3);font-size:13px;">
       Tap the button above to scan a Lidl Plus receipt, a Tesco receipt, or any supermarket receipt.
-      <br><br>Prices and nutritional data are saved to your personal database and shared to help other keto shoppers.
+      <br><br>Prices and nutritional data are saved to your personal database to improve future shopping lists.
     </div>
   </div>
 
   <!-- ── AI Meal Plan tab -->
   <div v-show="activeTab==='aiplan'">
     <div class="ai-panel">
-      <div class="ai-panel-title">Generate a Keto Meal Plan</div>
+      <div class="ai-panel-title">Generate a Meal Plan</div>
       <div class="ai-inputs">
         <div class="ai-inp-group">
           <label class="ai-inp-label">Calories / day</label>
@@ -1451,9 +1450,9 @@ Rules: raw=exactly as printed, name=human readable, weight=pack size or null, pr
     // Build context from user's local price DB so AI can use real prices where known
     const knownPrices=this.productDb.filter(p=>p.prices?.length).map(p=>`${p.name}: ${p.prices.map(pr=>`${pr.store} £${pr.price}`).join(', ')}`).join('\n');
 
-    const SYSTEM=`You are a UK keto meal planning and grocery shopping expert. You know current UK supermarket prices well, especially Lidl, Aldi, Tesco, and ASDA. Generate practical, realistic keto meal plans using ingredients available at UK discount supermarkets. All meals must be ketogenic (<50g carbs/day total). Prefer air fryer cooking. Use exact gram weights. Calculate macros accurately: protein×4 + fat×9 + carbs×4 = kcal.`;
+    const SYSTEM=`You are a UK meal planning and grocery shopping expert. You know current UK supermarket prices well, especially Lidl, Aldi, Tesco, and ASDA. Generate practical, realistic meal plans using ingredients available at UK discount supermarkets. Prefer air fryer cooking where suitable. Use exact gram weights. Calculate macros accurately: protein×4 + fat×9 + carbs×4 = kcal.`;
 
-    const USER=`Generate a ${this.aiGoals.days}-day keto meal plan.
+    const USER=`Generate a ${this.aiGoals.days}-day meal plan.
 
 Daily targets: ~${this.aiGoals.calories} kcal · ~${this.aiGoals.protein}g protein · ~${this.aiGoals.fat}g fat · <${this.aiGoals.carbs}g carbs
 Weekly budget: ~£${this.aiGoals.budget}

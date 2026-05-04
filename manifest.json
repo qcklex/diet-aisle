@@ -1,7 +1,7 @@
 {
-  "name": "Keto Cut — Lidl",
-  "short_name": "Keto Lidl",
-  "description": "Weekly keto meal plan and Lidl shopping list",
+  "name": "DietAisle",
+  "short_name": "DietAisle",
+  "description": "Smart meal planning & UK supermarket price comparison",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#166534",
