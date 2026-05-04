@@ -388,7 +388,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;backg
       <div class="scan-hero-sub">Works with Lidl, Aldi, Tesco — any store. Prices and macros saved automatically.</div>
       <label class="scan-upload-btn">
         📷 Take photo or upload
-        <input class="scan-input" type="file" accept="image/*" capture="environment" @change="onReceiptFile">
+        <input class="scan-input" type="file" accept="image/*" @change="onReceiptFile">
       </label>
     </div>
 
@@ -1404,7 +1404,6 @@ Rules: raw=exactly as printed, name=human readable, weight=pack size or null, pr
             item.product=product;item.nutrition_confidence='low';
           }
         }catch(e){console.warn('Claude est:',e.message);}
-      }
     }finally{item.matchLoading=false;}
   },
 
