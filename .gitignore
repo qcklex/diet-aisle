@@ -4,3 +4,4 @@ api/node_modules/
 api/.env
 api/keto.json
 .DS_Store
+.gstack/
