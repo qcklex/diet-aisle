@@ -298,7 +298,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;backg
       <div class="asub">{{ activePreset.name }} · {{ dynamicSubtitle }}</div>
     </div>
     <!-- Macro pills — now driven by calculateDailyMacros(), not hardcoded -->
-    <div class="mpills" v-if="activeTab!=='shop'">
+    <div class="mpills" v-if="activeTab!=='shop'&&activeTab!=='house'">
       <div class="mp"><div class="mpv">{{ currentDayMacros.p }}</div><div class="mpl">P</div></div>
       <div class="mp"><div class="mpv">{{ currentDayMacros.f }}</div><div class="mpl">F</div></div>
       <div class="mp"><div class="mpv">{{ currentDayMacros.c }}</div><div class="mpl">C</div></div>
@@ -322,6 +322,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;backg
       {{ d.short }}<span v-if="d.dot" class="cdot"></span>
     </button>
     <button :class="['tab',{active:activeTab==='shop'}]" @click="activeTab='shop'">🛒 Shop</button>
+    <button :class="['tab',{active:activeTab==='house'}]" @click="activeTab='house'">🏠 House</button>
     <button :class="['tab',{active:activeTab==='scan'}]" @click="activeTab='scan'">📷 Scan</button>
     <button :class="['tab',{active:activeTab==='aiplan'}]" @click="activeTab='aiplan'">✦ AI Plan</button>
   </nav>
@@ -891,6 +892,47 @@ D('sun','Sun','Sunday',false,[
   M('Bacon & eggs','Breakfast',true,false,false,[['Eggs','3 (180g)'],['Bacon','60g'],['Mushrooms','80g'],['Butter','10g']],['Preheat air fryer to 180°C for 3 min','Add bacon and mushrooms to basket — cook 180°C · 8–10 min','Melt butter in a pan, fry 3 eggs to your preference','Plate everything together, season with salt and pepper'],{p:32,f:28,c:2}),
   M('Tuna feta bowl','Lunch',false,false,false,[['Tuna tinned','150g'],['Feta','40g'],['Spinach','50g'],['Tomatoes','80g'],['Olive oil','15g']],['Drain tinned tuna thoroughly','Toss spinach and tomatoes with olive oil, season','Add tuna on top, crumble feta over everything','Mix gently and serve'],{p:38,f:20,c:5}),
   M('AF salmon & asparagus','Dinner',true,false,false,[['Salmon fillet','130g'],['Asparagus','120g'],['Butter','10g'],['Olive oil','10g']],['Preheat air fryer to 180°C for 3 min','Pat salmon dry, season with salt, pepper, lemon','Place skin-side down in basket alongside asparagus in olive oil','Cook 180°C · 12 min — salmon flakes, asparagus tender-crisp','Toss asparagus with 10g butter right off the heat'],{p:30,f:18,c:5}),
+]),
+],
+items:[I('p1','Chicken breast','2.5kg',2.75,false,'protein'),I('p2','Eggs','×24',1.80,false,'protein'),I('p3','Bacon','360g',1.50,false,'protein'),I('p4','Salami bites','640g (8 packs)',1.25,false,'protein'),I('d1','Cheddar cheese','100g',1.50,false,'dairy'),I('d2','Babybel Protein','200g',4.99,false,'dairy'),I('d3','Greek yogurt','1kg',2.50,false,'dairy'),I('n1','Walnuts','100g',1.99,false,'nuts'),I('n2','Pecans','150g',2.50,false,'nuts'),I('v1','Sweet & crunchy salad','450g',1.20,false,'veg'),I('f1','Almond milk unsweetened','600ml',1.00,false,'fats'),I('pa1','Dark chocolate 90%','100g',1.20,false,'pantry'),I('pa2','Frozen berries','150g',1.50,false,'pantry'),
+]},
+{id:'asda1',name:'ASDA Alternating (Mon-Sun)',builtin:true,
+days:[
+D('mon','Mon','Monday (Day A)',false,[
+  M('Fried eggs & walnuts','Breakfast',false,false,false,[['Eggs','3 large'],['Walnuts','30g'],['Almond milk','200ml']],['Heat non-stick pan with a touch of oil on medium','Fry 3 eggs to preference — 3–4 min until yolks set to your liking','Toast 30g walnuts in a small pan 2 min until fragrant','Serve eggs with walnuts and almond milk on the side'],{p:48,f:28,c:2}),
+  M('Chicken, salami & salad','Lunch',false,false,false,[['Chicken breast','150g'],['Salami bites','80g'],['Sweet & crunchy salad','150g'],['Cheddar cheese','50g']],['Season chicken breast with salt & pepper','Cook in non-stick pan on medium 8–10 min each side until golden','Toss salad with a pinch of salt and pepper','Plate chicken, salami, and salad together with cheese scattered on top'],{p:58,f:32,c:5}),
+  M('Chicken, pecans & Babybel','Dinner',false,false,false,[['Chicken breast','200g'],['Pecans','30g'],['Greek yogurt','50g'],['Babybel Protein','100g']],['Season chicken with salt & pepper','Cook in pan on medium 10–12 min per side until fully cooked','Toast pecans 2 min in dry pan','Plate chicken with pecans on the side, yogurt and Babybel together'],{p:72,f:50,c:11}),
+]),
+D('tue','Tue','Tuesday (Day B)',false,[
+  M('Eggs, bacon & salad','Breakfast',false,false,false,[['Eggs','3 large'],['Bacon','60g'],['Sweet & crunchy salad','150g'],['Dark chocolate','10g']],['Cook bacon in pan 5–7 min until crispy, set aside','Fry 3 eggs in bacon fat, 3–4 min to your preference','Toss salad with a pinch of salt','Plate everything together, add small square of dark chocolate on the side'],{p:48,f:35,c:3}),
+  M('Chicken & salami salad','Lunch',false,false,false,[['Chicken breast','250g'],['Salami bites','80g'],['Sweet & crunchy salad','150g']],['Season chicken with salt & pepper','Cook in non-stick pan 10–12 min per side until golden and cooked through','Toss salad with minimal seasoning','Plate sliced chicken with salami bites and salad'],{p:68,f:40,c:5}),
+  M('Salami, yogurt & berries','Dinner',false,false,false,[['Salami bites','160g'],['Greek yogurt','320g'],['Frozen berries','50g']],['Heat frozen berries gently in a small pan 2–3 min until warm','Spoon yogurt into bowl, top with warm berries','Salami bites on the side — eat cold or at room temperature'],{p:70,f:45,c:11}),
+]),
+D('wed','Wed','Wednesday (Day A)',false,[
+  M('Fried eggs & walnuts','Breakfast',false,false,false,[['Eggs','3 large'],['Walnuts','30g'],['Almond milk','200ml']],['Heat non-stick pan with a touch of oil on medium','Fry 3 eggs to preference — 3–4 min','Toast 30g walnuts in a small pan 2 min','Serve eggs with walnuts and almond milk'],{p:48,f:28,c:2}),
+  M('Chicken, salami & salad','Lunch',false,false,false,[['Chicken breast','150g'],['Salami bites','80g'],['Sweet & crunchy salad','150g'],['Cheddar cheese','50g']],['Season chicken with salt & pepper','Cook in non-stick pan 8–10 min per side until golden','Toss salad with salt and pepper','Plate everything together'],{p:58,f:32,c:5}),
+  M('Chicken, pecans & Babybel','Dinner',false,false,false,[['Chicken breast','200g'],['Pecans','30g'],['Greek yogurt','50g'],['Babybel Protein','100g']],['Season chicken with salt & pepper','Cook in pan 10–12 min per side','Toast pecans 2 min in dry pan','Plate with pecans, yogurt and Babybel'],{p:72,f:50,c:11}),
+]),
+D('thu','Thu','Thursday (Day B)',false,[
+  M('Eggs, bacon & salad','Breakfast',false,false,false,[['Eggs','3 large'],['Bacon','60g'],['Sweet & crunchy salad','150g'],['Dark chocolate','10g']],['Cook bacon 5–7 min until crispy','Fry 3 eggs in bacon fat, 3–4 min','Toss salad with salt','Plate with chocolate on side'],{p:48,f:35,c:3}),
+  M('Chicken & salami salad','Lunch',false,false,false,[['Chicken breast','250g'],['Salami bites','80g'],['Sweet & crunchy salad','150g']],['Season chicken with salt & pepper','Cook 10–12 min per side until golden','Toss salad','Plate sliced chicken with salami and salad'],{p:68,f:40,c:5}),
+  M('Salami, yogurt & berries','Dinner',false,false,false,[['Salami bites','160g'],['Greek yogurt','320g'],['Frozen berries','50g']],['Heat berries gently 2–3 min','Spoon yogurt into bowl, top with warm berries','Salami on the side'],{p:70,f:45,c:11}),
+]),
+D('fri','Fri','Friday (Day A)',false,[
+  M('Fried eggs & walnuts','Breakfast',false,false,false,[['Eggs','3 large'],['Walnuts','30g'],['Almond milk','200ml']],['Heat non-stick pan on medium with a touch of oil','Fry 3 eggs 3–4 min','Toast walnuts 2 min','Serve with almond milk'],{p:48,f:28,c:2}),
+  M('Chicken, salami & salad','Lunch',false,false,false,[['Chicken breast','150g'],['Salami bites','80g'],['Sweet & crunchy salad','150g'],['Cheddar cheese','50g']],['Season chicken salt & pepper, cook 8–10 min per side','Toss salad','Plate everything together with cheese'],{p:58,f:32,c:5}),
+  M('Chicken, pecans & Babybel','Dinner',false,false,false,[['Chicken breast','200g'],['Pecans','30g'],['Greek yogurt','50g'],['Babybel Protein','100g']],['Season chicken, cook 10–12 min per side','Toast pecans 2 min','Plate with yogurt and Babybel'],{p:72,f:50,c:11}),
+]),
+D('sat','Sat','Saturday (Day B)',false,[
+  M('Eggs, bacon & salad','Breakfast',false,false,false,[['Eggs','3 large'],['Bacon','60g'],['Sweet & crunchy salad','150g'],['Dark chocolate','10g']],['Cook bacon 5–7 min until crispy','Fry eggs 3–4 min in bacon fat','Toss salad','Plate with chocolate'],{p:48,f:35,c:3}),
+  M('Chicken & salami salad','Lunch',false,false,false,[['Chicken breast','250g'],['Salami bites','80g'],['Sweet & crunchy salad','150g']],['Season chicken, cook 10–12 min per side','Toss salad','Plate'],{p:68,f:40,c:5}),
+  M('Salami, yogurt & berries','Dinner',false,false,false,[['Salami bites','160g'],['Greek yogurt','320g'],['Frozen berries','50g']],['Heat berries 2–3 min','Spoon yogurt, top with berries','Salami on side'],{p:70,f:45,c:11}),
+]),
+D('sun','Sun','Sunday (Day A)',false,[
+  M('Fried eggs & walnuts','Breakfast',false,false,false,[['Eggs','3 large'],['Walnuts','30g'],['Almond milk','200ml']],['Heat pan on medium','Fry 3 eggs 3–4 min','Toast walnuts 2 min','Serve with almond milk'],{p:48,f:28,c:2}),
+  M('Chicken, salami & salad','Lunch',false,false,false,[['Chicken breast','150g'],['Salami bites','80g'],['Sweet & crunchy salad','150g'],['Cheddar cheese','50g']],['Season and cook chicken 8–10 min per side','Toss salad','Plate everything'],{p:58,f:32,c:5}),
+  M('Chicken, pecans & Babybel','Dinner',false,false,false,[['Chicken breast','200g'],['Pecans','30g'],['Greek yogurt','50g'],['Babybel Protein','100g']],['Cook chicken 10–12 min per side','Toast pecans 2 min','Plate with yogurt and Babybel'],{p:72,f:50,c:11}),
+]),
   M('ON shake + yogurt','Snack',false,false,true,[['ON Hydro/Isolate','50g'],['Greek yogurt','150g'],['Walnuts','15g']],['Mix 50g ON with 150g Greek yogurt until smooth','Scatter 15g walnuts on top, eat immediately'],{p:56,f:14,c:14}),
 ]),
 ],
