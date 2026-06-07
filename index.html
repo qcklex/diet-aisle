@@ -311,7 +311,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;backg
       <div class="asub">{{ activePreset.name }} · {{ dynamicSubtitle }}</div>
     </div>
     <!-- Macro pills — now driven by calculateDailyMacros(), not hardcoded -->
-    <div class="mpills" v-if="activeTab!=='shop'&&activeTab!=='house'&&activeTab!=='weekmenu'&&activeTab!=='ketolist'">
+    <div class="mpills" v-if="activeTab!=='shop'&&activeTab!=='house'&&activeTab!=='ketolist'&&activeTab!=='dayA'&&activeTab!=='dayB'&&activeTab!=='dayC'">
       <div class="mp"><div class="mpv">{{ currentDayMacros.p }}</div><div class="mpl">P</div></div>
       <div class="mp"><div class="mpv">{{ currentDayMacros.f }}</div><div class="mpl">F</div></div>
       <div class="mp"><div class="mpv">{{ currentDayMacros.c }}</div><div class="mpl">C</div></div>
@@ -334,11 +334,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;backg
     <button v-for="d in activeDays" :key="d.id" :class="['tab',{active:activeTab===d.id}]" @click="activeTab=d.id">
       {{ d.short }}<span v-if="d.dot" class="cdot"></span>
     </button>
+    <button v-for="wd in weekMenu" :key="wd.id" :class="['tab',{active:activeTab===wd.id}]" @click="activeTab=wd.id" :style="activeTab===wd.id?{}:{borderColor:'transparent'}">
+      {{ wd.short }}
+    </button>
     <button :class="['tab',{active:activeTab==='shop'}]" @click="activeTab='shop'">🛒 Shop</button>
     <button :class="['tab',{active:activeTab==='house'}]" @click="activeTab='house'">🏠 House</button>
     <button :class="['tab',{active:activeTab==='scan'}]" @click="activeTab='scan'">📷 Scan</button>
     <button :class="['tab',{active:activeTab==='aiplan'}]" @click="activeTab='aiplan'">✦ AI Plan</button>
-    <button :class="['tab',{active:activeTab==='weekmenu'}]" @click="activeTab='weekmenu'">📅 Menu</button>
     <button :class="['tab',{active:activeTab==='ketolist'}]" @click="activeTab='ketolist'">📋 Keto Shop</button>
   </nav>
 </header>
@@ -397,25 +399,29 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;backg
     </div>
   </template>
 
-  <!-- ── Weekly Menu tab -->
-  <div v-show="activeTab==='weekmenu'">
-    <p class="wm-note">All 3 days hit the same macro zone — rotate freely or match to what's freshest. <strong>A → B → C → repeat</strong> keeps boredom away.</p>
-    <div v-for="day in weekMenu" :key="day.id" class="wm-day">
-      <div class="wm-day-hdr" :style="{background:day.color}">
-        <div class="wm-day-title">{{ day.label }}</div>
-        <div class="wm-day-sub">{{ day.sub }}</div>
-      </div>
-      <div v-for="meal in day.meals" :key="meal.time" class="wm-meal">
-        <div class="wm-time">{{ meal.time }}</div>
-        <div class="wm-mname">{{ meal.name }}</div>
-        <div class="wm-macros">{{ meal.macros }}</div>
-        <div class="wm-ings">
-          <span v-for="ing in meal.ings" :key="ing[0]" class="wm-ing">{{ ing[0] }}<span v-if="ing[1]"> · {{ ing[1] }}</span></span>
+  <!-- ── Menu day tabs (Day A / B / C) -->
+  <template v-for="wd in weekMenu" :key="wd.id">
+    <div v-show="activeTab===wd.id">
+      <div class="dlbl" :style="{borderLeftColor:wd.color}">{{ wd.label }}</div>
+      <article v-for="meal in wd.meals" :key="meal.time" class="mc">
+        <div class="mh">
+          <div style="flex:1">
+            <div class="mn">{{ meal.name }}</div>
+          </div>
+          <div class="mtype">{{ meal.time }}</div>
         </div>
-      </div>
+        <div class="mmacros">
+          <span class="mmc" style="background:var(--bdl);color:var(--t3)">{{ meal.macros }}</span>
+        </div>
+        <div class="ings">
+          <div v-for="ing in meal.ings" :key="ing[0]" class="ing">
+            {{ ing[0] }}<span v-if="ing[1]" class="iq">{{ ing[1] }}</span>
+          </div>
+        </div>
+      </article>
+      <p class="wm-note" style="padding-bottom:18px">All 3 days eat off the <strong>same Sunday batch cook</strong> — rotate freely, A → B → C → repeat.</p>
     </div>
-    <p class="wm-note" style="padding-bottom:18px">All 3 days eat off the <strong>same Sunday batch cook</strong> — roast chicken, browned mince, baked salmon, cruciferous trays, jarred chia puddings. Alternating is just grabbing different containers.</p>
-  </div>
+  </template>
 
   <!-- ── Keto Shopping List tab -->
   <div v-show="activeTab==='ketolist'">
@@ -1098,7 +1104,7 @@ items:[
 ];
 
 const WEEK_MENU=[
-  {id:'dayA',label:'Day A — Chicken & Eggs',sub:'~180P · ~105F · ~36g fiber · ~1,770 kcal',color:'#15803D',
+  {id:'dayA',short:'Day A',label:'Day A — Chicken & Eggs',sub:'~180P · ~105F · ~36g fiber · ~1,770 kcal',color:'#15803D',
    meals:[
     {time:'~10am · Post-workout',name:'Whey shake + scrambled eggs + avocado',macros:'~70P / 48F / 13g fiber',
      ings:[['Whey protein shake','2 scoops'],['Eggs','3, scrambled in butter'],['Spinach','large handful'],['Avocado','1 whole']]},
@@ -1109,7 +1115,7 @@ const WEEK_MENU=[
     {time:'~5:30pm · Dinner',name:'Salmon + green beans',macros:'~32P / 30F / 6g fiber',
      ings:[['Salmon fillet','150g'],['Green beans','large portion'],['Olive oil','drizzle']]},
   ]},
-  {id:'dayB',label:'Day B — Beef & Mediterranean',sub:'~180P · ~108F · ~37g fiber · ~1,800 kcal',color:'#D97706',
+  {id:'dayB',short:'Day B',label:'Day B — Beef & Mediterranean',sub:'~180P · ~108F · ~37g fiber · ~1,800 kcal',color:'#D97706',
    meals:[
     {time:'~10am · Post-workout',name:'Beef omelette + flax yogurt + ½ avocado',macros:'~65P / 50F / 12g fiber',
      ings:[['Eggs','3'],['Beef mince 20%','60g'],['Cheese','30g'],['Spinach','handful'],['Avocado','½'],['Ground flaxseed','1 tbsp (in Greek yogurt)']]},
@@ -1120,7 +1126,7 @@ const WEEK_MENU=[
     {time:'~5:30pm · Dinner',name:'Chicken thigh + kale & broccoli sauté + cheese',macros:'~58P / 18F / 6g fiber',
      ings:[['Chicken thighs','200g'],['Kale','large portion'],['Broccoli','portion'],['Olive oil','drizzle'],['Block cheese','30g']]},
   ]},
-  {id:'dayC',label:'Day C — Fish-Forward & Lighter',sub:'~175P · ~109F · ~34g fiber · ~1,765 kcal',color:'#1D4ED8',
+  {id:'dayC',short:'Day C',label:'Day C — Fish-Forward & Lighter',sub:'~175P · ~109F · ~34g fiber · ~1,765 kcal',color:'#1D4ED8',
    meals:[
     {time:'~10am · Post-workout',name:'Whey shake + chia-flax pudding + ½ avocado',macros:'~60P / 35F / 16g fiber',
      ings:[['Whey protein shake','2 scoops'],['Chia seeds','2 tbsp'],['Ground flaxseed','1 tbsp'],['Almond milk','150ml'],['Avocado','½ on the side']]},
@@ -1286,14 +1292,15 @@ computed:{
 
   // ── calculateDailyMacros result for the active day tab
   currentDayMacros(){
-    if(['shop','house','weekmenu','ketolist'].includes(this.activeTab))return{p:0,f:0,c:0,kcal:0};
+    if(['shop','house','ketolist','dayA','dayB','dayC'].includes(this.activeTab))return{p:0,f:0,c:0,kcal:0};
     return this.calculateDailyMacros(this.activeTab);
   },
   // Dynamic subtitle — shows live calculated macros, not hardcoded string
   dynamicSubtitle(){
     if(this.activeTab==='shop'||this.activeTab==='house')return'Weekly shopping list';
-    if(this.activeTab==='weekmenu')return'3-day rotating plan · A → B → C';
     if(this.activeTab==='ketolist')return'Batch-cook shopping list';
+    const _wmd=this.weekMenu.find(w=>w.id===this.activeTab);
+    if(_wmd)return _wmd.sub;
     const m=this.currentDayMacros;
     if(!m.kcal)return'No meals logged';
     return`${m.kcal} kcal · ${m.p}g P · ${m.f}g F · ${m.c}g C`;
