@@ -263,6 +263,19 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;backg
 .store-filter-row::-webkit-scrollbar{display:none;}
 .store-pill{flex-shrink:0;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;padding:5px 12px;border-radius:20px;border:1px solid var(--bd);background:#fff;color:var(--t3);cursor:pointer;}
 .store-pill.active{background:var(--gdk);border-color:var(--gdk);color:#fff;}
+/* ── Week Menu tab */
+.wm-day{background:var(--card);border:1px solid var(--bd);border-radius:14px;overflow:hidden;margin-bottom:14px;}
+.wm-day-hdr{padding:13px 15px 11px;}
+.wm-day-title{font-size:15px;font-weight:800;color:#fff;line-height:1.25;}
+.wm-day-sub{font-size:11px;color:rgba(255,255,255,.72);margin-top:3px;}
+.wm-meal{border-top:1px solid var(--bdl);padding:10px 15px;}
+.wm-time{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--t4);margin-bottom:2px;}
+.wm-mname{font-size:14px;font-weight:600;color:var(--t1);margin-bottom:5px;line-height:1.3;}
+.wm-macros{font-size:11px;font-weight:600;color:var(--t3);background:var(--bdl);border-radius:5px;padding:2px 7px;display:inline-block;margin-bottom:7px;}
+.wm-ings{display:flex;flex-wrap:wrap;gap:4px;}
+.wm-ing{font-size:12px;color:var(--t2);background:var(--bdl);border-radius:6px;padding:2px 8px;}
+.wm-ing span{color:var(--t4);}
+.wm-note{font-size:12px;color:var(--t3);text-align:center;padding:10px 16px 4px;line-height:1.6;}
 /* ── AI shopping list items */
 .ai-shop-item{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:12px 14px;margin-bottom:8px;}
 .ai-shop-top{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:8px;}
@@ -298,7 +311,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;backg
       <div class="asub">{{ activePreset.name }} · {{ dynamicSubtitle }}</div>
     </div>
     <!-- Macro pills — now driven by calculateDailyMacros(), not hardcoded -->
-    <div class="mpills" v-if="activeTab!=='shop'&&activeTab!=='house'">
+    <div class="mpills" v-if="activeTab!=='shop'&&activeTab!=='house'&&activeTab!=='weekmenu'&&activeTab!=='ketolist'">
       <div class="mp"><div class="mpv">{{ currentDayMacros.p }}</div><div class="mpl">P</div></div>
       <div class="mp"><div class="mpv">{{ currentDayMacros.f }}</div><div class="mpl">F</div></div>
       <div class="mp"><div class="mpv">{{ currentDayMacros.c }}</div><div class="mpl">C</div></div>
@@ -325,6 +338,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;backg
     <button :class="['tab',{active:activeTab==='house'}]" @click="activeTab='house'">🏠 House</button>
     <button :class="['tab',{active:activeTab==='scan'}]" @click="activeTab='scan'">📷 Scan</button>
     <button :class="['tab',{active:activeTab==='aiplan'}]" @click="activeTab='aiplan'">✦ AI Plan</button>
+    <button :class="['tab',{active:activeTab==='weekmenu'}]" @click="activeTab='weekmenu'">📅 Menu</button>
+    <button :class="['tab',{active:activeTab==='ketolist'}]" @click="activeTab='ketolist'">📋 Keto Shop</button>
   </nav>
 </header>
 
@@ -381,6 +396,47 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;backg
       <button class="add-btn" @click="openAddMeal(d.id)">+ Add meal to {{ d.short }}</button>
     </div>
   </template>
+
+  <!-- ── Weekly Menu tab -->
+  <div v-show="activeTab==='weekmenu'">
+    <p class="wm-note">All 3 days hit the same macro zone — rotate freely or match to what's freshest. <strong>A → B → C → repeat</strong> keeps boredom away.</p>
+    <div v-for="day in weekMenu" :key="day.id" class="wm-day">
+      <div class="wm-day-hdr" :style="{background:day.color}">
+        <div class="wm-day-title">{{ day.label }}</div>
+        <div class="wm-day-sub">{{ day.sub }}</div>
+      </div>
+      <div v-for="meal in day.meals" :key="meal.time" class="wm-meal">
+        <div class="wm-time">{{ meal.time }}</div>
+        <div class="wm-mname">{{ meal.name }}</div>
+        <div class="wm-macros">{{ meal.macros }}</div>
+        <div class="wm-ings">
+          <span v-for="ing in meal.ings" :key="ing[0]" class="wm-ing">{{ ing[0] }}<span v-if="ing[1]"> · {{ ing[1] }}</span></span>
+        </div>
+      </div>
+    </div>
+    <p class="wm-note" style="padding-bottom:18px">All 3 days eat off the <strong>same Sunday batch cook</strong> — roast chicken, browned mince, baked salmon, cruciferous trays, jarred chia puddings. Alternating is just grabbing different containers.</p>
+  </div>
+
+  <!-- ── Keto Shopping List tab -->
+  <div v-show="activeTab==='ketolist'">
+    <div class="shop-top">
+      <div class="shop-h">Keto 3-Day Shop</div>
+      <button v-show="Object.values(weekMenuChecked).some(Boolean)" class="btn-clear" @click="clearKSChecked">Clear checked</button>
+    </div>
+    <template v-for="sec in ketoShopList" :key="sec.section">
+      <div class="slbl"><span class="sdot" :style="{background:sec.color}"></span><span class="stxt">{{ sec.section }}</span></div>
+      <div v-for="item in sec.items" :key="item.id" class="srow">
+        <div :class="['si',{checked:weekMenuChecked[item.id]}]" @click="toggleKSItem(item.id)">
+          <div class="chk"><svg width="12" height="10" viewBox="0 0 12 10" fill="none"><path d="M1 5l3.5 3.5L11 1" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div class="ibody">
+            <div class="iname">{{ item.name }}</div>
+            <div class="imeta"><span class="iqty">{{ item.qty }}</span><span class="ipr">{{ item.price }}</span></div>
+          </div>
+        </div>
+      </div>
+    </template>
+    <p class="totn" style="margin-top:16px">Batch-cook Sunday · Use before next shop · Prices are estimates only</p>
+  </div>
 
   <!-- ── Scan Receipt tab -->
   <div v-show="activeTab==='scan'">
@@ -1042,6 +1098,81 @@ items:[
 ]},
 ];
 
+const WEEK_MENU=[
+  {id:'dayA',label:'Day A — Chicken & Eggs',sub:'~180P · ~105F · ~36g fiber · ~1,770 kcal',color:'#15803D',
+   meals:[
+    {time:'~10am · Post-workout',name:'Whey shake + scrambled eggs + avocado',macros:'~70P / 48F / 13g fiber',
+     ings:[['Whey protein shake','2 scoops'],['Eggs','3, scrambled in butter'],['Spinach','large handful'],['Avocado','1 whole']]},
+    {time:'~1pm · Lunch',name:'Roast chicken breast + broccoli & cauliflower',macros:'~55P / 18F / 7g fiber',
+     ings:[['Chicken breast','180–200g roasted'],['Broccoli & cauliflower','large tray'],['Olive oil','drizzle']]},
+    {time:'Afternoon · Fiber snack',name:'Chia pudding',macros:'~5P / 9F / 10g fiber',
+     ings:[['Chia seeds','2 tbsp'],['Almond milk','150ml'],['Cinnamon','to taste']]},
+    {time:'~5:30pm · Dinner',name:'Salmon + green beans',macros:'~32P / 30F / 6g fiber',
+     ings:[['Salmon fillet','150g'],['Green beans','large portion'],['Olive oil','drizzle']]},
+  ]},
+  {id:'dayB',label:'Day B — Beef & Mediterranean',sub:'~180P · ~108F · ~37g fiber · ~1,800 kcal',color:'#D97706',
+   meals:[
+    {time:'~10am · Post-workout',name:'Beef omelette + flax yogurt + ½ avocado',macros:'~65P / 50F / 12g fiber',
+     ings:[['Eggs','3'],['Beef mince 20%','60g'],['Cheese','30g'],['Spinach','handful'],['Avocado','½'],['Ground flaxseed','1 tbsp (in Greek yogurt)']]},
+    {time:'~1pm · Lunch',name:'Beef mince with courgette, peppers & brussels sprouts',macros:'~50P / 28F / 8g fiber',
+     ings:[['Beef mince 20%','180g (batch)'],['Courgette','½'],['Peppers','½'],['Brussels sprouts','large portion'],['Olive oil & paprika','to taste']]},
+    {time:'Afternoon · Fiber snack',name:'Chia pudding + crushed almonds',macros:'~7P / 12F / 11g fiber',
+     ings:[['Chia seeds','2 tbsp'],['Almond milk','150ml'],['Almonds','small handful, crushed']]},
+    {time:'~5:30pm · Dinner',name:'Chicken thigh + kale & broccoli sauté + cheese',macros:'~58P / 18F / 6g fiber',
+     ings:[['Chicken thighs','200g'],['Kale','large portion'],['Broccoli','portion'],['Olive oil','drizzle'],['Block cheese','30g']]},
+  ]},
+  {id:'dayC',label:'Day C — Fish-Forward & Lighter',sub:'~175P · ~109F · ~34g fiber · ~1,765 kcal',color:'#1D4ED8',
+   meals:[
+    {time:'~10am · Post-workout',name:'Whey shake + chia-flax pudding + ½ avocado',macros:'~60P / 35F / 16g fiber',
+     ings:[['Whey protein shake','2 scoops'],['Chia seeds','2 tbsp'],['Ground flaxseed','1 tbsp'],['Almond milk','150ml'],['Avocado','½ on the side']]},
+    {time:'~1pm · Lunch',name:'Mackerel or salmon + spinach & rocket salad + ½ avocado',macros:'~45P / 42F / 8g fiber',
+     ings:[['Mackerel or salmon','2 tins/fillets'],['Spinach & rocket','large salad base'],['Avocado','½'],['Olive oil & lemon','dressing']]},
+    {time:'Afternoon · Fiber snack',name:'Full-fat Greek yogurt + flax & cinnamon',macros:'~20P / 10F / 3g fiber',
+     ings:[['Greek yogurt (full-fat)','150g'],['Ground flaxseed','1 tsp'],['Cinnamon','pinch']]},
+    {time:'~5:30pm · Dinner',name:'Salmon or white fish + roasted cauliflower & green beans',macros:'~50P / 22F / 7g fiber',
+     ings:[['Salmon or white fish','180g'],['Cauliflower','large portion'],['Green beans','portion'],['Butter','knob']]},
+  ]},
+];
+
+const KETO_SHOP_LIST=[
+  {section:'Protein',color:'#16A34A',items:[
+    {id:'ks_p1',name:'Chicken breast (batch roast)',qty:'~600g',price:'~£2.50'},
+    {id:'ks_p2',name:'Chicken thighs',qty:'~200g',price:'~£0.80'},
+    {id:'ks_p3',name:'Beef mince (20% fat)',qty:'~400g',price:'~£2.00'},
+    {id:'ks_p4',name:'Salmon fillets',qty:'×2–3 (~450g total)',price:'~£4.00–6.00'},
+    {id:'ks_p5',name:'Mackerel (tinned or fresh)',qty:'×2 tins or 1 fillet',price:'~£1.50'},
+    {id:'ks_p6',name:'Eggs',qty:'×6',price:'~£1.20'},
+    {id:'ks_p7',name:'Whey protein isolate',qty:'2 scoops × 2 days',price:'from tub'},
+    {id:'ks_p8',name:'Full-fat Greek yogurt',qty:'~300g',price:'~£1.00'},
+  ]},
+  {section:'Veg & Fiber',color:'#7C3AED',items:[
+    {id:'ks_v1',name:'Avocados',qty:'×3',price:'~£1.50'},
+    {id:'ks_v2',name:'Spinach',qty:'large bag (~200g)',price:'~£1.00'},
+    {id:'ks_v3',name:'Broccoli',qty:'1 large head',price:'~£0.89'},
+    {id:'ks_v4',name:'Cauliflower',qty:'1 head',price:'~£0.79'},
+    {id:'ks_v5',name:'Green beans',qty:'~300g',price:'~£0.89'},
+    {id:'ks_v6',name:'Kale',qty:'~100g',price:'~£0.50'},
+    {id:'ks_v7',name:'Courgette',qty:'×1',price:'~£0.40'},
+    {id:'ks_v8',name:'Peppers',qty:'×1',price:'~£0.45'},
+    {id:'ks_v9',name:'Brussels sprouts',qty:'~150g',price:'~£0.79'},
+    {id:'ks_v10',name:'Rocket or mixed salad',qty:'~80g',price:'~£0.89'},
+  ]},
+  {section:'Fats & Dairy',color:'#B45309',items:[
+    {id:'ks_f1',name:'Extra virgin olive oil',qty:'top up if needed',price:'in stock'},
+    {id:'ks_f2',name:'Butter',qty:'top up',price:'in stock'},
+    {id:'ks_f3',name:'Block cheese (cheddar)',qty:'~60g',price:'~£0.50'},
+  ]},
+  {section:'Seeds & Pantry',color:'#92400E',items:[
+    {id:'ks_s1',name:'Chia seeds',qty:'~90g (6 tbsp)',price:'~£0.68'},
+    {id:'ks_s2',name:'Ground flaxseed',qty:'~30g',price:'~£0.30'},
+    {id:'ks_s3',name:'Almond milk (unsweetened)',qty:'500ml',price:'~£0.90'},
+    {id:'ks_s4',name:'Almonds (crushed)',qty:'small portion',price:'~£0.50'},
+    {id:'ks_s5',name:'Cinnamon',qty:'check stock',price:'in stock'},
+    {id:'ks_s6',name:'Paprika',qty:'check stock',price:'in stock'},
+    {id:'ks_s7',name:'Lemon',qty:'×1',price:'~£0.30'},
+  ]},
+];
+
 createApp({
 data(){return{
   activeTab:'mon',
@@ -1088,6 +1219,10 @@ data(){return{
   showRecents:false,
   // Local product DB (persisted to localStorage)
   productDb:[],
+  // Week Menu & Keto Shopping List
+  weekMenu:WEEK_MENU,
+  ketoShopList:KETO_SHOP_LIST,
+  weekMenuChecked:{},
 }},
 computed:{
   // ── Store comparison derived from aiPlan shopping list
@@ -1152,12 +1287,14 @@ computed:{
 
   // ── calculateDailyMacros result for the active day tab
   currentDayMacros(){
-    if(this.activeTab==='shop')return{p:0,f:0,c:0,kcal:0};
+    if(['shop','house','weekmenu','ketolist'].includes(this.activeTab))return{p:0,f:0,c:0,kcal:0};
     return this.calculateDailyMacros(this.activeTab);
   },
   // Dynamic subtitle — shows live calculated macros, not hardcoded string
   dynamicSubtitle(){
-    if(this.activeTab==='shop')return'Weekly shopping list';
+    if(this.activeTab==='shop'||this.activeTab==='house')return'Weekly shopping list';
+    if(this.activeTab==='weekmenu')return'3-day rotating plan · A → B → C';
+    if(this.activeTab==='ketolist')return'Batch-cook shopping list';
     const m=this.currentDayMacros;
     if(!m.kcal)return'No meals logged';
     return`${m.kcal} kcal · ${m.p}g P · ${m.f}g F · ${m.c}g C`;
@@ -1410,6 +1547,15 @@ methods:{
     if(this.activePresetId===id)this.switchPreset(PRESETS[0].id);
     this.save();
   },
+  toggleKSItem(id){
+    this.weekMenuChecked={...this.weekMenuChecked,[id]:!this.weekMenuChecked[id]};
+    try{localStorage.setItem('keto_ksck_v1',JSON.stringify(this.weekMenuChecked));}catch(e){}
+  },
+  clearKSChecked(){
+    this.weekMenuChecked={};
+    try{localStorage.setItem('keto_ksck_v1',JSON.stringify(this.weekMenuChecked));}catch(e){}
+  },
+
   // ── Claude API helper — calls our own /api/chat proxy (key lives on server)
   async claudeCall(messages,{model='claude-sonnet-4-6',max_tokens=2048,system=null,stream=false}={}){
     const body={model,max_tokens,messages};
@@ -1728,6 +1874,7 @@ Return ONLY this JSON structure (no markdown, no explanation):
         return{...cp,days:base.days};
       });
       this.productDb=JSON.parse(localStorage.getItem('keto_products_v1'))||[];
+      this.weekMenuChecked=JSON.parse(localStorage.getItem('keto_ksck_v1'))||{};
     }catch(e){}
   },
 },
