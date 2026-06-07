@@ -311,7 +311,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;backg
       <div class="asub">{{ activePreset.name }} · {{ dynamicSubtitle }}</div>
     </div>
     <!-- Macro pills — now driven by calculateDailyMacros(), not hardcoded -->
-    <div class="mpills" v-if="activeTab!=='shop'&&activeTab!=='house'&&activeTab!=='ketolist'&&activeTab!=='dayA'&&activeTab!=='dayB'&&activeTab!=='dayC'">
+    <div class="mpills" v-if="activeTab!=='shop'&&activeTab!=='house'&&activeTab!=='ketolist'">
       <div class="mp"><div class="mpv">{{ currentDayMacros.p }}</div><div class="mpl">P</div></div>
       <div class="mp"><div class="mpv">{{ currentDayMacros.f }}</div><div class="mpl">F</div></div>
       <div class="mp"><div class="mpv">{{ currentDayMacros.c }}</div><div class="mpl">C</div></div>
@@ -333,9 +333,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;backg
   <nav class="tabs" aria-label="Day navigation">
     <button v-for="d in activeDays" :key="d.id" :class="['tab',{active:activeTab===d.id}]" @click="activeTab=d.id">
       {{ d.short }}<span v-if="d.dot" class="cdot"></span>
-    </button>
-    <button v-for="wd in weekMenu" :key="wd.id" :class="['tab',{active:activeTab===wd.id}]" @click="activeTab=wd.id" :style="activeTab===wd.id?{}:{borderColor:'transparent'}">
-      {{ wd.short }}
     </button>
     <button :class="['tab',{active:activeTab==='shop'}]" @click="activeTab='shop'">🛒 Shop</button>
     <button :class="['tab',{active:activeTab==='house'}]" @click="activeTab='house'">🏠 House</button>
@@ -396,30 +393,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;backg
         </div>
       </article>
       <button class="add-btn" @click="openAddMeal(d.id)">+ Add meal to {{ d.short }}</button>
-    </div>
-  </template>
-
-  <!-- ── Menu day tabs (Day A / B / C) -->
-  <template v-for="wd in weekMenu" :key="wd.id">
-    <div v-show="activeTab===wd.id">
-      <div class="dlbl" :style="{borderLeftColor:wd.color}">{{ wd.label }}</div>
-      <article v-for="meal in wd.meals" :key="meal.time" class="mc">
-        <div class="mh">
-          <div style="flex:1">
-            <div class="mn">{{ meal.name }}</div>
-          </div>
-          <div class="mtype">{{ meal.time }}</div>
-        </div>
-        <div class="mmacros">
-          <span class="mmc" style="background:var(--bdl);color:var(--t3)">{{ meal.macros }}</span>
-        </div>
-        <div class="ings">
-          <div v-for="ing in meal.ings" :key="ing[0]" class="ing">
-            {{ ing[0] }}<span v-if="ing[1]" class="iq">{{ ing[1] }}</span>
-          </div>
-        </div>
-      </article>
-      <p class="wm-note" style="padding-bottom:18px">All 3 days eat off the <strong>same Sunday batch cook</strong> — rotate freely, A → B → C → repeat.</p>
     </div>
   </template>
 
@@ -1101,42 +1074,81 @@ items:[
   I('fr2','Bananas','×6 loose',0.60,false,'fruits'),
   I('pa1','Honey','340g jar',2.00,true,'pantry'),
 ]},
-];
-
-const WEEK_MENU=[
-  {id:'dayA',short:'Day A',label:'Day A — Chicken & Eggs',sub:'~180P · ~105F · ~36g fiber · ~1,770 kcal',color:'#15803D',
-   meals:[
-    {time:'~10am · Post-workout',name:'Whey shake + scrambled eggs + avocado',macros:'~70P / 48F / 13g fiber',
-     ings:[['Whey protein shake','2 scoops'],['Eggs','3, scrambled in butter'],['Spinach','large handful'],['Avocado','1 whole']]},
-    {time:'~1pm · Lunch',name:'Roast chicken breast + broccoli & cauliflower',macros:'~55P / 18F / 7g fiber',
-     ings:[['Chicken breast','180–200g roasted'],['Broccoli & cauliflower','large tray'],['Olive oil','drizzle']]},
-    {time:'Afternoon · Fiber snack',name:'Chia pudding',macros:'~5P / 9F / 10g fiber',
-     ings:[['Chia seeds','2 tbsp'],['Almond milk','150ml'],['Cinnamon','to taste']]},
-    {time:'~5:30pm · Dinner',name:'Salmon + green beans',macros:'~32P / 30F / 6g fiber',
-     ings:[['Salmon fillet','150g'],['Green beans','large portion'],['Olive oil','drizzle']]},
-  ]},
-  {id:'dayB',short:'Day B',label:'Day B — Beef & Mediterranean',sub:'~180P · ~108F · ~37g fiber · ~1,800 kcal',color:'#D97706',
-   meals:[
-    {time:'~10am · Post-workout',name:'Beef omelette + flax yogurt + ½ avocado',macros:'~65P / 50F / 12g fiber',
-     ings:[['Eggs','3'],['Beef mince 20%','60g'],['Cheese','30g'],['Spinach','handful'],['Avocado','½'],['Ground flaxseed','1 tbsp (in Greek yogurt)']]},
-    {time:'~1pm · Lunch',name:'Beef mince with courgette, peppers & brussels sprouts',macros:'~50P / 28F / 8g fiber',
-     ings:[['Beef mince 20%','180g (batch)'],['Courgette','½'],['Peppers','½'],['Brussels sprouts','large portion'],['Olive oil & paprika','to taste']]},
-    {time:'Afternoon · Fiber snack',name:'Chia pudding + crushed almonds',macros:'~7P / 12F / 11g fiber',
-     ings:[['Chia seeds','2 tbsp'],['Almond milk','150ml'],['Almonds','small handful, crushed']]},
-    {time:'~5:30pm · Dinner',name:'Chicken thigh + kale & broccoli sauté + cheese',macros:'~58P / 18F / 6g fiber',
-     ings:[['Chicken thighs','200g'],['Kale','large portion'],['Broccoli','portion'],['Olive oil','drizzle'],['Block cheese','30g']]},
-  ]},
-  {id:'dayC',short:'Day C',label:'Day C — Fish-Forward & Lighter',sub:'~175P · ~109F · ~34g fiber · ~1,765 kcal',color:'#1D4ED8',
-   meals:[
-    {time:'~10am · Post-workout',name:'Whey shake + chia-flax pudding + ½ avocado',macros:'~60P / 35F / 16g fiber',
-     ings:[['Whey protein shake','2 scoops'],['Chia seeds','2 tbsp'],['Ground flaxseed','1 tbsp'],['Almond milk','150ml'],['Avocado','½ on the side']]},
-    {time:'~1pm · Lunch',name:'Mackerel or salmon + spinach & rocket salad + ½ avocado',macros:'~45P / 42F / 8g fiber',
-     ings:[['Mackerel or salmon','2 tins/fillets'],['Spinach & rocket','large salad base'],['Avocado','½'],['Olive oil & lemon','dressing']]},
-    {time:'Afternoon · Fiber snack',name:'Full-fat Greek yogurt + flax & cinnamon',macros:'~20P / 10F / 3g fiber',
-     ings:[['Greek yogurt (full-fat)','150g'],['Ground flaxseed','1 tsp'],['Cinnamon','pinch']]},
-    {time:'~5:30pm · Dinner',name:'Salmon or white fish + roasted cauliflower & green beans',macros:'~50P / 22F / 7g fiber',
-     ings:[['Salmon or white fish','180g'],['Cauliflower','large portion'],['Green beans','portion'],['Butter','knob']]},
-  ]},
+// ── Intermittent Fasting (Keto 3-day rotation: A→B→C→A→B→C→B)
+{id:'if1',name:'Intermittent Fasting',builtin:true,
+days:[
+D('mon','Mon','Monday — Day A',false,[
+  M('Whey shake + scrambled eggs + avocado','Breakfast',false,false,true,[['Whey protein shake','2 scoops'],['Eggs','3'],['Butter','10g'],['Spinach','large handful'],['Avocado','1 whole']],['Shake 2 scoops whey in 300ml cold water','Melt butter in a pan on medium, crack in eggs','Scramble slowly until just set, add spinach for the last 30 sec','Serve with sliced avocado on the side'],{p:70,f:48,c:4}),
+  M('Roast chicken + broccoli & cauliflower','Lunch',false,false,false,[['Chicken breast','180–200g (batch roasted)'],['Broccoli','½ head'],['Cauliflower','½ head'],['Olive oil','drizzle']],['Slice batch-cooked chicken breast (prepped Sunday)','Reheat roasted broccoli and cauliflower or eat at room temp','Drizzle olive oil over veg before serving'],{p:55,f:18,c:5}),
+  M('Chia pudding','Snack',false,false,false,[['Chia seeds','2 tbsp'],['Almond milk (unsweetened)','150ml'],['Cinnamon','pinch']],['Stir chia seeds into almond milk with a pinch of cinnamon','Cover and refrigerate overnight or at least 2 hours to set','Eat straight from the jar'],{p:5,f:9,c:2}),
+  M('Salmon + green beans','Dinner',false,false,false,[['Salmon fillet','150g'],['Green beans','large portion (~200g)'],['Olive oil','drizzle']],['Season salmon with salt, pepper and olive oil','Pan-fry skin-side down 3–4 min, flip and cook 2 more min','Blanch green beans 3–4 min until just tender','Serve alongside salmon with a drizzle of olive oil'],{p:32,f:30,c:4}),
+]),
+D('tue','Tue','Tuesday — Day B',false,[
+  M('Beef omelette + flax yogurt + ½ avocado','Breakfast',false,false,false,[['Eggs','3'],['Beef mince 20%','60g'],['Cheddar','30g'],['Spinach','handful'],['Greek yogurt','100g'],['Ground flaxseed','1 tbsp'],['Avocado','½']],['Brown 60g mince in a pan, season with salt and pepper, drain excess fat','Beat 3 eggs, pour over mince in the pan','Scatter cheddar and spinach, cook on medium until just set, fold and plate','Stir flaxseed into Greek yogurt, serve alongside with ½ avocado'],{p:65,f:50,c:5}),
+  M('Beef mince bowl — courgette, peppers & brussels sprouts','Lunch',false,false,false,[['Beef mince 20%','180g (batch)'],['Courgette','½'],['Peppers','½'],['Brussels sprouts','large portion'],['Olive oil','drizzle'],['Paprika','to taste']],['Use batch-cooked beef mince (prepped Sunday)','Sauté diced courgette and peppers in olive oil for 5 min','Add cooked brussels sprouts and mince, heat through','Season with paprika, salt and pepper'],{p:50,f:28,c:6}),
+  M('Chia pudding + crushed almonds','Snack',false,false,false,[['Chia seeds','2 tbsp'],['Almond milk (unsweetened)','150ml'],['Almonds','small handful (~15g)']],['Stir chia seeds into almond milk, refrigerate at least 2 hours','Roughly crush almonds in your hand','Top pudding with crushed almonds before eating'],{p:7,f:12,c:3}),
+  M('Chicken thigh + kale & broccoli sauté + cheese','Dinner',false,false,false,[['Chicken thighs','200g (batch)'],['Kale','large portion'],['Broccoli','portion'],['Olive oil','drizzle'],['Block cheddar','30g']],['Use batch-cooked chicken thighs (prepped Sunday)','Sauté kale and broccoli in olive oil on high heat for 5–7 min','Slice chicken, lay over the sauté','Grate or slice cheese over the top to finish'],{p:58,f:18,c:4}),
+]),
+D('wed','Wed','Wednesday — Day C',false,[
+  M('Whey + chia-flax pudding + ½ avocado','Breakfast',false,false,true,[['Whey protein shake','2 scoops'],['Chia seeds','2 tbsp'],['Ground flaxseed','1 tbsp'],['Almond milk (unsweetened)','150ml'],['Avocado','½']],['Night before: stir chia seeds and flaxseed into 150ml almond milk, cover and refrigerate','Morning: shake 2 scoops whey in 300ml cold water','Eat chia-flax pudding alongside the shake','Serve with ½ avocado on the side'],{p:60,f:35,c:5}),
+  M('Mackerel or salmon + spinach & rocket salad + ½ avocado','Lunch',false,false,false,[['Mackerel or salmon','2 tins or 1 fillet (~150g)'],['Spinach & rocket','large handful (~80g)'],['Avocado','½'],['Olive oil','drizzle'],['Lemon','squeeze']],['Open tinned fish or pan-fry fillet for 10 min until cooked through','Toss spinach and rocket with olive oil, salt and pepper','Slice avocado fan it over the salad','Top with fish, finish with a squeeze of lemon'],{p:45,f:42,c:4}),
+  M('Greek yogurt + flax & cinnamon','Snack',false,false,false,[['Greek yogurt (full-fat)','150g'],['Ground flaxseed','1 tsp'],['Cinnamon','pinch']],['Spoon 150g Greek yogurt into a bowl','Stir in 1 tsp ground flaxseed','Dust with a pinch of cinnamon'],{p:20,f:10,c:4}),
+  M('Salmon or white fish + roasted cauliflower & green beans','Dinner',false,false,false,[['Salmon or white fish','180g'],['Cauliflower','large portion (~200g)'],['Green beans','portion (~150g)'],['Butter','10g']],['Roast cauliflower florets in olive oil at 200°C for 20–25 min','Season fish with salt, pepper and lemon','Pan-fry or bake fish 10–12 min until just cooked through','Blanch green beans 3 min, toss with butter','Serve fish with cauliflower and buttered green beans'],{p:50,f:22,c:5}),
+]),
+D('thu','Thu','Thursday — Day A',false,[
+  M('Whey shake + scrambled eggs + avocado','Breakfast',false,false,true,[['Whey protein shake','2 scoops'],['Eggs','3'],['Butter','10g'],['Spinach','large handful'],['Avocado','1 whole']],['Shake 2 scoops whey in 300ml cold water','Melt butter in a pan on medium, crack in eggs','Scramble slowly until just set, add spinach for the last 30 sec','Serve with sliced avocado on the side'],{p:70,f:48,c:4}),
+  M('Roast chicken + broccoli & cauliflower','Lunch',false,false,false,[['Chicken breast','180–200g (batch roasted)'],['Broccoli','½ head'],['Cauliflower','½ head'],['Olive oil','drizzle']],['Slice batch-cooked chicken breast (prepped Sunday)','Reheat roasted broccoli and cauliflower or eat at room temp','Drizzle olive oil over veg before serving'],{p:55,f:18,c:5}),
+  M('Chia pudding','Snack',false,false,false,[['Chia seeds','2 tbsp'],['Almond milk (unsweetened)','150ml'],['Cinnamon','pinch']],['Stir chia seeds into almond milk with a pinch of cinnamon','Cover and refrigerate overnight or at least 2 hours to set','Eat straight from the jar'],{p:5,f:9,c:2}),
+  M('Salmon + green beans','Dinner',false,false,false,[['Salmon fillet','150g'],['Green beans','large portion (~200g)'],['Olive oil','drizzle']],['Season salmon with salt, pepper and olive oil','Pan-fry skin-side down 3–4 min, flip and cook 2 more min','Blanch green beans 3–4 min until just tender','Serve alongside salmon with a drizzle of olive oil'],{p:32,f:30,c:4}),
+]),
+D('fri','Fri','Friday — Day B',false,[
+  M('Beef omelette + flax yogurt + ½ avocado','Breakfast',false,false,false,[['Eggs','3'],['Beef mince 20%','60g'],['Cheddar','30g'],['Spinach','handful'],['Greek yogurt','100g'],['Ground flaxseed','1 tbsp'],['Avocado','½']],['Brown 60g mince in a pan, season with salt and pepper, drain excess fat','Beat 3 eggs, pour over mince in the pan','Scatter cheddar and spinach, cook on medium until just set, fold and plate','Stir flaxseed into Greek yogurt, serve alongside with ½ avocado'],{p:65,f:50,c:5}),
+  M('Beef mince bowl — courgette, peppers & brussels sprouts','Lunch',false,false,false,[['Beef mince 20%','180g (batch)'],['Courgette','½'],['Peppers','½'],['Brussels sprouts','large portion'],['Olive oil','drizzle'],['Paprika','to taste']],['Use batch-cooked beef mince (prepped Sunday)','Sauté diced courgette and peppers in olive oil for 5 min','Add cooked brussels sprouts and mince, heat through','Season with paprika, salt and pepper'],{p:50,f:28,c:6}),
+  M('Chia pudding + crushed almonds','Snack',false,false,false,[['Chia seeds','2 tbsp'],['Almond milk (unsweetened)','150ml'],['Almonds','small handful (~15g)']],['Stir chia seeds into almond milk, refrigerate at least 2 hours','Roughly crush almonds in your hand','Top pudding with crushed almonds before eating'],{p:7,f:12,c:3}),
+  M('Chicken thigh + kale & broccoli sauté + cheese','Dinner',false,false,false,[['Chicken thighs','200g (batch)'],['Kale','large portion'],['Broccoli','portion'],['Olive oil','drizzle'],['Block cheddar','30g']],['Use batch-cooked chicken thighs (prepped Sunday)','Sauté kale and broccoli in olive oil on high heat for 5–7 min','Slice chicken, lay over the sauté','Grate or slice cheese over the top to finish'],{p:58,f:18,c:4}),
+]),
+D('sat','Sat','Saturday — Day C',false,[
+  M('Whey + chia-flax pudding + ½ avocado','Breakfast',false,false,true,[['Whey protein shake','2 scoops'],['Chia seeds','2 tbsp'],['Ground flaxseed','1 tbsp'],['Almond milk (unsweetened)','150ml'],['Avocado','½']],['Night before: stir chia seeds and flaxseed into 150ml almond milk, cover and refrigerate','Morning: shake 2 scoops whey in 300ml cold water','Eat chia-flax pudding alongside the shake','Serve with ½ avocado on the side'],{p:60,f:35,c:5}),
+  M('Mackerel or salmon + spinach & rocket salad + ½ avocado','Lunch',false,false,false,[['Mackerel or salmon','2 tins or 1 fillet (~150g)'],['Spinach & rocket','large handful (~80g)'],['Avocado','½'],['Olive oil','drizzle'],['Lemon','squeeze']],['Open tinned fish or pan-fry fillet for 10 min until cooked through','Toss spinach and rocket with olive oil, salt and pepper','Slice avocado fan it over the salad','Top with fish, finish with a squeeze of lemon'],{p:45,f:42,c:4}),
+  M('Greek yogurt + flax & cinnamon','Snack',false,false,false,[['Greek yogurt (full-fat)','150g'],['Ground flaxseed','1 tsp'],['Cinnamon','pinch']],['Spoon 150g Greek yogurt into a bowl','Stir in 1 tsp ground flaxseed','Dust with a pinch of cinnamon'],{p:20,f:10,c:4}),
+  M('Salmon or white fish + roasted cauliflower & green beans','Dinner',false,false,false,[['Salmon or white fish','180g'],['Cauliflower','large portion (~200g)'],['Green beans','portion (~150g)'],['Butter','10g']],['Roast cauliflower florets in olive oil at 200°C for 20–25 min','Season fish with salt, pepper and lemon','Pan-fry or bake fish 10–12 min until just cooked through','Blanch green beans 3 min, toss with butter','Serve fish with cauliflower and buttered green beans'],{p:50,f:22,c:5}),
+]),
+D('sun','Sun','Sunday — Day B',false,[
+  M('Beef omelette + flax yogurt + ½ avocado','Breakfast',false,false,false,[['Eggs','3'],['Beef mince 20%','60g'],['Cheddar','30g'],['Spinach','handful'],['Greek yogurt','100g'],['Ground flaxseed','1 tbsp'],['Avocado','½']],['Brown 60g mince in a pan, season with salt and pepper, drain excess fat','Beat 3 eggs, pour over mince in the pan','Scatter cheddar and spinach, cook on medium until just set, fold and plate','Stir flaxseed into Greek yogurt, serve alongside with ½ avocado'],{p:65,f:50,c:5}),
+  M('Beef mince bowl — courgette, peppers & brussels sprouts','Lunch',false,false,false,[['Beef mince 20%','180g (batch)'],['Courgette','½'],['Peppers','½'],['Brussels sprouts','large portion'],['Olive oil','drizzle'],['Paprika','to taste']],['Use batch-cooked beef mince (prepped Sunday)','Sauté diced courgette and peppers in olive oil for 5 min','Add cooked brussels sprouts and mince, heat through','Season with paprika, salt and pepper'],{p:50,f:28,c:6}),
+  M('Chia pudding + crushed almonds','Snack',false,false,false,[['Chia seeds','2 tbsp'],['Almond milk (unsweetened)','150ml'],['Almonds','small handful (~15g)']],['Stir chia seeds into almond milk, refrigerate at least 2 hours','Roughly crush almonds in your hand','Top pudding with crushed almonds before eating'],{p:7,f:12,c:3}),
+  M('Chicken thigh + kale & broccoli sauté + cheese','Dinner',false,false,false,[['Chicken thighs','200g (batch)'],['Kale','large portion'],['Broccoli','portion'],['Olive oil','drizzle'],['Block cheddar','30g']],['Use batch-cooked chicken thighs (prepped Sunday)','Sauté kale and broccoli in olive oil on high heat for 5–7 min','Slice chicken, lay over the sauté','Grate or slice cheese over the top to finish'],{p:58,f:18,c:4}),
+]),
+],
+items:[
+  I('if_p1','Chicken breast (batch roast)','~600g','~£2.50',false,'protein'),
+  I('if_p2','Chicken thighs','~200g','~£0.80',false,'protein'),
+  I('if_p3','Beef mince (20% fat)','~400g','~£2.00',false,'protein'),
+  I('if_p4','Salmon fillets','×2–3 (~450g total)','~£4.00',false,'protein'),
+  I('if_p5','Mackerel (tinned or fresh)','×2 tins','~£1.50',false,'protein'),
+  I('if_p6','Eggs','×6','~£1.20',false,'protein'),
+  I('if_p7','Whey protein isolate','2 scoops × 2 days','from tub',true,'protein'),
+  I('if_p8','Full-fat Greek yogurt','~300g','~£1.00',false,'protein'),
+  I('if_d1','Butter','250g','~£1.50',false,'dairy'),
+  I('if_d2','Block cheddar','100g','~£0.80',false,'dairy'),
+  I('if_v1','Avocados','×3','~£1.50',false,'veg'),
+  I('if_v2','Spinach','large bag (~200g)','~£1.00',false,'veg'),
+  I('if_v3','Broccoli','1 large head','~£0.89',false,'veg'),
+  I('if_v4','Cauliflower','1 head','~£0.79',false,'veg'),
+  I('if_v5','Green beans','~300g','~£0.89',false,'veg'),
+  I('if_v6','Kale','~100g','~£0.50',false,'veg'),
+  I('if_v7','Courgette','×1','~£0.40',false,'veg'),
+  I('if_v8','Peppers','×1','~£0.45',false,'veg'),
+  I('if_v9','Brussels sprouts','~150g','~£0.79',false,'veg'),
+  I('if_v10','Rocket or mixed salad','~80g','~£0.89',false,'veg'),
+  I('if_f1','Extra virgin olive oil','500ml','~£2.50',false,'fats'),
+  I('if_n1','Chia seeds','200g bag','~£1.50',false,'nuts'),
+  I('if_n2','Ground flaxseed','200g bag','~£1.50',false,'nuts'),
+  I('if_n3','Almonds','100g','~£1.20',false,'nuts'),
+  I('if_pa1','Almond milk (unsweetened)','1L','~£1.00',false,'pantry'),
+  I('if_pa2','Cinnamon','1 jar','~£1.20',true,'pantry'),
+  I('if_pa3','Lemon','×1','~£0.30',true,'pantry'),
+]},
 ];
 
 const KETO_SHOP_LIST=[
@@ -1224,8 +1236,6 @@ data(){return{
   showRecents:false,
   // Local product DB (persisted to localStorage)
   productDb:[],
-  // Week Menu & Keto Shopping List
-  weekMenu:WEEK_MENU,
   ketoShopList:KETO_SHOP_LIST,
   weekMenuChecked:{},
 }},
@@ -1292,15 +1302,13 @@ computed:{
 
   // ── calculateDailyMacros result for the active day tab
   currentDayMacros(){
-    if(['shop','house','ketolist','dayA','dayB','dayC'].includes(this.activeTab))return{p:0,f:0,c:0,kcal:0};
+    if(['shop','house','ketolist'].includes(this.activeTab))return{p:0,f:0,c:0,kcal:0};
     return this.calculateDailyMacros(this.activeTab);
   },
   // Dynamic subtitle — shows live calculated macros, not hardcoded string
   dynamicSubtitle(){
     if(this.activeTab==='shop'||this.activeTab==='house')return'Weekly shopping list';
     if(this.activeTab==='ketolist')return'Batch-cook shopping list';
-    const _wmd=this.weekMenu.find(w=>w.id===this.activeTab);
-    if(_wmd)return _wmd.sub;
     const m=this.currentDayMacros;
     if(!m.kcal)return'No meals logged';
     return`${m.kcal} kcal · ${m.p}g P · ${m.f}g F · ${m.c}g C`;
