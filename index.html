@@ -238,6 +238,26 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;backg
 .ipr-stale{font-size:11px;color:var(--ytx);}
 .price-refresh-btn{background:none;border:none;font-size:11px;color:var(--bl);cursor:pointer;padding:0;text-decoration:underline;}
 /* settings button removed — API key lives on server */
+/* ── Nearby stores */
+.nearby-section{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:16px;margin-bottom:10px;}
+.nearby-title{font-size:14px;font-weight:700;color:var(--t1);margin-bottom:12px;display:flex;align-items:center;gap:7px;}
+.nearby-loc-btn{width:100%;padding:11px;background:var(--gdk);color:#fff;font-size:14px;font-weight:700;border:none;border-radius:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:10px;}
+.nearby-mode-row{display:flex;gap:8px;margin-bottom:10px;}
+.nearby-mode-btn{flex:1;padding:8px;border-radius:10px;border:1px solid var(--bd);background:#fff;font-size:13px;font-weight:600;color:var(--t2);cursor:pointer;transition:background .15s,color .15s;}
+.nearby-mode-btn.active{background:var(--gdk);border-color:var(--gdk);color:#fff;}
+.nearby-card{border:1px solid var(--bd);border-radius:12px;padding:12px 14px;margin-bottom:8px;}
+.nearby-card.winner{border-color:var(--g);background:var(--gbg);}
+.nearby-card-top{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+.nearby-store-name{font-size:14px;font-weight:700;color:var(--t1);flex:1;line-height:1.3;}
+.nearby-badge{display:inline-block;font-size:10px;font-weight:700;background:var(--g);color:#fff;border-radius:6px;padding:2px 8px;flex-shrink:0;}
+.nearby-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;}
+.nearby-stat{background:#fff;border:1px solid var(--bdl);border-radius:8px;padding:7px 8px;text-align:center;}
+.nearby-stat-lbl{font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px;}
+.nearby-stat-val{font-size:14px;font-weight:700;color:var(--t1);}
+.nearby-breakdown{font-size:11px;color:var(--t4);margin-top:8px;border-top:1px solid var(--bdl);padding-top:6px;}
+.nearby-error{font-size:13px;color:#EF4444;background:#FEE2E2;border-radius:10px;padding:10px 14px;margin-top:8px;}
+.nearby-travel-row{display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap;}
+.nearby-travel-lbl{font-size:12px;color:var(--t3);}
 /* ── Store recommendation */
 .store-rec-banner{background:var(--gdk);border-radius:14px;padding:16px;margin-bottom:10px;color:#fff;}
 .store-rec-primary{display:flex;align-items:center;gap:12px;margin-bottom:10px;}
@@ -554,6 +574,76 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;backg
           </span>
         </div>
         <div class="store-compare-note">Prices marked "real" come from your scanned receipts. Others are AI estimates.</div>
+      </div>
+
+      <!-- ── Nearby stores -->
+      <div class="nearby-section">
+        <div class="nearby-title">📍 Nearest stores for your basket</div>
+
+        <template v-if="!userLocation && !locationLoading">
+          <button class="nearby-loc-btn" @click="requestLocation">📍 Find stores near me</button>
+          <div style="font-size:12px;color:var(--t3);text-align:center;line-height:1.6">
+            Compares basket cost + travel time for supermarkets near you.<br>Ranks by <strong>Less Time</strong> (closest) or <strong>Less Money</strong> (cheapest total).
+          </div>
+        </template>
+
+        <div v-if="locationLoading" style="text-align:center;padding:16px;color:var(--t3);font-size:13px">
+          <div class="scan-spinner" style="margin:0 auto 8px"></div>Finding nearby stores…
+        </div>
+
+        <div v-if="locationError" class="nearby-error">{{ locationError }}</div>
+
+        <template v-if="userLocation && nearbyStores.length">
+          <!-- Mode toggle -->
+          <div class="nearby-mode-row">
+            <button :class="['nearby-mode-btn',{active:nearbyMode==='time'}]" @click="nearbyMode='time'">⏱ Less time</button>
+            <button :class="['nearby-mode-btn',{active:nearbyMode==='money'}]" @click="nearbyMode='money'">💰 Less money</button>
+          </div>
+
+          <!-- Travel mode -->
+          <div class="nearby-travel-row">
+            <span class="nearby-travel-lbl">Travel by:</span>
+            <button :class="['store-pill',{active:travelMode==='walk'}]" @click="travelMode='walk'" style="font-size:11px">🚶 Walk / Bus</button>
+            <button :class="['store-pill',{active:travelMode==='drive'}]" @click="travelMode='drive'" style="font-size:11px">🚗 Drive</button>
+            <button class="store-pill" @click="requestLocation" style="font-size:11px;margin-left:auto">↺ Refresh</button>
+          </div>
+
+          <!-- Store cards -->
+          <div v-for="(store,idx) in nearbyList.slice(0,5)" :key="store.id"
+               :class="['nearby-card',{winner:idx===0}]">
+            <div class="nearby-card-top">
+              <span class="store-badge" style="background:var(--bdl);color:var(--t2)">{{ store.brand.slice(0,4).toUpperCase() }}</span>
+              <span class="nearby-store-name">{{ store.name }}</span>
+              <span v-if="idx===0" class="nearby-badge">{{ nearbyMode==='time'?'Closest':'Best value' }}</span>
+            </div>
+            <div class="nearby-stats">
+              <div class="nearby-stat">
+                <div class="nearby-stat-lbl">Distance</div>
+                <div class="nearby-stat-val">{{ fmtDist(store.dist) }}</div>
+              </div>
+              <div class="nearby-stat">
+                <div class="nearby-stat-lbl">{{ travelMode==='walk'?'Walk':'Drive' }}</div>
+                <div class="nearby-stat-val">{{ store.travelMin }} min</div>
+              </div>
+              <div class="nearby-stat">
+                <div class="nearby-stat-lbl">Basket</div>
+                <div class="nearby-stat-val" :style="{color:store.basketCost?'var(--t1)':'var(--t4)'}">
+                  {{ store.basketCost?'£'+store.basketCost.toFixed(2):'n/a' }}
+                </div>
+              </div>
+            </div>
+            <div v-if="nearbyMode==='money'&&store.totalCost!==null" class="nearby-breakdown">
+              £{{ store.basketCost.toFixed(2) }} basket
+              + {{ travelMode==='walk'?'free (walk/bus)':'~£'+store.travelCost.toFixed(2)+' fuel' }}
+              = <strong>~£{{ store.totalCost.toFixed(2) }} total</strong>
+            </div>
+          </div>
+
+          <div v-if="nearbyMode==='money'&&nearbyByMoney.filter(s=>s.totalCost!==null).length===0"
+               style="font-size:12px;color:var(--t3);text-align:center;margin-top:4px">
+            Generate an AI plan above to see basket cost comparison
+          </div>
+        </template>
       </div>
 
       <!-- Import button -->
@@ -1218,6 +1308,13 @@ data(){return{
   productDb:[],
   ketoShopList:KETO_SHOP_LIST,
   weekMenuChecked:{},
+  // Nearby stores
+  nearbyStores:[],
+  userLocation:null,
+  locationLoading:false,
+  locationError:null,
+  nearbyMode:'time',
+  travelMode:'walk',
 }},
 computed:{
   // ── Store comparison derived from aiPlan shopping list
@@ -1249,6 +1346,23 @@ computed:{
     if(this.aiShopFilter==='all')return this.aiPlan.shopping_list;
     return this.aiPlan.shopping_list.filter(i=>i.best_store===this.aiShopFilter||(i.prices&&this.aiShopFilter in i.prices));
   },
+  // ── Nearby stores merged with basket prices
+  nearbyWithPrices(){
+    const byStore=this.storeComparison.byStore;
+    return this.nearbyStores.map(s=>{
+      const key=Object.keys(byStore).find(k=>s.brand.includes(k)||k.includes(s.brand))||null;
+      const basketCost=key?byStore[key].total:null;
+      const travelCost=this.travelMode==='walk'?0:Math.round(s.dist/1000*0.30*100)/100;
+      const travelMin=this.travelMode==='walk'?s.walkMin:s.driveMin;
+      return{...s,basketCost,travelCost,travelMin,totalCost:basketCost!==null?basketCost+travelCost:null};
+    });
+  },
+  nearbyByTime(){return[...this.nearbyWithPrices].sort((a,b)=>a.travelMin-b.travelMin);},
+  nearbyByMoney(){
+    const w=this.nearbyWithPrices.filter(s=>s.totalCost!==null);
+    return w.length?[...w].sort((a,b)=>a.totalCost-b.totalCost):[...this.nearbyWithPrices].sort((a,b)=>a.travelMin-b.travelMin);
+  },
+  nearbyList(){return this.nearbyMode==='time'?this.nearbyByTime:this.nearbyByMoney;},
 
   allPresets(){return[...PRESETS,...this.customPresets];},
   activePreset(){return this.allPresets.find(p=>p.id===this.activePresetId)||PRESETS[0];},
@@ -1846,6 +1960,50 @@ Return ONLY this JSON structure (no markdown, no explanation):
     this.save();
     this.showToast('AI plan imported!');
   },
+
+  // ── Nearby supermarkets via browser geolocation + Overpass API
+  requestLocation(){
+    if(!navigator.geolocation){this.locationError='Geolocation not supported by your browser.';return;}
+    this.locationLoading=true;this.locationError=null;this.nearbyStores=[];
+    navigator.geolocation.getCurrentPosition(
+      async pos=>{
+        this.userLocation={lat:pos.coords.latitude,lng:pos.coords.longitude};
+        await this.fetchNearbyStores(this.userLocation.lat,this.userLocation.lng);
+        this.locationLoading=false;
+      },
+      ()=>{
+        this.locationError='Location access denied. Enable location in browser settings and try again.';
+        this.locationLoading=false;
+      },
+      {timeout:10000,maximumAge:300000}
+    );
+  },
+  async fetchNearbyStores(lat,lng){
+    const q=`[out:json][timeout:15];node[shop=supermarket](around:3000,${lat},${lng});out 30;`;
+    try{
+      const res=await fetch('https://overpass-api.de/api/interpreter',{method:'POST',body:q,signal:AbortSignal.timeout(15000)});
+      const data=await res.json();
+      const BRANDS=['tesco','aldi','lidl','asda','sainsbury','morrisons','waitrose','marks','co-op','coop','iceland','spar'];
+      this.nearbyStores=data.elements
+        .filter(el=>el.tags?.name&&el.lat&&el.lon)
+        .map(el=>{
+          const n=el.tags.name.toLowerCase();
+          const brand=BRANDS.find(b=>n.includes(b))||n.split(' ')[0];
+          const dist=this.haversine(lat,lng,el.lat,el.lon);
+          return{id:el.id,name:el.tags.name,brand,lat:el.lat,lng:el.lon,dist,
+            walkMin:Math.max(1,Math.round(dist/80)),
+            driveMin:Math.max(3,Math.round(dist/400))};
+        })
+        .sort((a,b)=>a.dist-b.dist).slice(0,8);
+      if(!this.nearbyStores.length)this.locationError='No supermarkets found within 3km.';
+    }catch(e){this.locationError='Could not load nearby stores. Check your connection.';}
+  },
+  haversine(lat1,lng1,lat2,lng2){
+    const R=6371000,dLat=(lat2-lat1)*Math.PI/180,dLng=(lng2-lng1)*Math.PI/180;
+    const a=Math.sin(dLat/2)**2+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLng/2)**2;
+    return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+  },
+  fmtDist(m){return m<1000?Math.round(m)+'m':(m/1000).toFixed(1)+'km';},
 
   save(){
     try{
