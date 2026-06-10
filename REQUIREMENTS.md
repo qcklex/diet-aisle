@@ -10,18 +10,20 @@
 
 DietAisle is a progressive web app (PWA) that generates personalised weekly meal plans based on the user's macro and calorie goals, then produces a smart shopping list that compares real-time prices across UK supermarkets — telling the user exactly where to shop for the cheapest basket.
 
-The app is diet-agnostic. While initially built around a ketogenic diet, it supports any dietary approach (cutting, bulking, vegan, carnivore, Mediterranean, etc.) by adjusting the macro targets.
+The app is diet-agnostic and fitness-forward. While initially built around a ketogenic diet, it supports any dietary approach (cutting, bulking, high-protein, vegan, carnivore, Mediterranean, intermittent fasting, etc.) by adjusting the macro targets — making it equally useful for people focused on fat loss, muscle gain, athletic performance, or general health.
 
 ---
 
 ## 2. Target Users
 
-**Primary user:** Someone actively tracking macros or following a structured diet who also does their own grocery shopping in the UK.
+**Primary users:** People who track macros, follow a structured diet, or train regularly — and do their own grocery shopping in the UK.
 
-**Profile:**
+**Profiles:**
+- Fitness enthusiasts and gym-goers tracking calories and protein for body composition
+- Athletes and active individuals meal-prepping around a training schedule
+- Anyone on a structured diet (keto, IF, high-protein, bulk, cut, etc.)
+- Budget-conscious shoppers who want to eat well without overspending
 - Shops regularly at Lidl, Aldi, Tesco, or ASDA
-- Tracks or is aware of their calorie/macro intake
-- Budget-conscious — wants to eat well without overspending
 - Mobile-first — uses the app primarily on their phone
 - Not necessarily technical — expects things to "just work"
 

@@ -1,7 +1,7 @@
 {
   "name": "DietAisle",
   "short_name": "DietAisle",
-  "description": "Smart meal planning & UK supermarket price comparison",
+  "description": "Meal planning & macro tracking for fitness people — with UK supermarket price comparison",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#166534",
