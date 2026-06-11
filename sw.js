@@ -1,4 +1,4 @@
-const CACHE = 'keto-v12';
+const CACHE = 'keto-v13';
 const ASSETS = ['/', '/index.html', '/manifest.json', '/vue.min.js'];
 
 self.addEventListener('install', e => {
