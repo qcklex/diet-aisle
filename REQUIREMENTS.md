@@ -71,11 +71,25 @@ The app is diet-agnostic and fitness-forward. While initially built around a ket
 - Price history per store attached to each product
 - Real prices from the database are used to enrich AI shopping list estimates
 
-### 3.6 Barcode Scanning (Planned)
-- User scans a product barcode at the store
+### 3.6 Barcode Scanning
+- User scans a product barcode at the store (live camera via BarcodeDetector where supported; manual entry on iOS Safari)
 - Instant nutritional lookup via Open Food Facts
-- User adds the current price
-- Product saved to database
+- User adds the current price and store
+- Product saved to database with price history
+
+### 3.7 Accounts & Cloud Sync
+- Optional accounts — the app remains fully usable without signing in
+- Email/password sign-up and sign-in, plus passwordless magic-link login (Supabase Auth)
+- Signed-in users get their full app state (meal plans, edits, product DB) backed up to the cloud
+- Sync is automatic (debounced after every change) with a manual "Sync now" button
+- Newest-data-wins merge on login: cloud state is applied only if newer than local
+- Row-level security: each user can only ever read/write their own data
+
+### 3.8 Dashboard
+- At-a-glance home screen: greeting, today's date and active plan
+- Today's macros vs daily goals with progress bars (calories, protein, fat, carbs)
+- Weekly shop cost, product database size, real-price count, cheapest store this week
+- Sync status indicator and quick actions (scan receipt, AI plan, shop list)
 
 ---
 
@@ -92,11 +106,12 @@ The app is diet-agnostic and fitness-forward. While initially built around a ket
 - AI features degrade gracefully with a clear "requires connection" message
 
 ### 4.3 Privacy
-- No user accounts required
+- No user accounts required — accounts are strictly optional (for cross-device sync)
 - No personal data sent to any server except meal plan preferences (anonymous)
 - Receipt images are sent to Claude API and immediately discarded — not stored
-- All personal data (meal plans, product DB, shopping history) stays on the user's device in localStorage
-- API key stored server-side only, never exposed to the browser
+- All personal data (meal plans, product DB, shopping history) stays on the user's device in localStorage by default
+- With an account, app state is additionally backed up to Supabase, protected by row-level security (only the owner can access it)
+- API key stored server-side only, never exposed to the browser; the Supabase anon key is public by design and grants no data access without a valid user session
 
 ### 4.4 Accessibility
 - Minimum tap target size: 44×44px
@@ -167,7 +182,9 @@ Macro goals → /api/chat (Claude Sonnet) → meal plan + shopping list
 - [x] PWA (installable, offline shell)
 
 ### Phase 2 — Next
-- [ ] Barcode scanning at the store
+- [x] Barcode scanning at the store
+- [x] User accounts + cloud sync (moved up from Phase 3)
+- [x] Dashboard home screen
 - [ ] Community product database (shared across users)
 - [ ] Restock calendar — predict when items will run out
 - [ ] Lidl/Aldi weekly specials integration
@@ -175,7 +192,6 @@ Macro goals → /api/chat (Claude Sonnet) → meal plan + shopping list
 - [ ] Pantry tracking — mark items as already in stock
 
 ### Phase 3 — Future
-- [ ] User accounts + cloud sync
 - [ ] Multiple dietary profiles per account
 - [ ] Social: share meal plans
 - [ ] Nutrition history and trend tracking

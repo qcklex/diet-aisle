@@ -12,6 +12,7 @@
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <title>DietAisle</title>
 <script src="vue.min.js"></script>
+<script async src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <style>
 :root{
   --g:#16A34A;--gbg:#F0FDF4;--gd:#15803D;--gdk:#166534;
@@ -237,6 +238,44 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;backg
 .bc-store-btn{font-size:12px;font-weight:600;padding:8px 12px;border-radius:999px;border:1px solid var(--bd);background:#fff;color:var(--t2);cursor:pointer;min-height:44px;}
 .bc-store-btn.active{background:var(--gdk);color:#fff;border-color:var(--gdk);}
 .bc-err{font-size:12px;color:var(--ytx);margin-top:10px;}
+/* ── Dashboard */
+.dash-card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:16px;margin-bottom:12px;}
+.dash-card-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--t3);margin-bottom:10px;}
+.dash-hero{background:var(--gdk);border:none;color:#fff;}
+.dash-hero .dash-card-title{color:rgba(255,255,255,.6);}
+.dash-greet{font-size:18px;font-weight:800;margin-bottom:2px;}
+.dash-sub{font-size:12px;color:rgba(255,255,255,.7);}
+.dash-macro-row{display:flex;justify-content:space-between;align-items:baseline;font-size:13px;margin-top:10px;}
+.dash-macro-lbl{color:var(--t2);font-weight:600;}
+.dash-macro-val{font-weight:700;color:var(--t1);font-variant-numeric:tabular-nums;}
+.dash-bar{height:6px;background:var(--bdl);border-radius:3px;overflow:hidden;margin-top:4px;}
+.dash-bar-fill{height:100%;border-radius:3px;background:var(--g);transition:width .4s;}
+.dash-bar-fill.over{background:#EF4444;}
+.dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.dash-stat{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:14px;}
+.dash-stat-val{font-size:20px;font-weight:800;color:var(--t1);}
+.dash-stat-lbl{font-size:11px;color:var(--t3);margin-top:2px;}
+.dash-actions{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px;}
+.dash-action{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:12px 6px;text-align:center;font-size:12px;font-weight:600;color:var(--t2);cursor:pointer;min-height:44px;}
+.dash-sync{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--t3);margin-bottom:12px;background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:10px 14px;}
+.dash-sync .dot{width:8px;height:8px;border-radius:50%;background:var(--t4);flex-shrink:0;}
+.dash-sync.on .dot{background:var(--g);}
+.dash-sync .lnk{margin-left:auto;color:var(--gd);font-weight:600;background:none;border:none;font-size:12px;cursor:pointer;min-height:44px;}
+/* ── Account / login */
+.acct-card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:18px;margin-bottom:12px;}
+.acct-title{font-size:16px;font-weight:800;color:var(--t1);margin-bottom:4px;}
+.acct-sub{font-size:12px;color:var(--t3);margin-bottom:14px;line-height:1.5;}
+.acct-field{margin-bottom:10px;}
+.acct-btn{width:100%;padding:12px;background:var(--gdk);color:#fff;font-size:14px;font-weight:700;border:none;border-radius:10px;cursor:pointer;min-height:44px;}
+.acct-btn.alt{background:var(--bdl);color:var(--t2);margin-top:8px;}
+.acct-btn:disabled{opacity:.5;cursor:not-allowed;}
+.acct-toggle{font-size:12px;color:var(--gd);font-weight:600;background:none;border:none;cursor:pointer;margin-top:12px;min-height:44px;display:block;}
+.acct-err{font-size:12px;color:#B91C1C;background:#FEF2F2;border:1px solid #FECACA;border-radius:8px;padding:8px 10px;margin-bottom:10px;}
+.acct-info{font-size:12px;color:var(--gd);background:var(--gbg);border:1px solid #BBF7D0;border-radius:8px;padding:8px 10px;margin-bottom:10px;}
+.acct-row{display:flex;justify-content:space-between;align-items:center;font-size:13px;padding:10px 0;border-bottom:1px solid var(--bdl);}
+.acct-row:last-child{border-bottom:none;}
+.acct-row .k{color:var(--t3);}
+.acct-row .v{font-weight:600;color:var(--t1);max-width:60%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 /* ── AI Meal Plan generation */
 .ai-panel{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:16px;margin-bottom:12px;}
 .ai-panel-title{font-size:14px;font-weight:700;color:var(--t1);margin-bottom:12px;display:flex;align-items:center;gap:7px;}
@@ -349,7 +388,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;backg
       <div class="asub">{{ activePreset.name }} · {{ dynamicSubtitle }}</div>
     </div>
     <!-- Macro pills — now driven by calculateDailyMacros(), not hardcoded -->
-    <div class="mpills" v-if="activeTab!=='shop'&&activeTab!=='house'&&activeTab!=='ketolist'">
+    <div class="mpills" v-if="!['shop','house','ketolist','dash','account'].includes(activeTab)">
       <div class="mp"><div class="mpv">{{ currentDayMacros.p }}</div><div class="mpl">P</div></div>
       <div class="mp"><div class="mpv">{{ currentDayMacros.f }}</div><div class="mpl">F</div></div>
       <div class="mp"><div class="mpv">{{ currentDayMacros.c }}</div><div class="mpl">C</div></div>
@@ -372,11 +411,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;backg
     <button v-for="d in activeDays" :key="d.id" :class="['tab',{active:activeTab===d.id}]" @click="activeTab=d.id">
       {{ d.short }}<span v-if="d.dot" class="cdot"></span>
     </button>
+    <button :class="['tab',{active:activeTab==='dash'}]" @click="activeTab='dash'">📊 Dash</button>
     <button :class="['tab',{active:activeTab==='shop'}]" @click="activeTab='shop'">🛒 Shop</button>
     <button :class="['tab',{active:activeTab==='house'}]" @click="activeTab='house'">🏠 House</button>
     <button :class="['tab',{active:activeTab==='scan'}]" @click="activeTab='scan'">📷 Scan</button>
     <button :class="['tab',{active:activeTab==='aiplan'}]" @click="activeTab='aiplan'">✦ AI Plan</button>
     <button :class="['tab',{active:activeTab==='ketolist'}]" @click="activeTab='ketolist'">📋 Keto Shop</button>
+    <button :class="['tab',{active:activeTab==='account'}]" @click="activeTab='account'">👤 Account</button>
   </nav>
 </header>
 
@@ -751,6 +792,97 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;backg
 
       <div v-if="aiPlan.notes" class="ai-plan-notes">{{ aiPlan.notes }}</div>
     </template>
+  </div>
+
+  <!-- ── Dashboard tab -->
+  <div v-show="activeTab==='dash'">
+    <div class="dash-card dash-hero">
+      <div class="dash-greet">{{ dashGreeting }}{{ auth.user ? ', ' + (auth.user.email.split('@')[0]) : '' }} 👋</div>
+      <div class="dash-sub">{{ todayLabel }} · {{ activePreset.name }}</div>
+    </div>
+
+    <div :class="['dash-sync',{on:auth.user}]">
+      <span class="dot"></span>
+      <span v-if="auth.user">Synced to cloud{{ sync.lastSync ? ' · last sync ' + sync.lastSync : '' }}</span>
+      <span v-else>Local only — data lives on this device</span>
+      <button class="lnk" @click="activeTab='account'">{{ auth.user ? 'Account' : 'Sign in' }}</button>
+    </div>
+
+    <div class="dash-card">
+      <div class="dash-card-title">Today's macros vs goals</div>
+      <div v-for="m in dashMacros" :key="m.label">
+        <div class="dash-macro-row">
+          <span class="dash-macro-lbl">{{ m.label }}</span>
+          <span class="dash-macro-val">{{ m.value }}{{ m.unit }} / {{ m.target }}{{ m.unit }}</span>
+        </div>
+        <div class="dash-bar"><div class="dash-bar-fill" :class="{over:m.pct>110}" :style="{width:Math.min(m.pct,100)+'%'}"></div></div>
+      </div>
+      <div v-if="!todayMacros.kcal" style="font-size:12px;color:var(--t3);margin-top:10px">No meals planned for today — pick a day tab to see its meals.</div>
+    </div>
+
+    <div class="dash-grid" style="margin-bottom:12px">
+      <div class="dash-stat">
+        <div class="dash-stat-val">{{ essTotal }}</div>
+        <div class="dash-stat-lbl">Weekly shop (essentials)</div>
+      </div>
+      <div class="dash-stat">
+        <div class="dash-stat-val">{{ productDb.length }}</div>
+        <div class="dash-stat-lbl">Products in your database</div>
+      </div>
+      <div class="dash-stat">
+        <div class="dash-stat-val">{{ realPriceCount }}</div>
+        <div class="dash-stat-lbl">Real prices from receipts</div>
+      </div>
+      <div class="dash-stat">
+        <div class="dash-stat-val">{{ aiPlan?.recommendation?.primary_store?.toUpperCase() || '—' }}</div>
+        <div class="dash-stat-lbl">{{ aiPlan ? 'Cheapest store this week' : 'Generate an AI plan to compare' }}</div>
+      </div>
+    </div>
+
+    <div class="dash-card-title" style="margin-bottom:8px">Quick actions</div>
+    <div class="dash-actions">
+      <button class="dash-action" @click="activeTab='scan'">📷 Scan receipt</button>
+      <button class="dash-action" @click="activeTab='aiplan'">✦ AI plan</button>
+      <button class="dash-action" @click="activeTab='shop'">🛒 Shop list</button>
+    </div>
+  </div>
+
+  <!-- ── Account tab -->
+  <div v-show="activeTab==='account'">
+    <!-- Signed out: login / signup -->
+    <div v-if="!auth.user" class="acct-card">
+      <div class="acct-title">{{ auth.mode==='signup' ? 'Create your account' : 'Welcome back' }}</div>
+      <div class="acct-sub">{{ auth.mode==='signup' ? 'Sync your meal plans, product database and prices across all your devices.' : 'Sign in to load your synced meal plans and product database.' }}</div>
+      <div v-if="!cloudConfigured" class="acct-err">Cloud accounts aren't configured yet on this deployment.</div>
+      <div v-if="auth.error" class="acct-err" role="alert">{{ auth.error }}</div>
+      <div v-if="auth.info" class="acct-info" role="status">{{ auth.info }}</div>
+      <div class="acct-field"><input class="ai-inp" type="email" v-model.trim="auth.email" placeholder="Email" autocomplete="email" aria-label="Email address" @keyup.enter="auth.mode==='signup'?signUp():signIn()"></div>
+      <div class="acct-field"><input class="ai-inp" type="password" v-model="auth.password" placeholder="Password (min 6 characters)" :autocomplete="auth.mode==='signup'?'new-password':'current-password'" aria-label="Password" @keyup.enter="auth.mode==='signup'?signUp():signIn()"></div>
+      <button class="acct-btn" :disabled="auth.loading||!cloudConfigured" @click="auth.mode==='signup'?signUp():signIn()">
+        {{ auth.loading ? 'Working…' : (auth.mode==='signup' ? 'Create account' : 'Sign in') }}
+      </button>
+      <button class="acct-btn alt" :disabled="auth.loading||!cloudConfigured" @click="magicLink" aria-label="Email me a magic sign-in link">✉️ Email me a magic link instead</button>
+      <button class="acct-toggle" @click="auth.mode=auth.mode==='signup'?'signin':'signup';auth.error=null;auth.info=null">
+        {{ auth.mode==='signup' ? 'Already have an account? Sign in' : "New here? Create an account" }}
+      </button>
+    </div>
+
+    <!-- Signed in: account overview -->
+    <div v-else class="acct-card">
+      <div class="acct-title">Your account</div>
+      <div class="acct-row"><span class="k">Email</span><span class="v">{{ auth.user.email }}</span></div>
+      <div class="acct-row"><span class="k">Cloud sync</span><span class="v" style="color:var(--gd)">● Active</span></div>
+      <div class="acct-row"><span class="k">Last synced</span><span class="v">{{ sync.lastSync || 'just now' }}</span></div>
+      <div class="acct-row"><span class="k">Products backed up</span><span class="v">{{ productDb.length }}</span></div>
+      <div v-if="auth.error" class="acct-err" role="alert" style="margin-top:10px">{{ auth.error }}</div>
+      <div v-if="auth.info" class="acct-info" role="status" style="margin-top:10px">{{ auth.info }}</div>
+      <button class="acct-btn" style="margin-top:14px" :disabled="sync.busy" @click="pushCloud(true)">{{ sync.busy ? 'Syncing…' : '☁️ Sync now' }}</button>
+      <button class="acct-btn alt" @click="signOut">Sign out</button>
+    </div>
+
+    <div class="acct-card" style="background:transparent;border-style:dashed">
+      <div class="acct-sub" style="margin-bottom:0">🔒 Your meal plans and product database are stored on your device first. With an account, an encrypted copy syncs to the cloud so you can pick up on any device. No data is ever shared or sold.</div>
+    </div>
   </div>
 
   <div v-show="activeTab==='shop'">
@@ -1314,6 +1446,10 @@ const KETO_SHOP_LIST=[
   ]},
 ];
 
+// ── Supabase cloud accounts (anon key is public by design; RLS protects data)
+const SUPABASE_URL='__SUPABASE_URL__';
+const SUPABASE_ANON_KEY='__SUPABASE_ANON_KEY__';
+
 createApp({
 data(){return{
   activeTab:'mon',
@@ -1362,6 +1498,9 @@ data(){return{
   productDb:[],
   // Barcode scanner
   barcode:{input:'',loading:false,error:null,product:null,price:null,store:'lidl',scanning:false,saved:false},
+  // Cloud accounts + sync
+  auth:{user:null,email:'',password:'',mode:'signin',loading:false,error:null,info:null},
+  sync:{lastSync:null,busy:false,timer:null},
   ketoShopList:KETO_SHOP_LIST,
   weekMenuChecked:{},
   // Nearby stores
@@ -1452,13 +1591,15 @@ computed:{
 
   // ── calculateDailyMacros result for the active day tab
   currentDayMacros(){
-    if(['shop','house','ketolist'].includes(this.activeTab))return{p:0,f:0,c:0,kcal:0};
+    if(['shop','house','ketolist','dash','account'].includes(this.activeTab))return{p:0,f:0,c:0,kcal:0};
     return this.calculateDailyMacros(this.activeTab);
   },
   // Dynamic subtitle — shows live calculated macros, not hardcoded string
   dynamicSubtitle(){
     if(this.activeTab==='shop'||this.activeTab==='house')return'Weekly shopping list';
     if(this.activeTab==='ketolist')return'Batch-cook shopping list';
+    if(this.activeTab==='dash')return'Your week at a glance';
+    if(this.activeTab==='account')return this.auth.user?('Signed in · '+this.auth.user.email):'Sign in to sync across devices';
     const m=this.currentDayMacros;
     if(!m.kcal)return'No meals logged';
     return`${m.kcal} kcal · ${m.p}g P · ${m.f}g F · ${m.c}g C`;
@@ -1481,6 +1622,32 @@ computed:{
     });
     return'~£'+t.toFixed(2);
   },
+
+  // ── Dashboard
+  cloudConfigured(){return !SUPABASE_URL.startsWith('__');},
+  dashGreeting(){
+    const h=new Date().getHours();
+    return h<12?'Good morning':h<18?'Good afternoon':'Good evening';
+  },
+  todayLabel(){
+    return new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'});
+  },
+  todayId(){
+    const id=['sun','mon','tue','wed','thu','fri','sat'][new Date().getDay()];
+    return this.activeDays.find(d=>d.id===id)?id:(this.activeDays[0]?.id||'mon');
+  },
+  todayMacros(){return this.calculateDailyMacros(this.todayId);},
+  dashMacros(){
+    const m=this.todayMacros,g=this.aiGoals;
+    const pct=(v,t)=>t?Math.round(v/t*100):0;
+    return[
+      {label:'Calories',value:m.kcal||0,target:g.calories,unit:' kcal',pct:pct(m.kcal,g.calories)},
+      {label:'Protein',value:m.p||0,target:g.protein,unit:'g',pct:pct(m.p,g.protein)},
+      {label:'Fat',value:m.f||0,target:g.fat,unit:'g',pct:pct(m.f,g.fat)},
+      {label:'Carbs',value:m.c||0,target:g.carbs,unit:'g',pct:pct(m.c,g.carbs)},
+    ];
+  },
+  realPriceCount(){return this.productDb.filter(p=>p.prices?.length).length;},
 },
 methods:{
   fmtP(p){return'~£'+(+p).toFixed(2);},
@@ -1713,11 +1880,13 @@ methods:{
   },
   toggleKSItem(id){
     this.weekMenuChecked={...this.weekMenuChecked,[id]:!this.weekMenuChecked[id]};
-    try{localStorage.setItem('keto_ksck_v1',JSON.stringify(this.weekMenuChecked));}catch(e){}
+    try{localStorage.setItem('keto_ksck_v1',JSON.stringify(this.weekMenuChecked));localStorage.setItem('keto_sync_ts',new Date().toISOString());}catch(e){}
+    this.queueSync();
   },
   clearKSChecked(){
     this.weekMenuChecked={};
-    try{localStorage.setItem('keto_ksck_v1',JSON.stringify(this.weekMenuChecked));}catch(e){}
+    try{localStorage.setItem('keto_ksck_v1',JSON.stringify(this.weekMenuChecked));localStorage.setItem('keto_sync_ts',new Date().toISOString());}catch(e){}
+    this.queueSync();
   },
 
   // ── Claude API helper — calls our own /api/chat proxy (key lives on server)
@@ -1847,8 +2016,10 @@ Rules: raw=exactly as printed, name=human readable, weight=pack size or null, pr
   saveProductToDb(product){
     if(!this.productDb.find(p=>p.name===product.name)){
       this.productDb=[...this.productDb,product];
-      localStorage.setItem('keto_products_v1',JSON.stringify(this.productDb));
     }
+    localStorage.setItem('keto_products_v1',JSON.stringify(this.productDb));
+    localStorage.setItem('keto_sync_ts',new Date().toISOString());
+    this.queueSync();
   },
 
   confirmItem(item){
@@ -1940,11 +2111,7 @@ Rules: raw=exactly as printed, name=human readable, weight=pack size or null, pr
       if(!target.prices)target.prices=[];
       target.prices.push({store:this.barcode.store,price:this.barcode.price,pack_size:null,date:new Date().toISOString().split('T')[0]});
     }
-    if(existing){
-      localStorage.setItem('keto_products_v1',JSON.stringify(this.productDb));
-    }else{
-      this.saveProductToDb(target);
-    }
+    this.saveProductToDb(target);
     this.barcode.saved=true;
     this.showToast('Saved: '+target.name);
   },
@@ -2154,7 +2321,117 @@ Return ONLY this JSON structure (no markdown, no explanation):
       localStorage.setItem('keto_ed_v5',JSON.stringify(this.allEdits));
       localStorage.setItem('keto_mut_v5',JSON.stringify(this.mutations));
       localStorage.setItem('keto_cus_v5',JSON.stringify(this.customPresets));
+      localStorage.setItem('keto_sync_ts',new Date().toISOString());
     }catch(e){}
+    this.queueSync();
+  },
+
+  // ── Cloud accounts: Supabase auth + state sync (localStorage stays source of truth)
+  async initSupabase(){
+    if(!this.cloudConfigured)return;
+    // supabase-js loads async — wait up to ~5s for the CDN script
+    for(let i=0;i<50&&!window.supabase;i++)await new Promise(r=>setTimeout(r,100));
+    if(!window.supabase)return;
+    this._sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+    const{data:{session}}=await this._sb.auth.getSession();
+    if(session)this.auth.user=session.user;
+    this._sb.auth.onAuthStateChange((_evt,sess)=>{this.auth.user=sess?.user||null;});
+    if(this.auth.user)this.pullCloud();
+  },
+
+  async signIn(){
+    if(!this._sb)return;
+    this.auth.loading=true;this.auth.error=null;this.auth.info=null;
+    try{
+      const{error}=await this._sb.auth.signInWithPassword({email:this.auth.email,password:this.auth.password});
+      if(error)throw error;
+      this.auth.password='';
+      this.showToast('Signed in');
+      await this.pullCloud();
+      this.activeTab='dash';
+    }catch(e){this.auth.error=e.message;}
+    finally{this.auth.loading=false;}
+  },
+
+  async signUp(){
+    if(!this._sb)return;
+    this.auth.loading=true;this.auth.error=null;this.auth.info=null;
+    try{
+      const{data,error}=await this._sb.auth.signUp({email:this.auth.email,password:this.auth.password});
+      if(error)throw error;
+      if(data.session){this.auth.password='';this.showToast('Account created');await this.pushCloud();this.activeTab='dash';}
+      else this.auth.info='Check your email to confirm your account, then sign in.';
+    }catch(e){this.auth.error=e.message;}
+    finally{this.auth.loading=false;}
+  },
+
+  async magicLink(){
+    if(!this._sb)return;
+    if(!this.auth.email){this.auth.error='Enter your email first.';return;}
+    this.auth.loading=true;this.auth.error=null;
+    try{
+      const{error}=await this._sb.auth.signInWithOtp({email:this.auth.email,options:{emailRedirectTo:location.origin}});
+      if(error)throw error;
+      this.auth.info='Magic link sent — check your email and tap the link on this device.';
+    }catch(e){this.auth.error=e.message;}
+    finally{this.auth.loading=false;}
+  },
+
+  async signOut(){
+    if(!this._sb)return;
+    await this._sb.auth.signOut();
+    this.auth.user=null;this.sync.lastSync=null;
+    this.showToast('Signed out — your data stays on this device');
+  },
+
+  // Everything the app persists locally, bundled for cloud backup
+  collectState(){
+    const keys=['keto_pid_v5','keto_chk_v5','keto_ed_v5','keto_mut_v5','keto_cus_v5','keto_products_v1','keto_ksck_v1'];
+    const out={};
+    keys.forEach(k=>{const v=localStorage.getItem(k);if(v!==null)out[k]=v;});
+    return out;
+  },
+
+  applyState(data){
+    Object.entries(data||{}).forEach(([k,v])=>{try{localStorage.setItem(k,v);}catch(e){}});
+    this.load();
+  },
+
+  async pullCloud(){
+    if(!this._sb||!this.auth.user)return;
+    this.sync.busy=true;
+    try{
+      const{data,error}=await this._sb.from('app_state').select('data,updated_at').eq('user_id',this.auth.user.id).maybeSingle();
+      if(error)throw error;
+      const localTs=localStorage.getItem('keto_sync_ts');
+      if(data&&(!localTs||new Date(data.updated_at)>new Date(localTs))){
+        this.applyState(data.data);
+        this.showToast('Synced from cloud');
+      }else{
+        await this.pushCloud();
+      }
+      this.sync.lastSync=new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+    }catch(e){console.warn('pull sync:',e.message);this.auth.error='Sync failed: '+e.message;}
+    finally{this.sync.busy=false;}
+  },
+
+  async pushCloud(manual){
+    if(!this._sb||!this.auth.user)return;
+    this.sync.busy=true;
+    try{
+      const{error}=await this._sb.from('app_state').upsert({user_id:this.auth.user.id,data:this.collectState(),updated_at:new Date().toISOString()});
+      if(error)throw error;
+      this.sync.lastSync=new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+      if(manual)this.showToast('Synced to cloud');
+    }catch(e){console.warn('push sync:',e.message);if(manual)this.auth.error='Sync failed: '+e.message;}
+    finally{this.sync.busy=false;}
+  },
+
+  // Debounced auto-push 4s after the last local change
+  queueSync(){
+    if(!this._sb||!this.auth.user)return;
+    clearTimeout(this.sync.timer);
+    this.sync.timer=setTimeout(()=>this.pushCloud(),4000);
   },
   load(){
     try{
@@ -2175,6 +2452,7 @@ Return ONLY this JSON structure (no markdown, no explanation):
 mounted(){
   this.load();
   if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+  this.initSupabase();
 },
 }).mount('#app');
 </script>
