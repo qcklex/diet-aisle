@@ -220,6 +220,23 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;backg
 .conf-dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:4px;}
 .conf-high{background:#16A34A;}.conf-medium{background:#D97706;}.conf-low{background:#EF4444;}
 .scan-summary{background:var(--gbg);border-radius:12px;padding:14px 16px;margin-top:12px;font-size:13px;color:var(--gd);font-weight:600;text-align:center;}
+/* ── Barcode scanner */
+.bc-card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:16px;margin-top:14px;}
+.bc-title{font-size:14px;font-weight:700;color:var(--t1);margin-bottom:4px;}
+.bc-sub{font-size:12px;color:var(--t3);margin-bottom:12px;line-height:1.5;}
+.bc-video{width:100%;border-radius:12px;background:#000;max-height:240px;object-fit:cover;margin-bottom:10px;}
+.bc-row{display:flex;gap:8px;}
+.bc-row .ai-inp{flex:1;}
+.bc-btn{padding:10px 14px;background:var(--gdk);color:#fff;font-size:13px;font-weight:700;border:none;border-radius:10px;cursor:pointer;min-height:44px;}
+.bc-btn.alt{background:var(--bdl);color:var(--t2);}
+.bc-btn:disabled{opacity:.5;cursor:not-allowed;}
+.bc-result{margin-top:12px;border-top:1px solid var(--bd);padding-top:12px;}
+.bc-prod-name{font-size:14px;font-weight:700;color:var(--t1);}
+.bc-prod-brand{font-size:12px;color:var(--t3);margin-bottom:6px;}
+.bc-store-row{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0;}
+.bc-store-btn{font-size:12px;font-weight:600;padding:8px 12px;border-radius:999px;border:1px solid var(--bd);background:#fff;color:var(--t2);cursor:pointer;min-height:44px;}
+.bc-store-btn.active{background:var(--gdk);color:#fff;border-color:var(--gdk);}
+.bc-err{font-size:12px;color:var(--ytx);margin-top:10px;}
 /* ── AI Meal Plan generation */
 .ai-panel{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:16px;margin-bottom:12px;}
 .ai-panel-title{font-size:14px;font-weight:700;color:var(--t1);margin-bottom:12px;display:flex;align-items:center;gap:7px;}
@@ -502,6 +519,42 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;backg
     <div v-if="!scanLoading && !scanResult" style="padding:20px 0;text-align:center;color:var(--t3);font-size:13px;">
       Tap the button above to scan a Lidl Plus receipt, a Tesco receipt, or any supermarket receipt.
       <br><br>Prices and nutritional data are saved to your personal database to improve future shopping lists.
+    </div>
+
+    <!-- ── Barcode scanner -->
+    <div class="bc-card">
+      <div class="bc-title">📡 Scan a Barcode</div>
+      <div class="bc-sub">At the store? Scan a product barcode with your camera, or type the number — instant nutrition lookup via Open Food Facts.</div>
+      <video v-show="barcode.scanning" ref="bcVideo" class="bc-video" autoplay playsinline muted aria-label="Barcode camera preview"></video>
+      <div class="bc-row">
+        <input class="ai-inp" type="text" inputmode="numeric" v-model.trim="barcode.input" placeholder="e.g. 5000119410696" aria-label="Barcode number" @keyup.enter="lookupBarcode(barcode.input)">
+        <button class="bc-btn" @click="lookupBarcode(barcode.input)" :disabled="barcode.loading||!barcode.input" aria-label="Look up barcode">{{ barcode.loading ? '…' : 'Look up' }}</button>
+      </div>
+      <div class="bc-row" style="margin-top:8px">
+        <button v-if="!barcode.scanning" class="bc-btn alt" style="flex:1" @click="startBarcodeScan" aria-label="Scan barcode with camera">📷 Scan with camera</button>
+        <button v-else class="bc-btn alt" style="flex:1" @click="stopBarcodeScan" aria-label="Stop barcode scanner">■ Stop camera</button>
+      </div>
+      <div v-if="barcode.error" class="bc-err" role="alert">{{ barcode.error }}</div>
+
+      <div v-if="barcode.product" class="bc-result">
+        <div class="bc-prod-name">{{ barcode.product.name }}</div>
+        <div class="bc-prod-brand">{{ barcode.product.brand || 'Unknown brand' }} · {{ barcode.product.barcode }}</div>
+        <div class="scan-item-macros">
+          <span class="conf-dot conf-high"></span>
+          <span class="scan-macro-pill" v-if="barcode.product.calories!=null">{{ barcode.product.calories }} kcal</span>
+          <span class="scan-macro-pill">{{ barcode.product.protein ?? '?' }}g P</span>
+          <span class="scan-macro-pill">{{ barcode.product.fat ?? '?' }}g F</span>
+          <span class="scan-macro-pill">{{ barcode.product.carbs ?? '?' }}g C</span>
+          <span style="font-size:10px;color:var(--t3);margin-left:4px">per 100g</span>
+        </div>
+        <div class="bc-store-row" role="group" aria-label="Which store is this price from">
+          <button v-for="s in ['lidl','aldi','tesco','asda']" :key="s" :class="['bc-store-btn',{active:barcode.store===s}]" @click="barcode.store=s" :aria-label="'Price from '+s">{{ s.toUpperCase() }}</button>
+        </div>
+        <div class="bc-row">
+          <input class="ai-inp" type="number" step="0.01" min="0" v-model.number="barcode.price" placeholder="Price £ (optional)" aria-label="Current price in pounds">
+          <button class="bc-btn" @click="saveBarcodeProduct" :disabled="barcode.saved" aria-label="Save product to database">{{ barcode.saved ? '✓ Saved' : 'Save to DB' }}</button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -1307,6 +1360,8 @@ data(){return{
   showRecents:false,
   // Local product DB (persisted to localStorage)
   productDb:[],
+  // Barcode scanner
+  barcode:{input:'',loading:false,error:null,product:null,price:null,store:'lidl',scanning:false,saved:false},
   ketoShopList:KETO_SHOP_LIST,
   weekMenuChecked:{},
   // Nearby stores
@@ -1807,6 +1862,92 @@ Rules: raw=exactly as printed, name=human readable, weight=pack size or null, pr
   },
 
   skipItem(item){item.skipped=true;},
+
+  // ── Barcode scanning: camera/manual entry → Open Food Facts → price → product DB
+  async startBarcodeScan(){
+    this.barcode.error=null;
+    if(!('BarcodeDetector' in window)){
+      this.barcode.error="Live scanning isn't supported in this browser — type the barcode number instead.";
+      return;
+    }
+    try{
+      const stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}});
+      this._bcStream=stream;
+      this.barcode.scanning=true;
+      await this.$nextTick();
+      const video=this.$refs.bcVideo;
+      video.srcObject=stream;
+      await video.play();
+      const detector=new BarcodeDetector({formats:['ean_13','ean_8','upc_a','upc_e','code_128']});
+      const tick=async()=>{
+        if(!this.barcode.scanning)return;
+        try{
+          const codes=await detector.detect(video);
+          if(codes.length){
+            this.stopBarcodeScan();
+            this.barcode.input=codes[0].rawValue;
+            await this.lookupBarcode(codes[0].rawValue);
+            return;
+          }
+        }catch(e){/* video frame not ready yet — keep polling */}
+        requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    }catch(e){
+      this.barcode.error='Camera unavailable: '+e.message;
+      this.stopBarcodeScan();
+    }
+  },
+
+  stopBarcodeScan(){
+    this.barcode.scanning=false;
+    if(this._bcStream){this._bcStream.getTracks().forEach(t=>t.stop());this._bcStream=null;}
+  },
+
+  async lookupBarcode(code){
+    code=String(code||'').replace(/\D/g,'');
+    if(!code)return;
+    this.barcode.loading=true;this.barcode.error=null;this.barcode.product=null;this.barcode.saved=false;
+    try{
+      if(!navigator.onLine)throw new Error('Barcode lookup requires a connection.');
+      const res=await fetch(`https://world.openfoodfacts.org/api/v2/product/${code}.json?fields=code,product_name,brands,nutriments`,{signal:AbortSignal.timeout(8000)});
+      const data=await res.json();
+      if(data.status!==1||!data.product)throw new Error('Product not found on Open Food Facts — try scanning a receipt instead.');
+      const p=data.product,n=p.nutriments||{};
+      this.barcode.product={
+        id:Date.now()+'_'+Math.random(),
+        name:p.product_name||('Product '+code),
+        brand:p.brands||null,
+        barcode:p.code||code,
+        calories:n['energy-kcal_100g']??null,
+        protein:n['proteins_100g']??null,
+        fat:n['fat_100g']??null,
+        carbs:n['carbohydrates_100g']??null,
+        fiber:n['fiber_100g']??null,
+        source:'barcode',confidence:'high'
+      };
+    }catch(e){
+      this.barcode.error=e.message;
+    }finally{this.barcode.loading=false;}
+  },
+
+  saveBarcodeProduct(){
+    const prod=this.barcode.product;
+    if(!prod)return;
+    const existing=this.productDb.find(p=>(p.barcode&&p.barcode===prod.barcode)||p.name===prod.name);
+    const target=existing||prod;
+    if(this.barcode.price){
+      if(!target.prices)target.prices=[];
+      target.prices.push({store:this.barcode.store,price:this.barcode.price,pack_size:null,date:new Date().toISOString().split('T')[0]});
+    }
+    if(existing){
+      localStorage.setItem('keto_products_v1',JSON.stringify(this.productDb));
+    }else{
+      this.saveProductToDb(target);
+    }
+    this.barcode.saved=true;
+    this.showToast('Saved: '+target.name);
+  },
 
   // ── AI Meal Plan — direct Claude streaming with per-store price comparison
   async generatePlan(){
