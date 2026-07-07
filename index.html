@@ -477,7 +477,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;backg
   <!-- ── Batch-cook Shopping List tab -->
   <div v-show="activeTab==='batchlist'">
     <div class="shop-top">
-      <div class="shop-h">Keto 3-Day Shop</div>
+      <div class="shop-h">Batch-Cook 3-Day Shop</div>
       <button v-show="Object.values(weekMenuChecked).some(Boolean)" class="btn-clear" @click="clearKSChecked">Clear checked</button>
     </div>
     <template v-for="sec in batchShopList" :key="sec.section">
