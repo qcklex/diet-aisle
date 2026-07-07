@@ -388,7 +388,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;backg
       <div class="asub">{{ activePreset.name }} · {{ dynamicSubtitle }}</div>
     </div>
     <!-- Macro pills — now driven by calculateDailyMacros(), not hardcoded -->
-    <div class="mpills" v-if="!['shop','ketolist','dash','account'].includes(activeTab)">
+    <div class="mpills" v-if="!['shop','batchlist','dash','account'].includes(activeTab)">
       <div class="mp"><div class="mpv">{{ currentDayMacros.p }}</div><div class="mpl">P</div></div>
       <div class="mp"><div class="mpv">{{ currentDayMacros.f }}</div><div class="mpl">F</div></div>
       <div class="mp"><div class="mpv">{{ currentDayMacros.c }}</div><div class="mpl">C</div></div>
@@ -415,7 +415,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;backg
     <button :class="['tab',{active:activeTab==='shop'}]" @click="activeTab='shop'">🛒 Shop</button>
     <button :class="['tab',{active:activeTab==='scan'}]" @click="activeTab='scan'">📷 Scan</button>
     <button :class="['tab',{active:activeTab==='aiplan'}]" @click="activeTab='aiplan'">✦ AI Plan</button>
-    <button :class="['tab',{active:activeTab==='ketolist'}]" @click="activeTab='ketolist'">📋 Keto Shop</button>
+    <button :class="['tab',{active:activeTab==='batchlist'}]" @click="activeTab='batchlist'">📋 Batch Shop</button>
     <button :class="['tab',{active:activeTab==='account'}]" @click="activeTab='account'">👤 Account</button>
   </nav>
 </header>
@@ -474,13 +474,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;backg
     </div>
   </template>
 
-  <!-- ── Keto Shopping List tab -->
-  <div v-show="activeTab==='ketolist'">
+  <!-- ── Batch-cook Shopping List tab -->
+  <div v-show="activeTab==='batchlist'">
     <div class="shop-top">
       <div class="shop-h">Keto 3-Day Shop</div>
       <button v-show="Object.values(weekMenuChecked).some(Boolean)" class="btn-clear" @click="clearKSChecked">Clear checked</button>
     </div>
-    <template v-for="sec in ketoShopList" :key="sec.section">
+    <template v-for="sec in batchShopList" :key="sec.section">
       <div class="slbl"><span class="sdot" :style="{background:sec.color}"></span><span class="stxt">{{ sec.section }}</span></div>
       <div v-for="item in sec.items" :key="item.id" class="srow">
         <div :class="['si',{checked:weekMenuChecked[item.id]}]" @click="toggleKSItem(item.id)">
@@ -1413,7 +1413,9 @@ items:[
 ]},
 ];
 
-const KETO_SHOP_LIST=[
+// USDA FoodData Central — DEMO_KEY is rate-limited (~30 req/hr); swap in a free key from https://api.data.gov/signup
+const USDA_API_KEY='DEMO_KEY';
+const BATCH_SHOP_LIST=[
   {section:'Protein',color:'#16A34A',items:[
     {id:'ks_p1',name:'Chicken breast (batch roast)',qty:'~3kg',price:'~£12.00'},
     {id:'ks_p2',name:'Eggs',qty:'×12',price:'~£2.40'},
@@ -1500,7 +1502,7 @@ data(){return{
   // Cloud accounts + sync
   auth:{user:null,email:'',password:'',mode:'signin',loading:false,error:null,info:null},
   sync:{lastSync:null,busy:false,timer:null},
-  ketoShopList:KETO_SHOP_LIST,
+  batchShopList:BATCH_SHOP_LIST,
   weekMenuChecked:{},
   // Nearby stores
   nearbyStores:[],
@@ -1590,13 +1592,13 @@ computed:{
 
   // ── calculateDailyMacros result for the active day tab
   currentDayMacros(){
-    if(['shop','ketolist','dash','account'].includes(this.activeTab))return{p:0,f:0,c:0,kcal:0};
+    if(['shop','batchlist','dash','account'].includes(this.activeTab))return{p:0,f:0,c:0,kcal:0};
     return this.calculateDailyMacros(this.activeTab);
   },
   // Dynamic subtitle — shows live calculated macros, not hardcoded string
   dynamicSubtitle(){
     if(this.activeTab==='shop')return'Weekly shopping list';
-    if(this.activeTab==='ketolist')return'Batch-cook shopping list';
+    if(this.activeTab==='batchlist')return'Batch-cook shopping list';
     if(this.activeTab==='dash')return'Your week at a glance';
     if(this.activeTab==='account')return this.auth.user?('Signed in · '+this.auth.user.email):'Sign in to sync across devices';
     const m=this.currentDayMacros;
@@ -1882,12 +1884,12 @@ methods:{
   },
   toggleKSItem(id){
     this.weekMenuChecked={...this.weekMenuChecked,[id]:!this.weekMenuChecked[id]};
-    try{localStorage.setItem('keto_ksck_v1',JSON.stringify(this.weekMenuChecked));localStorage.setItem('keto_sync_ts',new Date().toISOString());}catch(e){}
+    try{localStorage.setItem('da_ksck_v1',JSON.stringify(this.weekMenuChecked));localStorage.setItem('da_sync_ts',new Date().toISOString());}catch(e){}
     this.queueSync();
   },
   clearKSChecked(){
     this.weekMenuChecked={};
-    try{localStorage.setItem('keto_ksck_v1',JSON.stringify(this.weekMenuChecked));localStorage.setItem('keto_sync_ts',new Date().toISOString());}catch(e){}
+    try{localStorage.setItem('da_ksck_v1',JSON.stringify(this.weekMenuChecked));localStorage.setItem('da_sync_ts',new Date().toISOString());}catch(e){}
     this.queueSync();
   },
 
@@ -1974,7 +1976,7 @@ Rules: raw=exactly as printed, name=human readable, weight=pack size or null, pr
 
       // 3. USDA FoodData (CORS-enabled, free)
       try{
-        const usdaRes=await fetch(`https://api.nal.usda.gov/fdc/v1/foods/search?query=${encodeURIComponent(item.name)}&pageSize=3&api_key=DEMO_KEY`,{signal:AbortSignal.timeout(6000)});
+        const usdaRes=await fetch(`https://api.nal.usda.gov/fdc/v1/foods/search?query=${encodeURIComponent(item.name)}&pageSize=3&api_key=${USDA_API_KEY}`,{signal:AbortSignal.timeout(6000)});
         const usdaData=await usdaRes.json();
         if(usdaData.foods?.length){
           const f=usdaData.foods[0];
@@ -2019,8 +2021,8 @@ Rules: raw=exactly as printed, name=human readable, weight=pack size or null, pr
     if(!this.productDb.find(p=>p.name===product.name)){
       this.productDb=[...this.productDb,product];
     }
-    localStorage.setItem('keto_products_v1',JSON.stringify(this.productDb));
-    localStorage.setItem('keto_sync_ts',new Date().toISOString());
+    localStorage.setItem('da_products_v1',JSON.stringify(this.productDb));
+    localStorage.setItem('da_sync_ts',new Date().toISOString());
     this.queueSync();
   },
 
@@ -2318,12 +2320,12 @@ Return ONLY this JSON structure (no markdown, no explanation):
 
   save(){
     try{
-      localStorage.setItem('keto_pid_v5',this.activePresetId);
-      localStorage.setItem('keto_chk_v5',JSON.stringify(this.allChecks));
-      localStorage.setItem('keto_ed_v5',JSON.stringify(this.allEdits));
-      localStorage.setItem('keto_mut_v5',JSON.stringify(this.mutations));
-      localStorage.setItem('keto_cus_v5',JSON.stringify(this.customPresets));
-      localStorage.setItem('keto_sync_ts',new Date().toISOString());
+      localStorage.setItem('da_pid_v5',this.activePresetId);
+      localStorage.setItem('da_chk_v5',JSON.stringify(this.allChecks));
+      localStorage.setItem('da_ed_v5',JSON.stringify(this.allEdits));
+      localStorage.setItem('da_mut_v5',JSON.stringify(this.mutations));
+      localStorage.setItem('da_cus_v5',JSON.stringify(this.customPresets));
+      localStorage.setItem('da_sync_ts',new Date().toISOString());
     }catch(e){}
     this.queueSync();
   },
@@ -2388,14 +2390,15 @@ Return ONLY this JSON structure (no markdown, no explanation):
 
   // Everything the app persists locally, bundled for cloud backup
   collectState(){
-    const keys=['keto_pid_v5','keto_chk_v5','keto_ed_v5','keto_mut_v5','keto_cus_v5','keto_products_v1','keto_ksck_v1'];
+    const keys=['da_pid_v5','da_chk_v5','da_ed_v5','da_mut_v5','da_cus_v5','da_products_v1','da_ksck_v1'];
     const out={};
     keys.forEach(k=>{const v=localStorage.getItem(k);if(v!==null)out[k]=v;});
     return out;
   },
 
   applyState(data){
-    Object.entries(data||{}).forEach(([k,v])=>{try{localStorage.setItem(k,v);}catch(e){}});
+    // cloud snapshots from pre-rebrand versions still use keto_* key names
+    Object.entries(data||{}).forEach(([k,v])=>{try{localStorage.setItem(k.replace(/^keto_/,'da_'),v);}catch(e){}});
     this.load();
   },
 
@@ -2405,7 +2408,7 @@ Return ONLY this JSON structure (no markdown, no explanation):
     try{
       const{data,error}=await this._sb.from('app_state').select('data,updated_at').eq('user_id',this.auth.user.id).maybeSingle();
       if(error)throw error;
-      const localTs=localStorage.getItem('keto_sync_ts');
+      const localTs=localStorage.getItem('da_sync_ts');
       if(data&&(!localTs||new Date(data.updated_at)>new Date(localTs))){
         this.applyState(data.data);
         this.showToast('Synced from cloud');
@@ -2437,17 +2440,22 @@ Return ONLY this JSON structure (no markdown, no explanation):
   },
   load(){
     try{
-      this.activePresetId=localStorage.getItem('keto_pid_v5')||'af1';
-      this.allChecks=JSON.parse(localStorage.getItem('keto_chk_v5'))||{};
-      this.allEdits=JSON.parse(localStorage.getItem('keto_ed_v5'))||{};
-      this.mutations=JSON.parse(localStorage.getItem('keto_mut_v5'))||{};
-      const raw=JSON.parse(localStorage.getItem('keto_cus_v5'))||[];
+      // one-time migration: pre-rebrand keto_* keys → da_*
+      ['pid_v5','chk_v5','ed_v5','mut_v5','cus_v5','products_v1','ksck_v1','sync_ts'].forEach(s=>{
+        const o=localStorage.getItem('keto_'+s);
+        if(o!==null){if(localStorage.getItem('da_'+s)===null)localStorage.setItem('da_'+s,o);localStorage.removeItem('keto_'+s);}
+      });
+      this.activePresetId=localStorage.getItem('da_pid_v5')||'af1';
+      this.allChecks=JSON.parse(localStorage.getItem('da_chk_v5'))||{};
+      this.allEdits=JSON.parse(localStorage.getItem('da_ed_v5'))||{};
+      this.mutations=JSON.parse(localStorage.getItem('da_mut_v5'))||{};
+      const raw=JSON.parse(localStorage.getItem('da_cus_v5'))||[];
       this.customPresets=raw.map(cp=>{
         const base=PRESETS.find(p=>p.id===(cp.baseId||'af1'))||PRESETS[0];
         return{...cp,days:base.days};
       });
-      this.productDb=JSON.parse(localStorage.getItem('keto_products_v1'))||[];
-      this.weekMenuChecked=JSON.parse(localStorage.getItem('keto_ksck_v1'))||{};
+      this.productDb=JSON.parse(localStorage.getItem('da_products_v1'))||[];
+      this.weekMenuChecked=JSON.parse(localStorage.getItem('da_ksck_v1'))||{};
     }catch(e){}
   },
 },
