@@ -107,7 +107,7 @@ The app is diet-agnostic and fitness-forward. While initially built around a ket
 
 ### 4.3 Privacy
 - No user accounts required — accounts are strictly optional (for cross-device sync)
-- No personal data sent to any server except meal plan preferences (anonymous)
+- No personal data sent to any server except meal plan preferences (anonymous) and, if the user taps "Find stores near me," their coordinates to OpenStreetMap's Overpass API (disclosed in-app, not stored or linked to an account)
 - Receipt images are sent to Claude API and immediately discarded — not stored
 - All personal data (meal plans, product DB, shopping history) stays on the user's device in localStorage by default
 - With an account, app state is additionally backed up to Supabase, protected by row-level security (only the owner can access it)

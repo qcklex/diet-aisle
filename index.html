@@ -388,7 +388,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;backg
       <div class="asub">{{ activePreset.name }} · {{ dynamicSubtitle }}</div>
     </div>
     <!-- Macro pills — now driven by calculateDailyMacros(), not hardcoded -->
-    <div class="mpills" v-if="!['shop','house','ketolist','dash','account'].includes(activeTab)">
+    <div class="mpills" v-if="!['shop','ketolist','dash','account'].includes(activeTab)">
       <div class="mp"><div class="mpv">{{ currentDayMacros.p }}</div><div class="mpl">P</div></div>
       <div class="mp"><div class="mpv">{{ currentDayMacros.f }}</div><div class="mpl">F</div></div>
       <div class="mp"><div class="mpv">{{ currentDayMacros.c }}</div><div class="mpl">C</div></div>
@@ -413,7 +413,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;backg
     </button>
     <button :class="['tab',{active:activeTab==='dash'}]" @click="activeTab='dash'">📊 Dash</button>
     <button :class="['tab',{active:activeTab==='shop'}]" @click="activeTab='shop'">🛒 Shop</button>
-    <button :class="['tab',{active:activeTab==='house'}]" @click="activeTab='house'">🏠 House</button>
     <button :class="['tab',{active:activeTab==='scan'}]" @click="activeTab='scan'">📷 Scan</button>
     <button :class="['tab',{active:activeTab==='aiplan'}]" @click="activeTab='aiplan'">✦ AI Plan</button>
     <button :class="['tab',{active:activeTab==='ketolist'}]" @click="activeTab='ketolist'">📋 Keto Shop</button>
@@ -520,7 +519,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;backg
         <span class="scan-total">{{ scanResult.date }} · Total {{ scanResult.total ? '£'+scanResult.total.toFixed(2) : '' }}</span>
       </div>
 
-      <div v-for="(item, idx) in scanResult.items" :key="idx" class="scan-item" v-if="!item.skipped">
+      <div v-for="(item, idx) in visibleScanItems" :key="idx" class="scan-item">
         <div class="scan-item-top">
           <div class="scan-item-name">
             <div class="scan-item-raw">{{ item.raw }}</div>
@@ -552,7 +551,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;backg
         </div>
       </div>
 
-      <div v-if="scanResult.items.filter(i=>!i.skipped && !i.confirmed).length === 0" class="scan-summary">
+      <div v-if="visibleScanItems.filter(i=>!i.confirmed).length === 0" class="scan-summary">
         ✓ All items processed — prices and nutrition saved to your database
       </div>
     </template>
@@ -678,7 +677,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;backg
         <template v-if="!userLocation && !locationLoading">
           <button class="nearby-loc-btn" @click="requestLocation">📍 Find stores near me</button>
           <div style="font-size:12px;color:var(--t3);text-align:center;line-height:1.6">
-            Compares basket cost + travel time for supermarkets near you.<br>Ranks by <strong>Less Time</strong> (closest) or <strong>Less Money</strong> (cheapest total).
+            Compares basket cost + travel time for supermarkets near you.<br>Ranks by <strong>Less Time</strong> (closest) or <strong>Less Money</strong> (cheapest total).<br>Your location is sent to OpenStreetMap's Overpass API to find nearby stores — it isn't stored or linked to your account.
           </div>
         </template>
 
@@ -1591,12 +1590,12 @@ computed:{
 
   // ── calculateDailyMacros result for the active day tab
   currentDayMacros(){
-    if(['shop','house','ketolist','dash','account'].includes(this.activeTab))return{p:0,f:0,c:0,kcal:0};
+    if(['shop','ketolist','dash','account'].includes(this.activeTab))return{p:0,f:0,c:0,kcal:0};
     return this.calculateDailyMacros(this.activeTab);
   },
   // Dynamic subtitle — shows live calculated macros, not hardcoded string
   dynamicSubtitle(){
-    if(this.activeTab==='shop'||this.activeTab==='house')return'Weekly shopping list';
+    if(this.activeTab==='shop')return'Weekly shopping list';
     if(this.activeTab==='ketolist')return'Batch-cook shopping list';
     if(this.activeTab==='dash')return'Your week at a glance';
     if(this.activeTab==='account')return this.auth.user?('Signed in · '+this.auth.user.email):'Sign in to sync across devices';
@@ -1648,6 +1647,9 @@ computed:{
     ];
   },
   realPriceCount(){return this.productDb.filter(p=>p.prices?.length).length;},
+  // Vue 3 gives v-if priority over v-for on the same element, so the skip
+  // filter has to live here rather than inline on the scan-item template.
+  visibleScanItems(){return this.scanResult?.items?.filter(i=>!i.skipped)||[];},
 },
 methods:{
   fmtP(p){return'~£'+(+p).toFixed(2);},
