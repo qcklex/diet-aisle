@@ -425,6 +425,13 @@ input,select,textarea{font-family:inherit;}
 /* Restock chips (increment 3) */
 .re-chip{font-family:'Geist Mono',monospace;font-size:10px;color:var(--t3);background:var(--bdl);border-radius:999px;padding:2px 8px;white-space:nowrap;}
 .rsf{font-family:'Geist Mono',monospace;font-variant-numeric:tabular-nums;}
+/* WCAG 2.2 AA pass — --t4 is reserved for placeholders/decoration; all real text/icons use --t3+ */
+.mtype,.ipr,.sbtn-hint,.vd-note,.rsf,.pselbtn.pnew,.totn,.scan-item-raw,.nearby-breakdown,.store-compare-note,.wm-time,.wm-ing span,.edbtn,.meal-del,.sec-edt-icon,.mf-del-row,.ai-shop-remove,.step.sdone>span:last-child{color:var(--t3);}
+.mmc,.opt,.re-chip,.tag-on{color:var(--t2);}
+:focus-visible{outline:2px solid var(--g);outline-offset:2px;border-radius:4px;}
+html{scroll-padding-top:160px;}
+.chk{width:24px;height:24px;}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important;scroll-behavior:auto!important;}}
 /* Dark theme (increment 5) — tokens per DESIGN.md */
 html[data-theme=dark]{--bg:#0F1210;--card:#171B18;--bd:#252A26;--bdl:#1D221E;--t1:#ECEEEA;--t2:#C8CCC4;--t3:#9AA096;--t4:#6E746B;--g:#34D399;--gbg:#0C2C21;--gd:#34D399;--gdk:#059669;--or:#FBBF24;--orbg:#2C230C;--bl:#9AA096;--blbg:#1D221E;--ybg:#2C230C;--ybr:#5A4A17;--ytx:#FBBF24;--shadow:0 1px 2px rgba(0,0,0,.35),0 4px 16px rgba(0,0,0,.3);}
 html[data-theme=dark] .chk,html[data-theme=dark] .ep,html[data-theme=dark] .sec-editor{background:var(--bdl);}
@@ -788,7 +795,7 @@ html[data-theme=dark] .vd-btn,html[data-theme=dark] .ai-generate-btn,html[data-t
               </div>
               <div class="nearby-stat">
                 <div class="nearby-stat-lbl">Basket</div>
-                <div class="nearby-stat-val" :style="{color:store.basketCost?'var(--t1)':'var(--t4)'}">
+                <div class="nearby-stat-val" :style="{color:store.basketCost?'var(--t1)':'var(--t3)'}">
                   {{ store.basketCost?'£'+store.basketCost.toFixed(2):'n/a' }}
                 </div>
               </div>
@@ -1059,7 +1066,7 @@ html[data-theme=dark] .vd-btn,html[data-theme=dark] .ai-generate-btn,html[data-t
 </main>
 
 <!-- ── Undo toast — Nielsen #3: User control & freedom -->
-<div class="toast-wrap">
+<div class="toast-wrap" role="status" aria-live="polite">
   <div :class="['toast',{show:toast.show}]">
     {{ toast.msg }}
     <button class="toast-undo" @click="undoLastRemove">Undo</button>
@@ -1067,7 +1074,7 @@ html[data-theme=dark] .vd-btn,html[data-theme=dark] .ai-generate-btn,html[data-t
 </div>
 
 <!-- ── New plan modal -->
-<div v-if="showNewModal" class="modal-overlay" @click.self="showNewModal=false">
+<div v-if="showNewModal" class="modal-overlay" role="dialog" aria-modal="true" aria-label="New meal plan" @click.self="showNewModal=false">
   <div class="modal">
     <div class="modal-title">New Plan</div>
     <input class="modal-input" v-model="newName" placeholder="Plan name (e.g. Week 3)" @keyup.enter="createPreset">
@@ -1083,7 +1090,7 @@ html[data-theme=dark] .vd-btn,html[data-theme=dark] .ai-generate-btn,html[data-t
 </div>
 
 <!-- ── Add meal modal -->
-<div v-if="showAddMeal" class="modal-overlay" @click.self="showAddMeal=false">
+<div v-if="showAddMeal" class="modal-overlay" role="dialog" aria-modal="true" aria-label="Add meal" @click.self="showAddMeal=false">
   <div class="modal tall">
     <div class="modal-title">Add meal · {{ addMealDayLabel }}</div>
     <div class="mf-lbl">Meal name</div>
@@ -1120,7 +1127,7 @@ html[data-theme=dark] .vd-btn,html[data-theme=dark] .ai-generate-btn,html[data-t
 </div>
 
 <!-- ── Add item modal -->
-<div v-if="showAddItem" class="modal-overlay" @click.self="showAddItem=false">
+<div v-if="showAddItem" class="modal-overlay" role="dialog" aria-modal="true" aria-label="Add shopping item" @click.self="showAddItem=false">
   <div class="modal">
     <div class="modal-title">Add item</div>
     <input class="modal-input" v-model="newItem.name" placeholder="Item name">

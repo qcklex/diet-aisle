@@ -113,11 +113,15 @@ The app is diet-agnostic and fitness-forward. While initially built around a ket
 - With an account, app state is additionally backed up to Supabase, protected by row-level security (only the owner can access it)
 - API key stored server-side only, never exposed to the browser; the Supabase anon key is public by design and grants no data access without a valid user session
 
-### 4.4 Accessibility
-- Minimum tap target size: 44×44px
-- Colour contrast ratio minimum 4.5:1 for body text
-- All interactive elements have aria-labels
-- Works with iOS VoiceOver
+### 4.4 Accessibility — WCAG 2.2 AA
+- Audited with axe-core (WCAG 2.0/2.1/2.2 AA rulesets) across all tabs in light and dark themes — zero violations as of v23
+- Minimum tap target size: 44×44px (exceeds WCAG 2.2 SC 2.5.8's 24px minimum)
+- Colour contrast ≥4.5:1 for text, ≥3:1 for icons/controls; `--t4` is reserved for placeholders/decoration only, never real text
+- Visible `:focus-visible` outline on all interactive elements; `scroll-padding-top` prevents the sticky header obscuring keyboard focus (SC 2.4.11)
+- `prefers-reduced-motion` disables transitions/animations
+- Modals carry `role="dialog"` + `aria-modal`; toasts announce via `role="status"` live region
+- All interactive elements have aria-labels; works with iOS VoiceOver
+- Accessible authentication (SC 3.3.8): password paste allowed + passwordless magic-link option
 
 ### 4.5 Platform
 - Primary: iOS Safari (PWA installed to home screen)

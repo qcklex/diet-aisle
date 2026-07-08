@@ -2,6 +2,14 @@
 
 Work log for every release. Newest first. The SW cache version (`sw.js`) is the release number — bump it whenever `index.html` changes.
 
+## v23 — 2026-07-09 · WCAG 2.2 AA compliance
+
+- axe-core audit (WCAG 2.0/2.1/2.2 AA rulesets) across every tab, light + dark: 109 colour-contrast violations found → **0 remaining**.
+- `--t4` demoted to placeholders/decoration only — all real text and icon buttons now use `--t3`/`--t2` (≥4.5:1 text, ≥3:1 icons).
+- Added `:focus-visible` outlines (keyboard focus was invisible before), `scroll-padding-top` so the sticky header can't obscure focused elements (SC 2.4.11), and `prefers-reduced-motion` support.
+- Checkboxes 23px→24px (SC 2.5.8 target size); modals get `role="dialog"` + `aria-modal` + labels; toast is a `role="status"` live region so VoiceOver announces saves/removals.
+- REQUIREMENTS.md §4.4 upgraded to a WCAG 2.2 AA commitment.
+
 ## v22 — 2026-07-08 · Redesign increments 4+5: desktop two-panel + dark mode
 
 - Desktop ≥1024px: real two-panel layout — day plan left, Shop panel (verdict card + list) always visible right. Replaces the lonely centred 600px column. Mobile unchanged.
