@@ -206,4 +206,4 @@ Macro goals → /api/chat (Claude Sonnet) → meal plan + shopping list
 - Trolley.co.uk is an unofficial API — may become unavailable without notice
 - Claude API requires paid credits — app is not viable at zero cost
 - localStorage limit (~5MB) constrains the size of the local product database
-- USDA API uses a rate-limited `DEMO_KEY` — hoisted to the `USDA_API_KEY` constant in `index.html`; register a free key at https://api.data.gov/signup and paste it there for production (rate-limit responses fall through to the Claude estimation fallback, so this degrades gracefully)
+- USDA API uses a registered api.data.gov key (`USDA_API_KEY` constant in `index.html`, 3,600 req/hr, account qcklexdev@gmail.com) — the key is public-rate-limited only, safe to ship client-side; rate-limit responses fall through to the Claude estimation fallback
