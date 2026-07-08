@@ -46,6 +46,15 @@ Standard web-app lifecycle mapped to this project. Tick items as they complete; 
 - [x] JS syntax validation workflow before every deploy
 - [x] Release log (`CHANGELOG.md`) established
 
+## Phase 5b — "Quiet Ledger" UI redesign ✅ COMPLETE (2026-07-08, v19–v22)
+
+- [x] Design system created and approved (DESIGN.md) — modern minimalist, Geist + Geist Mono, one green accent
+- [x] Foundation reskin applied (tokens, fonts, light header)
+- [x] GPS "cheapest near you" verdict card on Shop tab
+- [x] Restock cadence chips in the shopping list
+- [x] Desktop two-panel layout ≥1024px
+- [x] Dark mode with header toggle
+
 ## Phase 6 — Pre-launch 🔶 ← **WE ARE HERE**
 
 - [ ] First-run onboarding / empty states reviewed for a user with zero data
