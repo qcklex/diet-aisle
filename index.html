@@ -422,6 +422,9 @@ input,select,textarea{font-family:inherit;}
 .vd-d{font-size:11px;color:var(--t3);width:44px;text-align:right;}
 .vd-btn{display:block;width:100%;background:var(--g);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;padding:12px;margin-top:10px;cursor:pointer;font-family:inherit;}
 .vd-note{font-size:11.5px;color:var(--t4);margin-top:8px;line-height:1.5;}
+/* Restock chips (increment 3) */
+.re-chip{font-family:'Geist Mono',monospace;font-size:10px;color:var(--t3);background:var(--bdl);border-radius:999px;padding:2px 8px;white-space:nowrap;}
+.rsf{font-family:'Geist Mono',monospace;font-variant-numeric:tabular-nums;}
 </style>
 </head>
 <body>
@@ -996,6 +999,7 @@ input,select,textarea{font-family:inherit;}
             <div class="imeta">
               <span class="iqty">{{ getEd(item.id,'qty') || item.qty }}</span>
               <span class="ipr">{{ getEd(item.id,'price') || fmtP(item.price) }}</span>
+              <span v-if="restockFreq(getEd(item.id,'name')||item.name)" class="re-chip">{{ restockFreq(getEd(item.id,'name')||item.name) }}</span>
               <span v-if="item.optional" class="opt">optional</span>
             </div>
           </div>
@@ -1035,14 +1039,8 @@ input,select,textarea{font-family:inherit;}
     <p class="totn">Real weekly cost once pantry stocked · ON protein bought separately</p>
     <div class="sdiv">Restock Guide</div>
     <div class="rsc">
-      <div class="rsh">How often to reorder</div>
-      <div class="rsr"><span class="rsn">ON Gold Standard Hydro 1.6kg</span><span class="rsf">every ~4.5 wks</span></div>
-      <div class="rsr"><span class="rsn">ON Gold Standard Isolate 930g</span><span class="rsf">every ~2.5 wks</span></div>
-      <div class="rsr"><span class="rsn">Butter 250g block</span><span class="rsf">every ~2 wks</span></div>
-      <div class="rsr"><span class="rsn">Olive oil 500ml</span><span class="rsf">every ~3 wks</span></div>
-      <div class="rsr"><span class="rsn">Frozen berries 500g</span><span class="rsf">every ~2.5 wks</span></div>
-      <div class="rsr"><span class="rsn">Chia seeds / nuts mix</span><span class="rsf">every ~8 wks</span></div>
-      <div class="rsr"><span class="rsn">Dark chocolate 100g bar</span><span class="rsf">every ~7 wks</span></div>
+      <div class="rsh">How often to reorder — items also show this on the list above</div>
+      <div class="rsr" v-for="r in restockRules" :key="r.label"><span class="rsn">{{ r.label }}</span><span class="rsf">every {{ r.freq }}</span></div>
     </div>
   </div>
 </main>
@@ -1498,6 +1496,20 @@ items:[
 ]},
 ];
 
+// Restock cadence rules — keyword-matched against shopping list item names
+const RESTOCK_RULES=[
+  {kw:['hydro'],label:'ON Gold Standard Hydro 1.6kg',freq:'~4.5 wks'},
+  {kw:['isolate','on protein','whey'],label:'ON Gold Standard Isolate 930g',freq:'~2.5 wks'},
+  {kw:['butter'],label:'Butter 250g block',freq:'~2 wks'},
+  {kw:['olive oil'],label:'Olive oil 500ml',freq:'~3 wks'},
+  {kw:['frozen berries','berries'],label:'Frozen berries 500g',freq:'~2.5 wks'},
+  {kw:['chia','almond','walnut','pecan'],label:'Chia seeds / nuts mix',freq:'~8 wks'},
+  {kw:['dark chocolate','chocolate'],label:'Dark chocolate 100g bar',freq:'~7 wks'},
+  {kw:['salt'],label:'Himalayan salt',freq:'~12 wks'},
+  {kw:['cinnamon'],label:'Cinnamon jar',freq:'~10 wks'},
+  {kw:['stevia'],label:'Stevia',freq:'~10 wks'},
+];
+
 // USDA FoodData Central — registered api.data.gov key (qcklexdev@gmail.com), 3600 req/hr
 const USDA_API_KEY='5MAsuSsHRqaAxPGj2M3ue7OrHoS9ko7mlXCY6pQR';
 const BATCH_SHOP_LIST=[
@@ -1590,6 +1602,7 @@ data(){return{
   auth:{user:null,email:'',password:'',mode:'signin',loading:false,error:null,info:null},
   sync:{lastSync:null,busy:false,timer:null},
   batchShopList:BATCH_SHOP_LIST,
+  restockRules:RESTOCK_RULES,
   weekMenuChecked:{},
   // Nearby stores
   nearbyStores:[],
@@ -2438,6 +2451,12 @@ Return ONLY this JSON structure (no markdown, no explanation):
   },
   fmtDist(m){return m<1000?Math.round(m)+'m':(m/1000).toFixed(1)+'km';},
   cap(s){return s?s.charAt(0).toUpperCase()+s.slice(1):'';},
+  restockFreq(name){
+    if(!name)return null;
+    const n=name.toLowerCase();
+    const r=RESTOCK_RULES.find(r=>r.kw.some(k=>n.includes(k)));
+    return r?r.freq:null;
+  },
 
   save(){
     try{

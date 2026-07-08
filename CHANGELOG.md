@@ -2,6 +2,12 @@
 
 Work log for every release. Newest first. The SW cache version (`sw.js`) is the release number — bump it whenever `index.html` changes.
 
+## v21 — 2026-07-08 · Redesign increment 3: restock cadence in the shopping list
+
+- Shopping-list items now carry a quiet mono chip (`~2 wks`) showing how often to restock, keyword-matched via the new `RESTOCK_RULES` table (also respects renamed items).
+- The static hardcoded Restock Guide block is now data-driven from the same table — one source of truth, three new pantry items added (salt, cinnamon, stevia).
+- Requested by Alex 2026-07-08 ("restock section in the shopping list telling you how often each item must be restocked").
+
 ## v20 — 2026-07-08 · Redesign increment 2: GPS "cheapest near you" verdict card
 
 - New verdict card leads the Shop tab: "Cheapest for your list · near you" — winner store + basket total, green savings line vs the priciest nearby option, then per-store rows (price bar, mono price, distance), one row per brand at its nearest branch.
