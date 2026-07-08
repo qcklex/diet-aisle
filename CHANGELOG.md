@@ -2,6 +2,14 @@
 
 Work log for every release. Newest first. The SW cache version (`sw.js`) is the release number — bump it whenever `index.html` changes.
 
+## v18 — 2026-07-08 · Network error-handling pass
+
+- Receipt scan and AI plan failures now show friendly inline error boxes instead of raw `alert()` dialogs.
+- Both flows check `navigator.onLine` up front and say clearly when you're offline instead of failing with "Failed to fetch".
+- `claudeCall()` maps network-level fetch failures to a friendly message (offline vs server unreachable) for all callers.
+- AI plan that streams back without parseable JSON now reports an error instead of silently showing nothing.
+- Audited all other network flows (barcode, store locator, auth, cloud sync, nutrition matching) — already had inline errors, loading states, and `finally` cleanup; no frozen-spinner paths found.
+
 ## v17 — 2026-07-08
 
 - Replaced the USDA FoodData Central `DEMO_KEY` with a registered api.data.gov key (3,600 req/hr vs 30/hr) — the nutrition-matching pipeline's USDA tier no longer rate-limits during normal use. Key lives in the `USDA_API_KEY` constant; account is qcklexdev@gmail.com. (`aa2cc8d`)

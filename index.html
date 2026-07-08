@@ -556,6 +556,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;backg
       </div>
     </template>
 
+    <div v-if="scanError" class="nearby-error">{{ scanError }}</div>
+
     <div v-if="!scanLoading && !scanResult" style="padding:20px 0;text-align:center;color:var(--t3);font-size:13px;">
       Tap the button above to scan a Lidl Plus receipt, a Tesco receipt, or any supermarket receipt.
       <br><br>Prices and nutritional data are saved to your personal database to improve future shopping lists.
@@ -633,6 +635,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;backg
         {{ aiLoading ? 'Generating…' : '✦ Generate plan with AI' }}
       </button>
       <div class="ai-stream" :class="{active: aiLoading}" ref="aiStreamEl">{{ aiStream }}</div>
+      <div v-if="aiError" class="nearby-error">{{ aiError }}</div>
     </div>
 
     <!-- Store recommendation banner -->
@@ -1486,10 +1489,12 @@ data(){return{
   // Scan tab
   scanPreview:null,
   scanLoading:false,
+  scanError:null,
   scanResult:null,
   // AI Plan tab
   aiGoals:{calories:2000,protein:150,fat:130,carbs:30,budget:60,days:7},
   aiLoading:false,
+  aiError:null,
   aiStream:'',
   aiPlan:null,
   aiShopFilter:'all',
@@ -1898,11 +1903,16 @@ methods:{
     const body={model,max_tokens,messages};
     if(system)body.system=system;
     if(stream)body.stream=true;
-    const res=await fetch('/api/chat',{
-      method:'POST',
-      headers:{'content-type':'application/json'},
-      body:JSON.stringify(body)
-    });
+    let res;
+    try{
+      res=await fetch('/api/chat',{
+        method:'POST',
+        headers:{'content-type':'application/json'},
+        body:JSON.stringify(body)
+      });
+    }catch(e){
+      throw new Error(navigator.onLine?'Could not reach the server — please try again.':'You\'re offline — this feature needs a connection.');
+    }
     if(!res.ok){
       const err=await res.json().catch(()=>({}));
       throw new Error(err.error?.message||`API error ${res.status}`);
@@ -1916,6 +1926,8 @@ methods:{
   async onReceiptFile(e){
     const file=e.target.files[0];
     if(!file)return;
+    this.scanError=null;
+    if(!navigator.onLine){this.scanError='You\'re offline — receipt scanning needs a connection. Your saved data still works.';return;}
     this.scanResult=null;
     this.scanPreview=URL.createObjectURL(file);
     this.scanLoading=true;
@@ -1946,7 +1958,7 @@ Rules: raw=exactly as printed, name=human readable, weight=pack size or null, pr
       // Auto-fetch nutrition for all items in parallel
       await Promise.all(this.scanResult.items.map(item=>this.matchNutrition(item)));
     }catch(err){
-      alert('Scan failed: '+err.message);
+      this.scanError='Scan failed: '+err.message+' — try a clearer photo or try again.';
     }finally{
       this.scanLoading=false;
     }
@@ -2122,6 +2134,8 @@ Rules: raw=exactly as printed, name=human readable, weight=pack size or null, pr
 
   // ── AI Meal Plan — direct Claude streaming with per-store price comparison
   async generatePlan(){
+    this.aiError=null;
+    if(!navigator.onLine){this.aiError='You\'re offline — AI plan generation needs a connection.';return;}
     this.aiLoading=true;this.aiStream='';this.aiPlan=null;this.aiShopFilter='all';
 
     // Build context from user's local price DB so AI can use real prices where known
@@ -2235,9 +2249,11 @@ Return ONLY this JSON structure (no markdown, no explanation):
           plan.shopping_list_all=[...plan.shopping_list];
           this.recentlyRemoved=[];
           this.aiPlan=plan;
-        }catch(e){console.warn('Plan JSON parse error:',e);alert('Plan generated but could not be parsed. Try again.');}
+        }catch(e){console.warn('Plan JSON parse error:',e);this.aiError='The plan came back in an unexpected format — please try again.';}
+      }else{
+        this.aiError='The plan came back in an unexpected format — please try again.';
       }
-    }catch(e){alert('AI plan failed: '+e.message);}
+    }catch(e){this.aiError='AI plan failed: '+e.message;}
     finally{this.aiLoading=false;}
   },
 
