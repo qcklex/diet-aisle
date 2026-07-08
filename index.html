@@ -7,20 +7,25 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="DietAisle">
 <meta name="description" content="Meal planning & macro tracking for fitness people — with UK supermarket price comparison">
-<meta name="theme-color" content="#15803D">
+<meta name="theme-color" content="#FAFAF8">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <title>DietAisle</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="vue.min.js"></script>
 <script async src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <style>
 :root{
-  --g:#16A34A;--gbg:#F0FDF4;--gd:#15803D;--gdk:#166534;
-  --or:#C2410C;--orbg:#FFF7ED;
-  --bl:#1D4ED8;--blbg:#EFF6FF;
+  /* Quiet Ledger tokens — see DESIGN.md */
+  --g:#047857;--gbg:#ECFDF5;--gd:#047857;--gdk:#065F46;
+  --or:#B45309;--orbg:#FFFBEB;
+  --bl:#6B7069;--blbg:#F1F1ED;
   --ybg:#FFFBEB;--ybr:#FDE68A;--ytx:#92400E;
-  --bg:#F5F5F0;--card:#fff;--bd:#E5E7EB;--bdl:#F3F4F6;
-  --t1:#111827;--t2:#374151;--t3:#6B7280;--t4:#9CA3AF;
+  --bg:#FAFAF8;--card:#fff;--bd:#E8E8E3;--bdl:#F1F1ED;
+  --t1:#1A1D1B;--t2:#3E433E;--t3:#6B7069;--t4:#9AA096;
+  --shadow:0 1px 2px rgba(26,29,27,.04),0 4px 16px rgba(26,29,27,.05);
   --st:env(safe-area-inset-top,0px);--sb:env(safe-area-inset-bottom,0px);
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
@@ -374,6 +379,29 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;backg
 .recents-list{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;}
 .recents-item{font-size:12px;font-weight:500;color:var(--gd);background:var(--gbg);border:1px dashed var(--g);border-radius:8px;padding:5px 10px;cursor:pointer;display:flex;align-items:center;gap:4px;}
 .recents-item:active{opacity:.7;}
+
+/* ═══ QUIET LEDGER override layer (DESIGN.md) — keeps selectors, restyles surfaces ═══ */
+body{font-family:'Geist',-apple-system,BlinkMacSystemFont,sans-serif;}
+/* Header: dark green chrome → minimal light surface */
+.hdr{background:var(--bg);border-bottom:1px solid var(--bd);}
+.atitle{color:var(--t1);font-weight:700;letter-spacing:-.02em;}
+.asub{color:var(--t3);}
+.mp{background:var(--card);border:1px solid var(--bd);}
+.mpv{color:var(--t1);}
+.mpl{color:var(--t3);}
+.pselbtn{background:var(--card);border:1px solid var(--bd);color:var(--t3);}
+.pselbtn.active{background:var(--gbg);border-color:transparent;color:var(--g);font-weight:600;}
+.pselbtn.pnew{background:none;border:1px dashed var(--bd);color:var(--t4);}
+.tab{background:var(--card);border:1px solid var(--bd);color:var(--t3);}
+.tab.active{background:var(--gbg);border-color:transparent;color:var(--g);font-weight:600;}
+/* Money & macros always in mono (never body font) */
+.mpv,.mmc,.ipr,.iqty,.mmc span{font-family:'Geist Mono',monospace;font-variant-numeric:tabular-nums;}
+/* Cards get the soft shadow */
+.mc,.si,.ep{box-shadow:var(--shadow);}
+.chk{border-radius:7px;}
+.tag{border-radius:999px;padding:2px 8px;font-weight:500;}
+button{font-family:inherit;}
+input,select,textarea{font-family:inherit;}
 </style>
 </head>
 <body>

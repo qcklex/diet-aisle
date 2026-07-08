@@ -2,6 +2,14 @@
 
 Work log for every release. Newest first. The SW cache version (`sw.js`) is the release number — bump it whenever `index.html` changes.
 
+## v19 — 2026-07-08 · "Quiet Ledger" redesign, increment 1 of 5 (foundation)
+
+- New design system applied via token swap + override layer (see DESIGN.md, approved via design consultation after rejecting a bolder "receipt-punk" v1 as too cartoonish).
+- Geist + Geist Mono loaded from Google Fonts; all macro/price numbers now tabular mono.
+- Dark-green header chrome replaced with a minimal light header; preset/day pills get quiet outlines with green-soft active states.
+- Warm near-white background `#FAFAF8`, hairline borders `#E8E8E3`, soft card shadows; accent green `#047857` (green now means progress/savings only); blue info tags neutralised.
+- Remaining increments: GPS store-verdict hero card, restock chips, desktop two-panel, dark mode toggle.
+
 ## v18 — 2026-07-08 · Network error-handling pass
 
 - Receipt scan and AI plan failures now show friendly inline error boxes instead of raw `alert()` dialogs.
