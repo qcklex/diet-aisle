@@ -402,6 +402,26 @@ body{font-family:'Geist',-apple-system,BlinkMacSystemFont,sans-serif;}
 .tag{border-radius:999px;padding:2px 8px;font-weight:500;}
 button{font-family:inherit;}
 input,select,textarea{font-family:inherit;}
+/* Verdict card — cheapest near you (increment 2) */
+.vd{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:16px 18px;margin-bottom:14px;box-shadow:var(--shadow);}
+.vd-lede{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--t3);}
+.vd-main{display:flex;align-items:baseline;margin-top:8px;gap:10px;}
+.vd-store{font-size:24px;font-weight:700;letter-spacing:-.02em;color:var(--t1);}
+.vd-price{font-family:'Geist Mono',monospace;font-variant-numeric:tabular-nums;font-size:24px;font-weight:600;margin-left:auto;color:var(--t1);}
+.vd-sub{display:flex;gap:6px;margin-top:6px;align-items:center;flex-wrap:wrap;}
+.vd-save{font-size:13px;font-weight:600;color:var(--g);}
+.vd-dist{font-size:13px;color:var(--t3);}
+.vd-hint{font-size:12.5px;color:var(--t3);margin-top:8px;}
+.vd-rows{margin-top:10px;}
+.vd-row{display:flex;align-items:center;gap:9px;padding:8px 0;border-top:1px solid var(--bdl);}
+.vd-nm{font-size:13px;font-weight:600;width:64px;color:var(--t1);white-space:nowrap;overflow:hidden;}
+.vd-win{color:var(--g);margin-left:3px;font-weight:700;}
+.vd-bar{flex:1;height:6px;border-radius:3px;background:var(--bdl);overflow:hidden;}
+.vd-bar i{display:block;height:100%;border-radius:3px;transition:width .3s;}
+.vd-pr{font-family:'Geist Mono',monospace;font-variant-numeric:tabular-nums;font-size:12.5px;font-weight:600;width:56px;text-align:right;color:var(--t1);}
+.vd-d{font-size:11px;color:var(--t3);width:44px;text-align:right;}
+.vd-btn{display:block;width:100%;background:var(--g);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;padding:12px;margin-top:10px;cursor:pointer;font-family:inherit;}
+.vd-note{font-size:11.5px;color:var(--t4);margin-top:8px;line-height:1.5;}
 </style>
 </head>
 <body>
@@ -916,6 +936,40 @@ input,select,textarea{font-family:inherit;}
   </div>
 
   <div v-show="activeTab==='shop'">
+    <!-- ── Cheapest-near-you verdict card -->
+    <div class="vd" v-if="shopVerdict">
+      <div class="vd-lede">Cheapest for your list · near you</div>
+      <template v-if="shopVerdict.hasPrices">
+        <div class="vd-main"><span class="vd-store">{{ cap(shopVerdict.winner.brand) }}</span><span class="vd-price">£{{ shopVerdict.winner.basketCost.toFixed(2) }}</span></div>
+        <div class="vd-sub">
+          <span v-if="shopVerdict.save>0.005" class="vd-save">Save £{{ shopVerdict.save.toFixed(2) }} vs {{ cap(shopVerdict.vs) }}</span>
+          <span class="vd-dist">· {{ fmtDist(shopVerdict.winner.dist) }} away</span>
+        </div>
+      </template>
+      <template v-else>
+        <div class="vd-main"><span class="vd-store">{{ cap(shopVerdict.winner.brand) }}</span><span class="vd-dist">{{ fmtDist(shopVerdict.winner.dist) }} away</span></div>
+        <div class="vd-hint">✦ Generate an AI plan to rank these stores by basket price</div>
+      </template>
+      <div class="vd-rows">
+        <div v-for="(s,i) in shopVerdict.rows" :key="s.id" class="vd-row">
+          <span class="vd-nm">{{ cap(s.brand) }}<span v-if="i===0&&shopVerdict.hasPrices" class="vd-win">✓</span></span>
+          <span class="vd-bar"><i :style="{width:(s.basketCost!==null&&shopVerdict.maxCost?Math.round(s.basketCost/shopVerdict.maxCost*100):8)+'%',background:(i===0&&shopVerdict.hasPrices)?'var(--g)':'var(--bd)'}"></i></span>
+          <span class="vd-pr">{{ s.basketCost!==null?'£'+s.basketCost.toFixed(2):'—' }}</span>
+          <span class="vd-d">{{ fmtDist(s.dist) }}</span>
+        </div>
+      </div>
+    </div>
+    <div class="vd" v-else-if="locationLoading">
+      <div class="vd-lede">Cheapest for your list · near you</div>
+      <div class="vd-note" style="padding:8px 0">Finding nearby supermarkets…</div>
+    </div>
+    <div class="vd" v-else>
+      <div class="vd-lede">Cheapest for your list · near you</div>
+      <button class="vd-btn" @click="requestLocation">📍 Find the cheapest store near me</button>
+      <div class="vd-note">Uses your location once to find nearby supermarkets — sent to OpenStreetMap's Overpass API, never stored or tracked.</div>
+    </div>
+    <div v-if="locationError" class="nearby-error" style="margin-bottom:12px">{{ locationError }}</div>
+
     <div class="shop-top">
       <div class="shop-h">{{ activePreset.name }}</div>
       <button v-show="hasChecked" class="btn-clear" @click="clearChecked">Clear checked</button>
@@ -1592,6 +1646,28 @@ computed:{
     return w.length?[...w].sort((a,b)=>a.totalCost-b.totalCost):[...this.nearbyWithPrices].sort((a,b)=>a.travelMin-b.travelMin);
   },
   nearbyList(){return this.nearbyMode==='time'?this.nearbyByTime:this.nearbyByMoney;},
+  // ── Shop-tab verdict: cheapest store near you for the current list (DESIGN.md signature element)
+  shopVerdict(){
+    if(!this.nearbyStores.length)return null;
+    const byBrand={};
+    this.nearbyWithPrices.forEach(s=>{if(!byBrand[s.brand]||s.dist<byBrand[s.brand].dist)byBrand[s.brand]=s;});
+    const rows=Object.values(byBrand).sort((a,b)=>{
+      if(a.basketCost!==null&&b.basketCost!==null)return a.basketCost-b.basketCost;
+      if(a.basketCost!==null)return -1;
+      if(b.basketCost!==null)return 1;
+      return a.dist-b.dist;
+    }).slice(0,4);
+    const priced=rows.filter(s=>s.basketCost!==null);
+    const winner=rows[0];
+    const worst=priced.length>1?priced[priced.length-1]:null;
+    return{
+      rows,winner,
+      hasPrices:priced.length>0,
+      save:worst?worst.basketCost-winner.basketCost:0,
+      vs:worst?worst.brand:null,
+      maxCost:priced.length?Math.max(...priced.map(s=>s.basketCost)):0
+    };
+  },
 
   allPresets(){return[...PRESETS,...this.customPresets];},
   activePreset(){return this.allPresets.find(p=>p.id===this.activePresetId)||PRESETS[0];},
@@ -2361,6 +2437,7 @@ Return ONLY this JSON structure (no markdown, no explanation):
     return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
   },
   fmtDist(m){return m<1000?Math.round(m)+'m':(m/1000).toFixed(1)+'km';},
+  cap(s){return s?s.charAt(0).toUpperCase()+s.slice(1):'';},
 
   save(){
     try{

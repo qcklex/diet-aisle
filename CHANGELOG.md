@@ -2,6 +2,13 @@
 
 Work log for every release. Newest first. The SW cache version (`sw.js`) is the release number — bump it whenever `index.html` changes.
 
+## v20 — 2026-07-08 · Redesign increment 2: GPS "cheapest near you" verdict card
+
+- New verdict card leads the Shop tab: "Cheapest for your list · near you" — winner store + basket total, green savings line vs the priciest nearby option, then per-store rows (price bar, mono price, distance), one row per brand at its nearest branch.
+- Reuses the existing Overpass locator + `nearbyWithPrices` merge; on-demand geolocation only (button tap), matching the app's no-tracking privacy promise.
+- Without an AI plan it ranks nearby stores by distance and prompts "Generate an AI plan to rank these stores by basket price" — no dead states.
+- Requested by Alex 2026-07-08 ("track with GPS which supermarket is cheaper for your current shopping list").
+
 ## v19 — 2026-07-08 · "Quiet Ledger" redesign, increment 1 of 5 (foundation)
 
 - New design system applied via token swap + override layer (see DESIGN.md, approved via design consultation after rejecting a bolder "receipt-punk" v1 as too cartoonish).
