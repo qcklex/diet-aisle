@@ -1,5 +1,7 @@
 # DietAisle — Style Guide
 
+> **SUPERSEDED (2026-07-08):** the "Quiet Ledger" redesign in **DESIGN.md** is now the design source of truth. This file documents the v1 (green-header) system and is kept for reference until the redesign ships.
+
 **Version:** 1.0  
 **Date:** May 2026
 
