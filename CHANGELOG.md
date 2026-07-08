@@ -2,6 +2,13 @@
 
 Work log for every release. Newest first. The SW cache version (`sw.js`) is the release number — bump it whenever `index.html` changes.
 
+## v22 — 2026-07-08 · Redesign increments 4+5: desktop two-panel + dark mode
+
+- Desktop ≥1024px: real two-panel layout — day plan left, Shop panel (verdict card + list) always visible right. Replaces the lonely centred 600px column. Mobile unchanged.
+- Dark mode: full dark token set per DESIGN.md, ◐/☀ toggle in the header, respects `prefers-color-scheme` on first visit, choice persisted as `da_theme`.
+- CTA buttons keep readable dark text on the brighter dark-mode green.
+- This completes all 5 increments of the "Quiet Ledger" redesign.
+
 ## v21 — 2026-07-08 · Redesign increment 3: restock cadence in the shopping list
 
 - Shopping-list items now carry a quiet mono chip (`~2 wks`) showing how often to restock, keyword-matched via the new `RESTOCK_RULES` table (also respects renamed items).
