@@ -55,9 +55,14 @@ Standard web-app lifecycle mapped to this project. Tick items as they complete; 
 - [x] Desktop two-panel layout ≥1024px
 - [x] Dark mode with header toggle
 
+## Phase 5c — WCAG 2.2 AA compliance ✅ COMPLETE (2026-07-09, v23–v24)
+
+- [x] axe-core audit (WCAG 2.0/2.1/2.2 AA) — 0 violations across all 7 tabs × light/dark × modal, verified on production
+- [x] Contrast fixes, focus-visible outlines, reduced-motion support, dialog/live-region semantics, 24px targets
+
 ## Phase 6 — Pre-launch 🔶 ← **WE ARE HERE**
 
-- [ ] First-run onboarding / empty states reviewed for a user with zero data
+- [x] First-run onboarding / empty states reviewed for a user with zero data (v25)
 - [ ] Custom domain: register **dietaisle.com** (~$9/yr on Cloudflare) and connect to Vercel
 - [ ] Real-device QA pass on iPhone (iOS Safari PWA) — install, offline, camera flows
 - [ ] Basic analytics (privacy-respecting, e.g. Vercel Analytics) to show funders traction

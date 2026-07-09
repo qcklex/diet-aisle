@@ -2,6 +2,13 @@
 
 Work log for every release. Newest first. The SW cache version (`sw.js`) is the release number — bump it whenever `index.html` changes.
 
+## v25 — 2026-07-10 · Zero-data empty states
+
+- Audited every tab for a brand-new user with zero data. Two real gaps found: an empty day plan (all meals removed) showed only the "+ Add meal" button with no framing, and an empty shopping list rendered a stack of bare category headers with no items — looked broken, not empty.
+- Fix: day tab shows "Nothing planned for [Day] yet." above the add button. Shop tab shows a "Nothing in the trolley yet" card with Scan receipt / AI plan quick actions when the list has no items, replacing the section headers entirely (voice per DESIGN.md).
+- Scan tab, AI Plan tab, Dashboard, and Account tab already had adequate empty/first-run states — left unchanged.
+- Batch-Cook shop list is a static reference list (not user-editable per item), so it can't go empty at runtime — no change needed there.
+
 ## v24 — 2026-07-09 · WCAG 2.2 AA dark-mode contrast fixes
 
 - Production audit after v23 surfaced dark-mode-only failures v23's light-mode-focused testing missed: `.scan-hero`/`.dash-hero` (white text on the brighter dark-mode green fell to 1.9:1), `.acct-btn.alt`, `.modal-cre` button, and — the real bug — `.modal-input`/`.mf-ing-row input`/`.mf-step-row input` had no explicit `background` at all, so they stayed browser-default white in dark mode (CSS `background` doesn't inherit from a themed parent).
