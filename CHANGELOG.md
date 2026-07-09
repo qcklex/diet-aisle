@@ -2,6 +2,12 @@
 
 Work log for every release. Newest first. The SW cache version (`sw.js`) is the release number — bump it whenever `index.html` changes.
 
+## v24 — 2026-07-09 · WCAG 2.2 AA dark-mode contrast fixes
+
+- Production audit after v23 surfaced dark-mode-only failures v23's light-mode-focused testing missed: `.scan-hero`/`.dash-hero` (white text on the brighter dark-mode green fell to 1.9:1), `.acct-btn.alt`, `.modal-cre` button, and — the real bug — `.modal-input`/`.mf-ing-row input`/`.mf-step-row input` had no explicit `background` at all, so they stayed browser-default white in dark mode (CSS `background` doesn't inherit from a themed parent).
+- Fix: dark-mode hero cards pinned to a fixed darker green (`#065F46`, same value proven in light mode); all bare `<input>` elements given an explicit `background:var(--card)` dark override; CTA buttons on bright dark-mode green get dark text.
+- Re-verified: 0 axe-core violations on every tab × both themes × the New Plan modal, confirmed directly against the production deployment.
+
 ## v23 — 2026-07-09 · WCAG 2.2 AA compliance
 
 - axe-core audit (WCAG 2.0/2.1/2.2 AA rulesets) across every tab, light + dark: 109 colour-contrast violations found → **0 remaining**.
