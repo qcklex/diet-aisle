@@ -444,6 +444,11 @@ html[data-theme=dark] .scan-hero,html[data-theme=dark] .dash-hero{background:#06
 html[data-theme=dark] .modal-cre{color:#08130E;}
 html[data-theme=dark] .vd-btn,html[data-theme=dark] .ai-generate-btn,html[data-theme=dark] .nearby-loc-btn,html[data-theme=dark] .acct-btn,html[data-theme=dark] .scan-btn-confirm{color:#08130E;}
 .theme-btn{background:var(--card);border:1px solid var(--bd);border-radius:999px;width:34px;height:34px;font-size:15px;color:var(--t3);cursor:pointer;flex-shrink:0;margin-left:10px;display:flex;align-items:center;justify-content:center;font-family:inherit;}
+/* Account moved out of the tab row — profile lives top-right (header), not among content destinations */
+.hbtns{display:flex;align-items:center;flex-shrink:0;}
+.acct-hbtn{margin-left:8px;position:relative;}
+.acct-hbtn.on{border-color:var(--g);color:var(--g);background:var(--gbg);}
+.acct-dot{position:absolute;top:1px;right:1px;width:8px;height:8px;border-radius:999px;background:var(--g);border:1.5px solid var(--card);}
 /* Desktop two-panel: plan left, shop & prices right (increment 4) */
 @media(min-width:1024px){
   .con{max-width:1100px;display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:24px;align-items:start;}
@@ -472,7 +477,10 @@ html[data-theme=dark] .vd-btn,html[data-theme=dark] .ai-generate-btn,html[data-t
     <div class="mpills" v-else>
       <div class="mp"><div class="mpv" style="font-size:10px;line-height:1.4">SHOP</div></div>
     </div>
-    <button class="theme-btn" @click="toggleTheme" :aria-label="'Switch to '+(theme==='dark'?'light':'dark')+' mode'">{{ theme==='dark'?'☀':'◐' }}</button>
+    <div class="hbtns">
+      <button class="theme-btn" @click="toggleTheme" :aria-label="'Switch to '+(theme==='dark'?'light':'dark')+' mode'">{{ theme==='dark'?'☀':'◐' }}</button>
+      <button :class="['theme-btn','acct-hbtn',{on:activeTab==='account'}]" @click="activeTab='account'" :aria-label="auth.user?'Account — signed in':'Account — sign in'">👤<span v-if="auth.user" class="acct-dot" aria-hidden="true"></span></button>
+    </div>
   </div>
   <!-- ── <nav> for plan presets (semantic navigation landmark) -->
   <nav class="psel-row" aria-label="Meal plans">
@@ -493,7 +501,6 @@ html[data-theme=dark] .vd-btn,html[data-theme=dark] .ai-generate-btn,html[data-t
     <button :class="['tab',{active:activeTab==='scan'}]" @click="activeTab='scan'">📷 Scan</button>
     <button :class="['tab',{active:activeTab==='aiplan'}]" @click="activeTab='aiplan'">✦ AI Plan</button>
     <button :class="['tab',{active:activeTab==='batchlist'}]" @click="activeTab='batchlist'">📋 Batch Shop</button>
-    <button :class="['tab',{active:activeTab==='account'}]" @click="activeTab='account'">👤 Account</button>
   </nav>
 </header>
 

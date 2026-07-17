@@ -2,6 +2,13 @@
 
 Work log for every release. Newest first. The SW cache version (`sw.js`) is the release number — bump it whenever `index.html` changes.
 
+## v26 — 2026-07-17 · Account moved out of the tab row
+
+- UX fix (Alex): the 👤 Account pill sat at the same level as content destinations (Dash/Shop/Scan/AI Plan/Batch Shop) at the end of the scrolling tab row — wrong hierarchy for a profile/settings destination.
+- Account is now a round header button top-right, next to the theme toggle (standard profile placement). Green outline + tint when the Account view is open; a small green dot on the icon when signed in.
+- `.htop` buttons wrapped in a `.hbtns` flex group so `justify-content:space-between` doesn't scatter them.
+- Existing "Sign in" link on the Dashboard still routes to the same view; nothing else moved.
+
 ## 2026-07-17 · Marketing landing page (no SW bump — app untouched)
 
 - New `landing.html` — marketing site for DietAisle, served at `/home` (vercel.json rewrite). Format modelled on MyFitnessPal / Yuka / Eat This Much / Mealime landing pages: sticky nav + CTA, hero with value prop and app mockup, trust strip, alternating feature sections, 3-step "how it works", FAQ, final CTA band.
