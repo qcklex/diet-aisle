@@ -2,6 +2,12 @@
 
 Work log for every release. Newest first. The SW cache version (`sw.js`) is the release number — bump it whenever `index.html` changes.
 
+## v29 — 2026-07-17 · Community prices on barcode results (Open Prices)
+
+- Investigated live UK pricing sources again per Alex ("trolley.co.uk or similars"). Trolley.co.uk stays ruled out (no API, ToS bans scraping — full research 2026-07-12 in COMMUNITY_PRICING.md). The one legitimate open source is **Open Prices** (prices.openfoodfacts.org): crowdsourced receipt prices, open licence, queryable by barcode. UK coverage measured today: ~1,947 GBP prices total — far too thin to power the store-comparison engine, but fresh (entries from this week) and useful per-product.
+- Barcode lookups now also query Open Prices (`fetchCommunityPrices`, fire-and-forget, 6s timeout, silent on failure/offline): the result card shows up to 4 recent UK community prices — store, date, price — with a "use" button that fills the price field. Section labelled "Recently paid by other UK shoppers · Open Prices".
+- Verified live: barcode 4056489932284 → OFF nutrition + two dated Lidl prices from the Open Prices API, "use" fills £2.99.
+
 ## v28 — 2026-07-17 · Learned restock cadence + proven-recipe AI prompt
 
 - **Restock times are now calculated, not guessed** (Alex: "I don't know how it is calculating the time" — before, it wasn't; the times were a hardcoded table). Every confirmed receipt/barcode scan already stores a dated price on the product; the new `recomputeRestockLearned()` uses that history: purchase dates under 3 days apart cluster into one shop (multi-store weekends), and an item bought on 2+ separate shops gets its frequency set to the **median gap** between shops (median so one holiday gap doesn't skew it). Runs on every scan confirm and on app load (picks up pre-existing receipts).

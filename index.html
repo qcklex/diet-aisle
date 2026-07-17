@@ -464,6 +464,14 @@ html[data-theme=dark] .vd-btn,html[data-theme=dark] .ai-generate-btn,html[data-t
 .rs-reset:hover{color:var(--t2);}
 .rs-src{font-family:'Geist Mono',monospace;font-size:10px;font-weight:500;color:var(--g);background:var(--gbg);padding:1px 6px;border-radius:999px;flex-shrink:0;}
 .rs-note{font-size:11.5px;color:var(--t4);line-height:1.5;margin-top:10px;}
+/* Community prices (Open Prices) on barcode results */
+.bc-community{margin-top:12px;border-top:1px solid var(--bdl);padding-top:10px;}
+.bc-comm-h{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--t3);margin-bottom:6px;display:flex;align-items:center;gap:6px;}
+.bc-comm-src{font-family:'Geist Mono',monospace;font-size:9px;font-weight:500;text-transform:none;letter-spacing:0;color:var(--t4);background:var(--bdl);padding:1px 6px;border-radius:999px;}
+.bc-comm-row{display:flex;align-items:center;gap:10px;padding:5px 0;font-size:13px;}
+.bc-comm-store{flex:1;color:var(--t2);}
+.bc-comm-date{font-family:'Geist Mono',monospace;font-size:11px;color:var(--t4);}
+.bc-comm-price{font-family:'Geist Mono',monospace;font-variant-numeric:tabular-nums;font-weight:600;color:var(--t1);}
 .acct-hbtn.on{border-color:var(--g);color:var(--g);background:var(--gbg);}
 .acct-dot{position:absolute;top:1px;right:1px;width:8px;height:8px;border-radius:999px;background:var(--g);border:1.5px solid var(--card);}
 /* Desktop two-panel: plan left, shop & prices right (increment 4) */
@@ -697,6 +705,15 @@ html[data-theme=dark] .vd-btn,html[data-theme=dark] .ai-generate-btn,html[data-t
         <div class="bc-row">
           <input class="ai-inp" type="number" step="0.01" min="0" v-model.number="barcode.price" placeholder="Price £ (optional)" aria-label="Current price in pounds">
           <button class="bc-btn" @click="saveBarcodeProduct" :disabled="barcode.saved" aria-label="Save product to database">{{ barcode.saved ? '✓ Saved' : 'Save to DB' }}</button>
+        </div>
+        <div v-if="barcode.community && barcode.community.length" class="bc-community">
+          <div class="bc-comm-h">Recently paid by other UK shoppers <span class="bc-comm-src">Open Prices</span></div>
+          <div v-for="cp in barcode.community" :key="cp.id" class="bc-comm-row">
+            <span class="bc-comm-store">{{ cp.store }}</span>
+            <span class="bc-comm-date">{{ cp.date }}</span>
+            <span class="bc-comm-price">£{{ cp.price.toFixed(2) }}</span>
+            <button class="rs-ib" @click="barcode.price=cp.price" :aria-label="'Use £'+cp.price.toFixed(2)+' as the price'">use</button>
+          </div>
         </div>
       </div>
     </div>
@@ -1692,7 +1709,7 @@ data(){return{
   // Local product DB (persisted to localStorage)
   productDb:[],
   // Barcode scanner
-  barcode:{input:'',loading:false,error:null,product:null,price:null,store:'lidl',scanning:false,saved:false},
+  barcode:{input:'',loading:false,error:null,product:null,price:null,store:'lidl',scanning:false,saved:false,community:null},
   // Cloud accounts + sync
   auth:{user:null,email:'',password:'',mode:'signin',loading:false,error:null,info:null},
   sync:{lastSync:null,busy:false,timer:null},
@@ -2335,9 +2352,28 @@ Rules: raw=exactly as printed, name=human readable, weight=pack size or null, pr
         fiber:n['fiber_100g']??null,
         source:'barcode',confidence:'high'
       };
+      this.fetchCommunityPrices(code); // fire-and-forget — card renders without it
     }catch(e){
       this.barcode.error=e.message;
     }finally{this.barcode.loading=false;}
+  },
+
+  // ── Open Prices (Open Food Facts) — crowdsourced receipt prices, open licence.
+  // UK coverage is thin (~2k GBP prices, 2026-07), so this is a supplement to the
+  // user's own receipt data, never the comparison engine. Trolley.co.uk & co stay
+  // out: no API, ToS bans scraping (researched 2026-07-12, COMMUNITY_PRICING.md).
+  async fetchCommunityPrices(code){
+    this.barcode.community=null;
+    try{
+      const res=await fetch(`https://prices.openfoodfacts.org/api/v1/prices?product_code=${code}&currency=GBP&order_by=-date&size=4`,{signal:AbortSignal.timeout(6000)});
+      const data=await res.json();
+      this.barcode.community=(data.items||[]).filter(i=>i.price!=null).map(i=>({
+        id:i.id,
+        store:i.location?.osm_brand||i.location?.osm_name||'Unknown store',
+        date:i.date||'',
+        price:Number(i.price)
+      }));
+    }catch(e){/* optional enrichment — stay quiet offline or on API failure */}
   },
 
   saveBarcodeProduct(){
