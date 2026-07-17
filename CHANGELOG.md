@@ -2,6 +2,12 @@
 
 Work log for every release. Newest first. The SW cache version (`sw.js`) is the release number — bump it whenever `index.html` changes.
 
+## 2026-07-17 · INCIDENT: edge middleware crashed the root URL (no SW bump)
+
+- The `middleware.js` shipped earlier today for dietaisle.com host routing threw `MIDDLEWARE_INVOCATION_FAILED` at the edge, intermittently returning 500 for `/` on production. Existing PWA users were shielded by the service-worker cache; fresh visitors got an error page. Found while E2E-testing v31; middleware deleted.
+- Replacement: `vercel.json` **redirects** (which run before the filesystem, unlike rewrites): `dietaisle.com/` and `www.dietaisle.com/` → 302 `/home` (the landing page). Declarative, nothing to crash; the app root for dietaisle.vercel.app is untouched. Verified after deploy: all routes 200, and the full v31 gate flow (friendly error + offline escape + app opens) confirmed on production.
+- Lesson recorded: never ship an edge middleware here without hitting the deployed root immediately after — the earlier post-deploy check greps matched on the pre-middleware response and missed it.
+
 ## v31 — 2026-07-17 · Gate resilience hotfix — Supabase project is DOWN
 
 - **Found during v30's production E2E: the Supabase project (acfcphgqzxmhthsdpyox.supabase.co) no longer resolves — paused (likely free-tier inactivity) or deleted.** Sign-in/sign-up therefore fail on production, and cloud sync has silently been dead for some time (local-first design masked it). ACTION NEEDED (Alex): restore the project in the Supabase dashboard, or create a new one + run `supabase-setup.sql` + update `SUPABASE_URL`/`SUPABASE_ANON_KEY` in index.html.
