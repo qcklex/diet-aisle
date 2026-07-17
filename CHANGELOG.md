@@ -2,6 +2,13 @@
 
 Work log for every release. Newest first. The SW cache version (`sw.js`) is the release number — bump it whenever `index.html` changes.
 
+## v28 — 2026-07-17 · Learned restock cadence + proven-recipe AI prompt
+
+- **Restock times are now calculated, not guessed** (Alex: "I don't know how it is calculating the time" — before, it wasn't; the times were a hardcoded table). Every confirmed receipt/barcode scan already stores a dated price on the product; the new `recomputeRestockLearned()` uses that history: purchase dates under 3 days apart cluster into one shop (multi-store weekends), and an item bought on 2+ separate shops gets its frequency set to the **median gap** between shops (median so one holiday gap doesn't skew it). Runs on every scan confirm and on app load (picks up pre-existing receipts).
+- Learned times show a green `×N` chip (N = purchases used) with the calculation explained in a footnote; manually edited times are marked ✎ and are never overwritten by learning; deleted rules are tombstoned so learning can't re-add them. Items bought 2+ times that aren't in the guide get added automatically. `da_restock_v1` now stores `{rules,hidden}` (old array shape still loads).
+- **AI meal-plan prompt rewritten for recipe quality** (Alex's request): the model must base every meal on a proven, well-loved recipe (BBC Good Food-calibre, cookbook classics, fitness-food staples) and *adapt* it to the macro targets — scale portions, sensible swaps — instead of inventing generic "protein + veg" combos. Dishes must be named as the recognisable recipe, steps must keep real seasoning/technique, no dinner repeats across the week.
+- Verified with seeded data: 5 egg purchases incl. a 2-store weekend → "~7 days ×4"; 2 oats purchases 21d apart → "~3 wks ×2"; single purchase ignored; manual edit and delete both survive recompute + reload.
+
 ## v27 — 2026-07-17 · Nav hierarchy restructure + editable Restock Guide
 
 - **One nav level per type** (Alex's UX feedback: days and destinations shared one scrolling row). New fixed bottom tab bar with the 5 destinations DESIGN.md always specified: Plan · Shop · Scan · AI Plan · Dash, active = green. Day tabs (Mon–Sun) now show only in Plan context; the preset row shows only in preset-scoped views (Plan, Shop, Batch list). Plan remembers the last-viewed day (`lastDay`).

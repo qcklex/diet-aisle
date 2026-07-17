@@ -462,6 +462,8 @@ html[data-theme=dark] .vd-btn,html[data-theme=dark] .ai-generate-btn,html[data-t
 .rsf-in{width:72px;font-family:'Geist Mono',monospace;font-variant-numeric:tabular-nums;font-size:12px;padding:3px 7px;border:1px solid var(--bd);border-radius:8px;background:var(--card);color:var(--t1);}
 .rs-reset{background:none;border:none;color:var(--t4);font-size:12px;font-family:inherit;cursor:pointer;padding:6px 0 0;text-decoration:underline;}
 .rs-reset:hover{color:var(--t2);}
+.rs-src{font-family:'Geist Mono',monospace;font-size:10px;font-weight:500;color:var(--g);background:var(--gbg);padding:1px 6px;border-radius:999px;flex-shrink:0;}
+.rs-note{font-size:11.5px;color:var(--t4);line-height:1.5;margin-top:10px;}
 .acct-hbtn.on{border-color:var(--g);color:var(--g);background:var(--gbg);}
 .acct-dot{position:absolute;top:1px;right:1px;width:8px;height:8px;border-radius:999px;background:var(--g);border:1.5px solid var(--card);}
 /* Desktop two-panel: plan left, shop & prices right (increment 4) */
@@ -1112,11 +1114,14 @@ html[data-theme=dark] .vd-btn,html[data-theme=dark] .ai-generate-btn,html[data-t
         </template>
         <template v-else>
           <span class="rsf">every {{ r.freq }}</span>
+          <span v-if="r.src==='learned'" class="rs-src" :title="'Calculated from '+r.n+' purchases on your receipts'">×{{ r.n }}</span>
+          <span v-else-if="r.src==='user'" class="rs-src" title="Set by you">✎</span>
           <button class="rs-ib" @click="startRestockEdit(r)" aria-label="Edit frequency">✎</button>
           <button class="rs-ib" @click="removeRestock(r)" aria-label="Remove from restock guide">✕</button>
         </template>
       </div>
       <div v-if="!restockRules.length" class="rsh" style="margin:4px 0 0;text-transform:none;letter-spacing:0;font-weight:400">Guide is empty — reset to bring the defaults back.</div>
+      <div class="rs-note">Times marked <span class="rs-src" style="margin:0">×N</span> are calculated from your receipts — the typical gap between buying that item again (scans under 3 days apart count as one shop; more scans = sharper times). Unmarked times are starting estimates; ✎ sets your own and the app stops adjusting it.</div>
       <button v-if="restockCustomised" class="rs-reset" @click="resetRestock">Reset to defaults</button>
     </div>
   </div>
@@ -1640,6 +1645,7 @@ data(){return{
   lastDay:'mon',
   restockEditing:null,
   restockFreqDraft:'',
+  restockHidden:[],
   activePresetId:'af1',
   customPresets:[],
   allChecks:{},
@@ -2259,6 +2265,7 @@ Rules: raw=exactly as printed, name=human readable, weight=pack size or null, pr
     if(!item.product.prices)item.product.prices=[];
     item.product.prices.push({store:this.scanResult.store?.toLowerCase()||'unknown',price:item.price,pack_size:item.weight,date:new Date().toISOString().split('T')[0]});
     this.saveProductToDb(item.product);
+    this.recomputeRestockLearned();
     item.confirmed=true;
     this.showToast('Saved: '+item.name);
   },
@@ -2343,6 +2350,7 @@ Rules: raw=exactly as printed, name=human readable, weight=pack size or null, pr
       target.prices.push({store:this.barcode.store,price:this.barcode.price,pack_size:null,date:new Date().toISOString().split('T')[0]});
     }
     this.saveProductToDb(target);
+    this.recomputeRestockLearned();
     this.barcode.saved=true;
     this.showToast('Saved: '+target.name);
   },
@@ -2356,7 +2364,18 @@ Rules: raw=exactly as printed, name=human readable, weight=pack size or null, pr
     // Build context from user's local price DB so AI can use real prices where known
     const knownPrices=this.productDb.filter(p=>p.prices?.length).map(p=>`${p.name}: ${p.prices.map(pr=>`${pr.store} £${pr.price}`).join(', ')}`).join('\n');
 
-    const SYSTEM=`You are a UK meal planning and grocery shopping expert. You know current UK supermarket prices well, especially Lidl, Aldi, Tesco, and ASDA. Generate practical, realistic meal plans using ingredients available at UK discount supermarkets. Prefer air fryer cooking where suitable. Use exact gram weights. Calculate macros accurately: protein×4 + fat×9 + carbs×4 = kcal.`;
+    const SYSTEM=`You are a UK meal planning and grocery shopping expert and a skilled recipe developer. You know current UK supermarket prices well, especially Lidl, Aldi, Tesco, and ASDA.
+
+RECIPE QUALITY — the most important rule:
+- Do NOT invent generic "protein + veg" combinations. Base every meal on a genuinely good, proven recipe — the kind that is popular on BBC Good Food, in well-loved cookbooks (Jamie Oliver, Mob, Joe Wicks-style fitness food), or a beloved home classic (shakshuka, chicken shawarma bowls, chilli con carne, katsu, piri piri chicken, dal, carbonara...).
+- Then ADAPT it to hit the macro targets: scale portions, adjust ratios, make sensible swaps (e.g. Greek yoghurt for cream, extra chicken thigh for more protein, less oil to cut fat). An adapted proven recipe beats an invented one every time.
+- Name each meal as the recognisable dish it is based on ("Chicken shawarma bowl", not "Spiced chicken with rice").
+- Steps must carry the flavour of the original: real seasoning (spices, garlic, acid, herbs), real technique. Never "season and cook the chicken".
+- Variety across the week: different proteins and cuisines, no dinner repeated.
+
+PRACTICALITY:
+- Every ingredient must be available at UK discount supermarkets. Prefer air fryer cooking where suitable. Use exact gram weights.
+- Calculate macros accurately from the actual ingredient quantities: protein×4 + fat×9 + carbs×4 = kcal.`;
 
     const USER=`Generate a ${this.aiGoals.days}-day meal plan.
 
@@ -2566,27 +2585,74 @@ Return ONLY this JSON structure (no markdown, no explanation):
   startRestockEdit(r){this.restockEditing=r.label;this.restockFreqDraft=r.freq;},
   saveRestockEdit(r){
     const v=this.restockFreqDraft.trim();
-    if(v)r.freq=v;
+    if(v){r.freq=v;r.src='user';delete r.n;} // manual edit wins — learning never overwrites it
     this.restockEditing=null;
     this.persistRestock();
   },
   removeRestock(r){
     if(!confirm('Remove "'+r.label+'" from the restock guide?'))return;
     this.restockRules=this.restockRules.filter(x=>x.label!==r.label);
+    this.restockHidden.push(r.label); // tombstone so learning doesn't re-add it
     this.persistRestock();
   },
   resetRestock(){
     this.restockRules=RESTOCK_RULES.map(r=>({...r}));
+    this.restockHidden=[];
     try{localStorage.removeItem('da_restock_v1');localStorage.setItem('da_sync_ts',new Date().toISOString());}catch(e){}
-    this.queueSync();
+    this.recomputeRestockLearned();
     this.showToast('Restock guide reset');
   },
   persistRestock(){
     try{
-      localStorage.setItem('da_restock_v1',JSON.stringify(this.restockRules));
+      localStorage.setItem('da_restock_v1',JSON.stringify({rules:this.restockRules,hidden:this.restockHidden}));
       localStorage.setItem('da_sync_ts',new Date().toISOString());
     }catch(e){}
     this.queueSync();
+  },
+
+  // ── Learned restock cadence: how the time is calculated.
+  // Every confirmed receipt/barcode scan stores a dated price on the product.
+  // Purchases <3 days apart cluster into one shop (multi-store weekends);
+  // an item bought on 2+ separate shops gets freq = MEDIAN gap between shops
+  // (median, not mean — one holiday gap shouldn't skew the cadence).
+  restockLearnedStats(){
+    const out={};
+    this.productDb.forEach(p=>{
+      const name=(p.name||'').toLowerCase().trim();
+      if(!name)return;
+      const ts=[...new Set((p.prices||[]).map(x=>x.date).filter(Boolean))]
+        .map(d=>new Date(d).getTime()).filter(t=>!isNaN(t)).sort((a,b)=>a-b);
+      const events=[];
+      ts.forEach(t=>{if(!events.length||t-events[events.length-1]>3*864e5)events.push(t);});
+      if(events.length<2)return;
+      const gaps=[];for(let i=1;i<events.length;i++)gaps.push((events[i]-events[i-1])/864e5);
+      gaps.sort((a,b)=>a-b);
+      const med=gaps.length%2?gaps[(gaps.length-1)/2]:(gaps[gaps.length/2-1]+gaps[gaps.length/2])/2;
+      out[name]={days:med,n:events.length};
+    });
+    return out;
+  },
+  fmtRestockDays(d){
+    if(d<10)return'~'+Math.max(1,Math.round(d))+' days';
+    return'~'+(Math.round(d/7*2)/2)+' wks';
+  },
+  recomputeRestockLearned(){
+    const stats=this.restockLearnedStats();
+    let changed=false;
+    Object.entries(stats).forEach(([name,s])=>{
+      const freq=this.fmtRestockDays(s.days);
+      const rule=this.restockRules.find(r=>r.kw.some(k=>name.includes(k)));
+      if(rule){
+        if(rule.src!=='user'&&(rule.freq!==freq||rule.n!==s.n)){rule.freq=freq;rule.src='learned';rule.n=s.n;changed=true;}
+      }else{
+        const label=name.charAt(0).toUpperCase()+name.slice(1);
+        if(!this.restockHidden.includes(label)){
+          this.restockRules.push({kw:[name],label,freq,src:'learned',n:s.n});
+          changed=true;
+        }
+      }
+    });
+    if(changed)this.persistRestock();
   },
 
   save(){
@@ -2728,7 +2794,9 @@ Return ONLY this JSON structure (no markdown, no explanation):
       this.productDb=JSON.parse(localStorage.getItem('da_products_v1'))||[];
       this.weekMenuChecked=JSON.parse(localStorage.getItem('da_ksck_v1'))||{};
       const rs=JSON.parse(localStorage.getItem('da_restock_v1'));
-      this.restockRules=Array.isArray(rs)?rs.map(r=>({...r})):RESTOCK_RULES.map(r=>({...r}));
+      if(Array.isArray(rs)){this.restockRules=rs.map(r=>({...r}));this.restockHidden=[];} // pre-learning shape
+      else if(rs&&Array.isArray(rs.rules)){this.restockRules=rs.rules.map(r=>({...r}));this.restockHidden=rs.hidden||[];}
+      else{this.restockRules=RESTOCK_RULES.map(r=>({...r}));this.restockHidden=[];}
     }catch(e){}
   },
 },
@@ -2739,6 +2807,7 @@ mounted(){
   let t=null;try{t=localStorage.getItem('da_theme');}catch(e){}
   this.applyTheme(t||(window.matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light'));
   if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+  this.recomputeRestockLearned(); // pick up cadences from receipts scanned before this feature existed
   this.initSupabase();
 },
 }).mount('#app');
