@@ -2,6 +2,13 @@
 
 Work log for every release. Newest first. The SW cache version (`sw.js`) is the release number — bump it whenever `index.html` changes.
 
+## v27 — 2026-07-17 · Nav hierarchy restructure + editable Restock Guide
+
+- **One nav level per type** (Alex's UX feedback: days and destinations shared one scrolling row). New fixed bottom tab bar with the 5 destinations DESIGN.md always specified: Plan · Shop · Scan · AI Plan · Dash, active = green. Day tabs (Mon–Sun) now show only in Plan context; the preset row shows only in preset-scoped views (Plan, Shop, Batch list). Plan remembers the last-viewed day (`lastDay`).
+- **Batch Shop out of the top-level nav** — it's a shopping list, so it lives with Shop: "📋 Batch-cook list" link in the Shop header, "← Weekly list" back link, Shop stays highlighted in the bar while viewing it. Content unchanged.
+- **Restock Guide is now editable** (Alex: must be able to delete items and adjust the time, in case it varies): per-row ✎ edits the frequency inline (Enter or ✓ to save), ✕ removes the rule (with confirm), "Reset to defaults" restores the built-in list. Changes persist in `da_restock_v1`, sync to cloud (added to `collectState`), and the per-item chips on the shopping list follow the edited values (`restockFreq` now reads the live rules).
+- Toast repositioned above the bottom bar; content bottom padding increased to clear it.
+
 ## v26 — 2026-07-17 · Account moved out of the tab row
 
 - UX fix (Alex): the 👤 Account pill sat at the same level as content destinations (Dash/Shop/Scan/AI Plan/Batch Shop) at the end of the scrolling tab row — wrong hierarchy for a profile/settings destination.

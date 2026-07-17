@@ -447,6 +447,21 @@ html[data-theme=dark] .vd-btn,html[data-theme=dark] .ai-generate-btn,html[data-t
 /* Account moved out of the tab row — profile lives top-right (header), not among content destinations */
 .hbtns{display:flex;align-items:center;flex-shrink:0;}
 .acct-hbtn{margin-left:8px;position:relative;}
+/* Bottom tab bar — DESIGN.md mobile layout: 5 labelled destinations, active = green.
+   Day tabs are Plan-internal; presets show only in preset-scoped views (Plan, Shop). */
+.bbar{position:fixed;bottom:0;left:0;right:0;z-index:150;background:var(--card);border-top:1px solid var(--bd);display:flex;justify-content:center;padding:5px 8px calc(5px + var(--sb));}
+.bbi{flex:1;max-width:110px;display:flex;flex-direction:column;align-items:center;gap:1px;background:none;border:none;border-radius:10px;font-family:inherit;font-size:10.5px;font-weight:500;color:var(--t3);cursor:pointer;padding:4px 0 3px;min-height:44px;transition:color .15s ease-out;}
+.bbi .bbe{font-size:18px;line-height:1.25;}
+.bbi.active{color:var(--g);font-weight:600;}
+.con{padding-bottom:calc(84px + var(--sb));}
+.toast-wrap{bottom:calc(78px + var(--sb));}
+/* Restock guide — editable rows (delete + adjust frequency) */
+.rs-ib{background:none;border:none;color:var(--t4);cursor:pointer;font-size:13px;padding:0 2px;font-family:inherit;flex-shrink:0;min-width:24px;min-height:24px;border-radius:6px;}
+.rs-ib:hover{color:var(--t2);}
+.rs-ib.sav{color:var(--g);font-weight:600;}
+.rsf-in{width:72px;font-family:'Geist Mono',monospace;font-variant-numeric:tabular-nums;font-size:12px;padding:3px 7px;border:1px solid var(--bd);border-radius:8px;background:var(--card);color:var(--t1);}
+.rs-reset{background:none;border:none;color:var(--t4);font-size:12px;font-family:inherit;cursor:pointer;padding:6px 0 0;text-decoration:underline;}
+.rs-reset:hover{color:var(--t2);}
 .acct-hbtn.on{border-color:var(--g);color:var(--g);background:var(--gbg);}
 .acct-dot{position:absolute;top:1px;right:1px;width:8px;height:8px;border-radius:999px;background:var(--g);border:1.5px solid var(--card);}
 /* Desktop two-panel: plan left, shop & prices right (increment 4) */
@@ -482,8 +497,8 @@ html[data-theme=dark] .vd-btn,html[data-theme=dark] .ai-generate-btn,html[data-t
       <button :class="['theme-btn','acct-hbtn',{on:activeTab==='account'}]" @click="activeTab='account'" :aria-label="auth.user?'Account — signed in':'Account — sign in'">👤<span v-if="auth.user" class="acct-dot" aria-hidden="true"></span></button>
     </div>
   </div>
-  <!-- ── <nav> for plan presets (semantic navigation landmark) -->
-  <nav class="psel-row" aria-label="Meal plans">
+  <!-- ── <nav> for plan presets — shown in preset-scoped contexts (Plan, Shop) only -->
+  <nav class="psel-row" aria-label="Meal plans" v-show="planActive||activeTab==='shop'||activeTab==='batchlist'">
     <div class="psel">
       <button v-for="p in allPresets" :key="p.id" :class="['pselbtn',{active:p.id===activePresetId}]" @click="switchPreset(p.id)">
         {{ p.name }}<span v-if="!p.builtin" class="pdel" @click.stop="deletePreset(p.id)">×</span>
@@ -491,16 +506,11 @@ html[data-theme=dark] .vd-btn,html[data-theme=dark] .ai-generate-btn,html[data-t
       <button class="pselbtn pnew" @click="openNewModal">+ New plan</button>
     </div>
   </nav>
-  <!-- ── <nav> for day tabs (semantic navigation landmark) -->
-  <nav class="tabs" aria-label="Day navigation">
-    <button v-for="d in activeDays" :key="d.id" :class="['tab',{active:activeTab===d.id}]" @click="activeTab=d.id">
+  <!-- ── <nav> for day tabs — Plan context only; destinations live in the bottom tab bar -->
+  <nav class="tabs" aria-label="Day navigation" v-show="planActive">
+    <button v-for="d in activeDays" :key="d.id" :class="['tab',{active:activeTab===d.id}]" @click="activeTab=d.id;lastDay=d.id">
       {{ d.short }}<span v-if="d.dot" class="cdot"></span>
     </button>
-    <button :class="['tab',{active:activeTab==='dash'}]" @click="activeTab='dash'">📊 Dash</button>
-    <button :class="['tab',{active:activeTab==='shop'}]" @click="activeTab='shop'">🛒 Shop</button>
-    <button :class="['tab',{active:activeTab==='scan'}]" @click="activeTab='scan'">📷 Scan</button>
-    <button :class="['tab',{active:activeTab==='aiplan'}]" @click="activeTab='aiplan'">✦ AI Plan</button>
-    <button :class="['tab',{active:activeTab==='batchlist'}]" @click="activeTab='batchlist'">📋 Batch Shop</button>
   </nav>
 </header>
 
@@ -565,7 +575,10 @@ html[data-theme=dark] .vd-btn,html[data-theme=dark] .ai-generate-btn,html[data-t
   <div v-show="activeTab==='batchlist'">
     <div class="shop-top">
       <div class="shop-h">Batch-Cook 3-Day Shop</div>
-      <button v-show="Object.values(weekMenuChecked).some(Boolean)" class="btn-clear" @click="clearKSChecked">Clear checked</button>
+      <div style="display:flex;align-items:center;gap:10px">
+        <button v-show="Object.values(weekMenuChecked).some(Boolean)" class="btn-clear" @click="clearKSChecked">Clear checked</button>
+        <button class="lnk" @click="activeTab='shop'">← Weekly list</button>
+      </div>
     </div>
     <template v-for="sec in batchShopList" :key="sec.section">
       <div class="slbl"><span class="sdot" :style="{background:sec.color}"></span><span class="stxt">{{ sec.section }}</span></div>
@@ -1011,7 +1024,10 @@ html[data-theme=dark] .vd-btn,html[data-theme=dark] .ai-generate-btn,html[data-t
 
     <div class="shop-top">
       <div class="shop-h">{{ activePreset.name }}</div>
-      <button v-show="hasChecked" class="btn-clear" @click="clearChecked">Clear checked</button>
+      <div style="display:flex;align-items:center;gap:10px">
+        <button v-show="hasChecked" class="btn-clear" @click="clearChecked">Clear checked</button>
+        <button class="lnk" @click="activeTab='batchlist'">📋 Batch-cook list</button>
+      </div>
     </div>
 
     <div v-if="!activeItems.length" class="empty-block">
@@ -1087,10 +1103,33 @@ html[data-theme=dark] .vd-btn,html[data-theme=dark] .ai-generate-btn,html[data-t
     <div class="sdiv">Restock Guide</div>
     <div class="rsc">
       <div class="rsh">How often to reorder — items also show this on the list above</div>
-      <div class="rsr" v-for="r in restockRules" :key="r.label"><span class="rsn">{{ r.label }}</span><span class="rsf">every {{ r.freq }}</span></div>
+      <div class="rsr" v-for="r in restockRules" :key="r.label">
+        <span class="rsn">{{ r.label }}</span>
+        <template v-if="restockEditing===r.label">
+          <input class="rsf-in" type="text" v-model="restockFreqDraft" @keyup.enter="saveRestockEdit(r)" aria-label="Restock frequency">
+          <button class="rs-ib sav" @click="saveRestockEdit(r)" aria-label="Save frequency">✓</button>
+          <button class="rs-ib" @click="restockEditing=null" aria-label="Cancel edit">✕</button>
+        </template>
+        <template v-else>
+          <span class="rsf">every {{ r.freq }}</span>
+          <button class="rs-ib" @click="startRestockEdit(r)" aria-label="Edit frequency">✎</button>
+          <button class="rs-ib" @click="removeRestock(r)" aria-label="Remove from restock guide">✕</button>
+        </template>
+      </div>
+      <div v-if="!restockRules.length" class="rsh" style="margin:4px 0 0;text-transform:none;letter-spacing:0;font-weight:400">Guide is empty — reset to bring the defaults back.</div>
+      <button v-if="restockCustomised" class="rs-reset" @click="resetRestock">Reset to defaults</button>
     </div>
   </div>
 </main>
+
+<!-- ── Bottom tab bar — DESIGN.md: 5 labelled destinations; one nav level per type -->
+<nav class="bbar" aria-label="Main navigation">
+  <button :class="['bbi',{active:planActive}]" @click="activeTab=lastDay"><span class="bbe" aria-hidden="true">🗓</span>Plan</button>
+  <button :class="['bbi',{active:activeTab==='shop'||activeTab==='batchlist'}]" @click="activeTab='shop'"><span class="bbe" aria-hidden="true">🛒</span>Shop</button>
+  <button :class="['bbi',{active:activeTab==='scan'}]" @click="activeTab='scan'"><span class="bbe" aria-hidden="true">📷</span>Scan</button>
+  <button :class="['bbi',{active:activeTab==='aiplan'}]" @click="activeTab='aiplan'"><span class="bbe" aria-hidden="true">✦</span>AI Plan</button>
+  <button :class="['bbi',{active:activeTab==='dash'}]" @click="activeTab='dash'"><span class="bbe" aria-hidden="true">📊</span>Dash</button>
+</nav>
 
 <!-- ── Undo toast — Nielsen #3: User control & freedom -->
 <div class="toast-wrap" role="status" aria-live="polite">
@@ -1598,6 +1637,9 @@ const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYm
 createApp({
 data(){return{
   activeTab:'mon',
+  lastDay:'mon',
+  restockEditing:null,
+  restockFreqDraft:'',
   activePresetId:'af1',
   customPresets:[],
   allChecks:{},
@@ -1649,7 +1691,7 @@ data(){return{
   auth:{user:null,email:'',password:'',mode:'signin',loading:false,error:null,info:null},
   sync:{lastSync:null,busy:false,timer:null},
   batchShopList:BATCH_SHOP_LIST,
-  restockRules:RESTOCK_RULES,
+  restockRules:RESTOCK_RULES.map(r=>({...r})),
   weekMenuChecked:{},
   // Nearby stores
   nearbyStores:[],
@@ -1710,6 +1752,11 @@ computed:{
   nearbyList(){return this.nearbyMode==='time'?this.nearbyByTime:this.nearbyByMoney;},
   // ── Desktop ≥1024px: show the shop panel beside the day plan (DESIGN.md two-panel)
   shopSplit(){return this.isDesktop&&!['shop','batchlist','scan','aiplan','dash','account'].includes(this.activeTab);},
+  planActive(){return this.activeDays.some(d=>d.id===this.activeTab);},
+  restockCustomised(){
+    if(this.restockRules.length!==RESTOCK_RULES.length)return true;
+    return this.restockRules.some(r=>{const d=RESTOCK_RULES.find(x=>x.label===r.label);return !d||d.freq!==r.freq;});
+  },
   // ── Shop-tab verdict: cheapest store near you for the current list (DESIGN.md signature element)
   shopVerdict(){
     if(!this.nearbyStores.length)return null;
@@ -2511,8 +2558,35 @@ Return ONLY this JSON structure (no markdown, no explanation):
   restockFreq(name){
     if(!name)return null;
     const n=name.toLowerCase();
-    const r=RESTOCK_RULES.find(r=>r.kw.some(k=>n.includes(k)));
+    const r=this.restockRules.find(r=>r.kw.some(k=>n.includes(k)));
     return r?r.freq:null;
+  },
+
+  // ── Restock guide editing: frequencies vary per household, so both are user-adjustable
+  startRestockEdit(r){this.restockEditing=r.label;this.restockFreqDraft=r.freq;},
+  saveRestockEdit(r){
+    const v=this.restockFreqDraft.trim();
+    if(v)r.freq=v;
+    this.restockEditing=null;
+    this.persistRestock();
+  },
+  removeRestock(r){
+    if(!confirm('Remove "'+r.label+'" from the restock guide?'))return;
+    this.restockRules=this.restockRules.filter(x=>x.label!==r.label);
+    this.persistRestock();
+  },
+  resetRestock(){
+    this.restockRules=RESTOCK_RULES.map(r=>({...r}));
+    try{localStorage.removeItem('da_restock_v1');localStorage.setItem('da_sync_ts',new Date().toISOString());}catch(e){}
+    this.queueSync();
+    this.showToast('Restock guide reset');
+  },
+  persistRestock(){
+    try{
+      localStorage.setItem('da_restock_v1',JSON.stringify(this.restockRules));
+      localStorage.setItem('da_sync_ts',new Date().toISOString());
+    }catch(e){}
+    this.queueSync();
   },
 
   save(){
@@ -2587,7 +2661,7 @@ Return ONLY this JSON structure (no markdown, no explanation):
 
   // Everything the app persists locally, bundled for cloud backup
   collectState(){
-    const keys=['da_pid_v5','da_chk_v5','da_ed_v5','da_mut_v5','da_cus_v5','da_products_v1','da_ksck_v1'];
+    const keys=['da_pid_v5','da_chk_v5','da_ed_v5','da_mut_v5','da_cus_v5','da_products_v1','da_ksck_v1','da_restock_v1'];
     const out={};
     keys.forEach(k=>{const v=localStorage.getItem(k);if(v!==null)out[k]=v;});
     return out;
@@ -2653,6 +2727,8 @@ Return ONLY this JSON structure (no markdown, no explanation):
       });
       this.productDb=JSON.parse(localStorage.getItem('da_products_v1'))||[];
       this.weekMenuChecked=JSON.parse(localStorage.getItem('da_ksck_v1'))||{};
+      const rs=JSON.parse(localStorage.getItem('da_restock_v1'));
+      this.restockRules=Array.isArray(rs)?rs.map(r=>({...r})):RESTOCK_RULES.map(r=>({...r}));
     }catch(e){}
   },
 },
