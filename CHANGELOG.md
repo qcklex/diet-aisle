@@ -2,6 +2,14 @@
 
 Work log for every release. Newest first. The SW cache version (`sw.js`) is the release number — bump it whenever `index.html` changes.
 
+## v30 — 2026-07-17 · Auth gate, Material icons, deletable plans, mobile nav polish
+
+- **Account-gated app** (Alex: "prior to be logged nothing will appear, not even the dashboard" — data lives in the user's row in the DB). Signed out, the app renders only a sign-in screen (brand, tagline, the sign-in/sign-up/magic-link card, theme toggle); header, all tabs, and the bottom bar don't exist until `authed`. The Supabase `app_state` row per user was already the storage model — the gate makes it the front door. Offline PWA safety: a device that has signed in before (`da_authed`) opens with its cached data when launched offline; local dev without Supabase config stays ungated. `ensureUserScope()` wipes the local cache when a *different* account signs in on the same device (prevents user A's data leaking into user B's cloud row). Landing-page copy updated to match (no more "no sign-up required").
+- **Emojis replaced with Material-style icons** throughout the chrome: inline-SVG `<app-icon>` component (24dp Material paths, currentColor) — bottom bar, theme/profile buttons, dash quick actions, location/scan/AI/sync/mail/lock/batch-list. No icon font, so offline still works. (Gotcha: the component was first named `<mi>`, which is a native MathML tag — Vue silently treats it as a plain element; renamed.)
+- **Any plan can be deleted** (Alex's request), including built-ins: × on every preset pill, confirm dialog, built-ins hide (tombstoned in `da_hpre_v1`, synced) instead of vanishing from code; "Restore deleted default plans" link in the + New plan dialog; can't delete your last plan.
+- **Preset pills slide properly on iPhone** (Alex: pills go off-screen): `touch-action:pan-x` + `overscroll-behavior-x:contain` on both header pill rows, plus an end-spacer for Safari's collapsed trailing padding.
+- **Macro pills no longer show 0/0/0 on Scan and AI Plan** (Alex asked why: they're day macros and those tabs aren't days — the old code computed macros for a non-day tab). They now render only in Plan context; the stray static "SHOP" pill is gone.
+
 ## v29 — 2026-07-17 · Community prices on barcode results (Open Prices)
 
 - Investigated live UK pricing sources again per Alex ("trolley.co.uk or similars"). Trolley.co.uk stays ruled out (no API, ToS bans scraping — full research 2026-07-12 in COMMUNITY_PRICING.md). The one legitimate open source is **Open Prices** (prices.openfoodfacts.org): crowdsourced receipt prices, open licence, queryable by barcode. UK coverage measured today: ~1,947 GBP prices total — far too thin to power the store-comparison engine, but fresh (entries from this week) and useful per-product.
