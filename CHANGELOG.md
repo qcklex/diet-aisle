@@ -2,6 +2,14 @@
 
 Work log for every release. Newest first. The SW cache version (`sw.js`) is the release number — bump it whenever `index.html` changes.
 
+## 2026-07-17 · Marketing landing page (no SW bump — app untouched)
+
+- New `landing.html` — marketing site for DietAisle, served at `/home` (vercel.json rewrite). Format modelled on MyFitnessPal / Yuka / Eat This Much / Mealime landing pages: sticky nav + CTA, hero with value prop and app mockup, trust strip, alternating feature sections, 3-step "how it works", FAQ, final CTA band.
+- App visuals are Yuka-style HTML recreations of real components (verdict card, macro bars, restock chips) using DESIGN.md tokens — no screenshots to go stale.
+- Quiet Ledger throughout: Geist/Geist Mono, one green accent, hairlines, 14px radii, dark mode via `prefers-color-scheme` + the app's `da_theme` localStorage key.
+- Copy states only true facts: free, localStorage-first, optional sync, one-shot Overpass geolocation, real supermarket coverage. No invented user counts or testimonials.
+- Plan: when `dietaisle.com` DNS is connected, its root serves the landing page; the app keeps `dietaisle.vercel.app` root so installed PWAs are unaffected.
+
 ## v25 — 2026-07-10 · Zero-data empty states
 
 - Audited every tab for a brand-new user with zero data. Two real gaps found: an empty day plan (all meals removed) showed only the "+ Add meal" button with no framing, and an empty shopping list rendered a stack of bare category headers with no items — looked broken, not empty.
