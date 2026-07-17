@@ -2,6 +2,11 @@
 
 Work log for every release. Newest first. The SW cache version (`sw.js`) is the release number — bump it whenever `index.html` changes.
 
+## v31 — 2026-07-17 · Gate resilience hotfix — Supabase project is DOWN
+
+- **Found during v30's production E2E: the Supabase project (acfcphgqzxmhthsdpyox.supabase.co) no longer resolves — paused (likely free-tier inactivity) or deleted.** Sign-in/sign-up therefore fail on production, and cloud sync has silently been dead for some time (local-first design masked it). ACTION NEEDED (Alex): restore the project in the Supabase dashboard, or create a new one + run `supabase-setup.sql` + update `SUPABASE_URL`/`SUPABASE_ANON_KEY` in index.html.
+- Hotfix so the gate degrades instead of bricking: raw "Failed to fetch" errors map to a human message via `authErrMsg()`, and when the account service is unreachable (`auth.svcDown`) the gate shows a "Continue offline on this device" button — device-local data only, appears ONLY in that failure state, the gate stays strict when the service is up. Existing signed-in sessions still open normally (session token is read locally).
+
 ## v30 — 2026-07-17 · Auth gate, Material icons, deletable plans, mobile nav polish
 
 - **Account-gated app** (Alex: "prior to be logged nothing will appear, not even the dashboard" — data lives in the user's row in the DB). Signed out, the app renders only a sign-in screen (brand, tagline, the sign-in/sign-up/magic-link card, theme toggle); header, all tabs, and the bottom bar don't exist until `authed`. The Supabase `app_state` row per user was already the storage model — the gate makes it the front door. Offline PWA safety: a device that has signed in before (`da_authed`) opens with its cached data when launched offline; local dev without Supabase config stays ungated. `ensureUserScope()` wipes the local cache when a *different* account signs in on the same device (prevents user A's data leaking into user B's cloud row). Landing-page copy updated to match (no more "no sign-up required").

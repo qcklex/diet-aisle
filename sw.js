@@ -1,4 +1,4 @@
-const CACHE = 'dietaisle-v30';
+const CACHE = 'dietaisle-v31';
 const ASSETS = ['/', '/index.html', '/manifest.json', '/vue.min.js'];
 
 self.addEventListener('install', e => {

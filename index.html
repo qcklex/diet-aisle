@@ -522,6 +522,7 @@ html[data-theme=dark] .vd-btn,html[data-theme=dark] .ai-generate-btn,html[data-t
     <button class="acct-toggle" @click="auth.mode=auth.mode==='signup'?'signin':'signup';auth.error=null;auth.info=null">
       {{ auth.mode==='signup' ? 'Already have an account? Sign in' : "New here? Create an account" }}
     </button>
+    <button v-if="auth.svcDown" class="acct-btn alt" style="margin-top:10px" @click="auth.offline=true">Continue offline on this device</button>
   </div>
 </div>
 
@@ -1769,7 +1770,7 @@ data(){return{
   // Barcode scanner
   barcode:{input:'',loading:false,error:null,product:null,price:null,store:'lidl',scanning:false,saved:false,community:null},
   // Cloud accounts + sync
-  auth:{user:null,email:'',password:'',mode:'signin',loading:false,error:null,info:null,ready:false,offline:false},
+  auth:{user:null,email:'',password:'',mode:'signin',loading:false,error:null,info:null,ready:false,offline:false,svcDown:false},
   sync:{lastSync:null,busy:false,timer:null},
   batchShopList:BATCH_SHOP_LIST,
   restockRules:RESTOCK_RULES.map(r=>({...r})),
@@ -2785,7 +2786,7 @@ Return ONLY this JSON structure (no markdown, no explanation):
     if(!window.supabase){
       // offline PWA launch: trust a previous sign-in on this device — the cached data is theirs
       if(localStorage.getItem('da_authed')==='1'&&!navigator.onLine)this.auth.offline=true;
-      else this.auth.error="Can't reach the sign-in service — check your connection and reload.";
+      else{this.auth.error="Can't reach the sign-in service — check your connection and reload.";this.auth.svcDown=true;}
       this.auth.ready=true;return;
     }
     this._sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
@@ -2824,7 +2825,7 @@ Return ONLY this JSON structure (no markdown, no explanation):
       this.showToast('Signed in');
       await this.pullCloud();
       this.activeTab='dash';
-    }catch(e){this.auth.error=e.message;}
+    }catch(e){this.auth.error=this.authErrMsg(e);}
     finally{this.auth.loading=false;}
   },
 
@@ -2836,7 +2837,7 @@ Return ONLY this JSON structure (no markdown, no explanation):
       if(error)throw error;
       if(data.session){this.auth.password='';this.showToast('Account created');await this.pushCloud();this.activeTab='dash';}
       else this.auth.info='Check your email to confirm your account, then sign in.';
-    }catch(e){this.auth.error=e.message;}
+    }catch(e){this.auth.error=this.authErrMsg(e);}
     finally{this.auth.loading=false;}
   },
 
@@ -2848,8 +2849,19 @@ Return ONLY this JSON structure (no markdown, no explanation):
       const{error}=await this._sb.auth.signInWithOtp({email:this.auth.email,options:{emailRedirectTo:location.origin}});
       if(error)throw error;
       this.auth.info='Magic link sent — check your email and tap the link on this device.';
-    }catch(e){this.auth.error=e.message;}
+    }catch(e){this.auth.error=this.authErrMsg(e);}
     finally{this.auth.loading=false;}
+  },
+
+  // Translate raw fetch/DNS failures into something a user can act on, and flag
+  // service-down so the gate can offer the offline escape hatch (paused Supabase
+  // project must degrade gracefully, not brick the app).
+  authErrMsg(e){
+    if(/failed to fetch|networkerror|load failed|fetch/i.test(e.message||'')){
+      this.auth.svcDown=true;
+      return "Can't reach the account service right now — it may be down for maintenance.";
+    }
+    return e.message;
   },
 
   async signOut(){
