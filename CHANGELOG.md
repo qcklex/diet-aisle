@@ -2,6 +2,12 @@
 
 Work log for every release. Newest first. The SW cache version (`sw.js`) is the release number — bump it whenever `index.html` changes.
 
+## v33 — 2026-07-18 · Privacy policy page + Vercel Web Analytics
+
+- **Privacy policy page** (`privacy.html`, clean URL `/privacy` via vercel.json rewrite) — Phase 6 item. Quiet Ledger-styled plain-English policy covering exactly what the code does: localStorage-first storage, Supabase account/sync, receipt photos → Claude API via our proxy, barcode → Open Food Facts + Open Prices, food names → USDA, one-shot Overpass geolocation, Vercel hosting/analytics, Google Fonts + jsDelivr CDN requests, UK GDPR rights with deletion by email (no in-app account deletion exists — the policy doesn't claim one). Linked from the landing footer (the old link pointed at #faq) and a new "Privacy policy" link under the sign-in gate card.
+- **Vercel Web Analytics** — Phase 6 item. Already enabled on the Vercel project; the missing piece was the script: `/_vercel/insights/script.js` now loaded (defer) by index.html, landing.html and privacy.html. Cookieless/aggregate, and disclosed in the privacy policy.
+- SW cache → `dietaisle-v33`.
+
 ## v32 — 2026-07-18 · Emoji sweep completed
 
 - Alex flagged leftover emojis after v30 — a second, full-codepoint audit found six the first pass missed: 📡 (Scan a Barcode title), ⏱/💰 (nearby-stores mode toggle), 🚶/🚗 (travel mode), 👋 (dashboard greeting), plus the ↺ refresh glyph. All now Material inline-SVG icons (`scanner`, `timer`, `payments`, `walk`, `car`, `refresh`); the greeting wave is simply gone. Emoji audit across all pictographic Unicode ranges: zero remaining (✓ ✎ ✕ ✦ are typographic glyphs, kept deliberately).

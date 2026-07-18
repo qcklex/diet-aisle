@@ -63,10 +63,10 @@ Standard web-app lifecycle mapped to this project. Tick items as they complete; 
 ## Phase 6 — Pre-launch 🔶 ← **WE ARE HERE**
 
 - [x] First-run onboarding / empty states reviewed for a user with zero data (v25)
-- [ ] Custom domain: register **dietaisle.com** (~$9/yr on Cloudflare) and connect to Vercel
+- [x] Custom domain: **dietaisle.com** registered on Cloudflare and connected to Vercel (live 2026-07-18 — root + www redirect to the landing page; app stays on dietaisle.vercel.app)
 - [ ] Real-device QA pass on iPhone (iOS Safari PWA) — install, offline, camera flows
-- [ ] Basic analytics (privacy-respecting, e.g. Vercel Analytics) to show funders traction
-- [ ] Privacy policy page (needed once real users sign up + for funders)
+- [x] Basic analytics (privacy-respecting, e.g. Vercel Analytics) to show funders traction — Vercel Web Analytics live (cookieless), script on app + landing + privacy pages (v33)
+- [x] Privacy policy page (needed once real users sign up + for funders) — `/privacy`, linked from landing footer + sign-in gate (v33)
 - [ ] 3–5 real test users run a full week's flow, feedback collected
 - [ ] Funder demo script + screenshots (Scottish EDGE, SMART Scotland, Techscaler briefs are drafted)
 

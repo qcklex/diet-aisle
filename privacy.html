@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Privacy — DietAisle</title>
+<meta name="description" content="What DietAisle stores, what leaves your device and when, and how to get your data deleted. Plain English, no legalese.">
+<meta name="robots" content="index,follow">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script defer src="/_vercel/insights/script.js"></script>
+<style>
+:root{
+  --bg:#FAFAF8; --surface:#FFFFFF; --text:#1A1D1B; --muted:#6B7069;
+  --line:#E8E8E3; --line2:#F1F1ED;
+  --green:#047857; --green-soft:#ECFDF5;
+  --amber:#B45309; --red:#DC2626;
+  --shadow:0 1px 2px rgba(26,29,27,.04), 0 4px 16px rgba(26,29,27,.05);
+}
+html[data-theme=dark]{
+  --bg:#0F1210; --surface:#171B18; --text:#ECEEEA; --muted:#9AA096;
+  --line:#252A26; --line2:#1D221E;
+  --green:#34D399; --green-soft:#0C2C21;
+  --amber:#FBBF24; --red:#F87171;
+  --shadow:0 1px 2px rgba(0,0,0,.3), 0 4px 16px rgba(0,0,0,.35);
+}
+@media (prefers-color-scheme: dark){
+  html:not([data-theme=light]){
+    --bg:#0F1210; --surface:#171B18; --text:#ECEEEA; --muted:#9AA096;
+    --line:#252A26; --line2:#1D221E;
+    --green:#34D399; --green-soft:#0C2C21;
+    --amber:#FBBF24; --red:#F87171;
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 4px 16px rgba(0,0,0,.35);
+  }
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  font-family:'Geist',-apple-system,sans-serif;
+  background:var(--bg); color:var(--text);
+  font-size:15px; line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+.mono{font-family:'Geist Mono',monospace;font-variant-numeric:tabular-nums}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--green);outline-offset:2px;border-radius:4px}
+.nav{
+  position:sticky;top:0;z-index:50;
+  background:color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--line);
+}
+.nav-inner{max-width:720px;margin:0 auto;padding:0 18px;display:flex;align-items:center;justify-content:space-between;height:60px}
+.brand{font-weight:700;font-size:17px;letter-spacing:-.02em;display:flex;align-items:center;gap:9px;text-decoration:none}
+.brand img{width:26px;height:26px;border-radius:7px}
+.nav a.back{font-size:14px;color:var(--muted);text-decoration:none}
+.nav a.back:hover{color:var(--text)}
+main{max-width:720px;margin:0 auto;padding:48px 18px 72px}
+.eyebrow{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.09em;color:var(--green);margin-bottom:14px}
+h1{font-size:32px;font-weight:700;letter-spacing:-.02em;line-height:1.15;margin-bottom:10px}
+.updated{font-size:12px;color:var(--muted);margin-bottom:34px}
+h2{font-size:19px;font-weight:600;letter-spacing:-.01em;margin:38px 0 10px}
+p{margin-bottom:12px}
+p.muted{color:var(--muted)}
+ul{margin:0 0 12px 0;padding-left:0;list-style:none}
+li{padding:10px 0;border-bottom:1px solid var(--line2)}
+li:last-child{border-bottom:none}
+li strong{font-weight:600}
+li .to{display:block;font-size:13px;color:var(--muted);margin-top:2px}
+.card{
+  background:var(--surface);border:1px solid var(--line);border-radius:14px;
+  padding:18px 20px;box-shadow:var(--shadow);margin-bottom:8px;
+}
+.summary{background:var(--green-soft);border-color:transparent}
+.summary p{margin:0;font-size:14px}
+code{font-family:'Geist Mono',monospace;font-size:13px}
+footer{border-top:1px solid var(--line);padding:22px 0;font-size:13px;color:var(--muted)}
+.foot-inner{max-width:720px;margin:0 auto;padding:0 18px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.foot-inner a{color:var(--muted);text-decoration:none}
+.foot-inner a:hover{color:var(--text)}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a class="brand" href="/home"><img src="icon-192.png" alt="">DietAisle</a>
+    <a class="back" href="/home">← Back to DietAisle</a>
+  </div>
+</nav>
+
+<main>
+  <div class="eyebrow">Privacy</div>
+  <h1>How DietAisle handles your data</h1>
+  <div class="updated mono">Last updated 18 July 2026</div>
+
+  <div class="card summary">
+    <p><strong>The short version:</strong> your meal plans, prices and product database live on your device and in your own account row. A few things leave your device only when you use the feature that needs them — a receipt photo when you scan it, your location when you tap "find stores near me". We show no ads, use no advertising trackers, and never sell your data.</p>
+  </div>
+
+  <h2>Who we are</h2>
+  <p>DietAisle is an independent UK web app. For anything in this policy — questions, access requests, deletions — email <a href="mailto:qcklexdev@gmail.com">qcklexdev@gmail.com</a>.</p>
+
+  <h2>What we store</h2>
+  <ul>
+    <li><strong>On your device</strong><span class="to">Your meal plans, shopping lists, scanned product database, prices, restock rules and settings are kept in your browser's local storage. They stay there so the app works offline.</span></li>
+    <li><strong>In your account</strong><span class="to">Your email address, a password (stored hashed by our authentication provider, Supabase — we never see it) and a single record containing the same app data as above, so it can follow you across devices. Old devices keep their local copy until you sign out.</span></li>
+  </ul>
+
+  <h2>What leaves your device, and when</h2>
+  <p class="muted">Nothing below happens in the background — each transfer is triggered by you using that feature.</p>
+  <ul>
+    <li><strong>Receipt photos</strong><span class="to">When you scan a receipt, the photo is sent through our server to Anthropic's Claude API to read the items. We don't store the photo, and under Anthropic's API terms it isn't used to train their models.</span></li>
+    <li><strong>AI meal plans</strong><span class="to">When you generate a plan, your macro targets and food preferences are sent to the Claude API the same way.</span></li>
+    <li><strong>Barcodes</strong><span class="to">When you scan a barcode, the barcode number is sent to Open Food Facts (nutrition) and Open Prices (community prices). No account information goes with it.</span></li>
+    <li><strong>Food names</strong><span class="to">Item names from your receipts may be looked up against Open Food Facts and the USDA FoodData Central database to fill in nutrition facts.</span></li>
+    <li><strong>Your location</strong><span class="to">Only when you tap "find stores near me", your coordinates are sent once to OpenStreetMap's Overpass API to find nearby supermarkets. It is not stored and not linked to your account. There is no background location tracking.</span></li>
+    <li><strong>Cloud sync</strong><span class="to">When signed in, your app data record is saved to Supabase (our database provider) and fetched when you sign in elsewhere.</span></li>
+  </ul>
+
+  <h2>Hosting and analytics</h2>
+  <p>DietAisle is hosted on Vercel, which processes standard server logs (such as IP addresses) to serve the site. We use Vercel Web Analytics, which is cookieless and aggregate — it tells us things like page views, country and device type, and cannot identify you or follow you across other sites.</p>
+  <p>Fonts load from Google Fonts and one JavaScript library loads from the jsDelivr CDN; like any web request, those services see your IP address when the files are fetched.</p>
+
+  <h2>What we don't do</h2>
+  <ul>
+    <li><strong>No ads, no ad trackers</strong><span class="to">There is no advertising and no cross-site tracking of any kind.</span></li>
+    <li><strong>No selling data</strong><span class="to">Your data is never sold or shared for marketing.</span></li>
+    <li><strong>No tracking cookies</strong><span class="to">Sign-in state lives in your browser's local storage, not in tracking cookies.</span></li>
+  </ul>
+
+  <h2>Your rights and your data</h2>
+  <p>Under UK GDPR you can ask for a copy of your data, ask us to correct it, or ask us to delete it. Most of it is already in your hands — it's on your device — but for anything account-side, email <a href="mailto:qcklexdev@gmail.com">qcklexdev@gmail.com</a> from your account email and we'll action it. Deleting your account removes your email address and your synced app data from our database.</p>
+  <p>We keep account data only while you have an account. If you just stop using DietAisle, your local data stays on your device until you clear it; your account data stays until you ask us to delete it.</p>
+
+  <h2>Changes to this policy</h2>
+  <p>If what the app sends or stores changes, this page changes with it, with the date above updated. Significant changes will be flagged in the app.</p>
+</main>
+
+<footer>
+  <div class="foot-inner">
+    <span>© 2026 DietAisle</span>
+    <a href="/home">dietaisle.com</a>
+  </div>
+</footer>
+
+<script>
+(function(){
+  try{
+    var t = localStorage.getItem('da_theme');
+    if(t === 'dark' || t === 'light') document.documentElement.setAttribute('data-theme', t);
+  }catch(e){}
+})();
+</script>
+</body>
+</html>

@@ -5,6 +5,7 @@
   ],
   "rewrites": [
     { "source": "/api/chat", "destination": "/api-routes/chat.js" },
-    { "source": "/home", "destination": "/landing.html" }
+    { "source": "/home", "destination": "/landing.html" },
+    { "source": "/privacy", "destination": "/privacy.html" }
   ]
 }
