@@ -476,6 +476,13 @@ html[data-theme=dark] .vd-btn,html[data-theme=dark] .ai-generate-btn,html[data-t
 .gate-card{width:100%;max-width:380px;}
 .gate-theme{position:absolute;top:calc(14px + var(--st));right:16px;margin:0;}
 .gate-loading{color:var(--t3);font-size:14px;padding:20px;}
+.gate-points{display:flex;flex-direction:column;gap:14px;margin-bottom:22px;}
+.gate-point{display:flex;align-items:center;gap:12px;font-size:14px;color:var(--t2);}
+.gate-point .mi{width:19px;height:19px;color:var(--g);flex-shrink:0;}
+.gate-card>.acct-btn{width:100%;margin-top:0;}
+.gate-card>.acct-btn.alt{margin-top:10px;}
+.gate-learn{display:block;text-align:center;margin-top:16px;font-size:13px;color:var(--t3);text-decoration:none;}
+.gate-learn:hover{color:var(--t1);}
 .gate-privacy{margin-top:18px;font-size:13px;color:var(--t3);text-decoration:none;border-bottom:1px solid var(--line);padding-bottom:1px;}
 .gate-privacy:hover{color:var(--t1);}
 /* Header pill rows must swipe reliably on iOS: pan-x stops vertical-scroll hijack,
@@ -511,6 +518,20 @@ html[data-theme=dark] .vd-btn,html[data-theme=dark] .ai-generate-btn,html[data-t
   <div class="gate-brand"><img src="icon-192.png" alt="" width="44" height="44">DietAisle</div>
   <div class="gate-sub">Weekly meals planned to your macros — priced at the supermarkets near you.</div>
   <div v-if="!auth.ready" class="gate-loading" role="status">Loading…</div>
+
+  <!-- Stage 1: welcome/landing — the login form only appears after a choice -->
+  <div v-else-if="gateView==='welcome'" class="gate-card">
+    <div class="gate-points">
+      <div class="gate-point"><app-icon n="sparkle"></app-icon><span>AI weekly plans that hit your macros</span></div>
+      <div class="gate-point"><app-icon n="payments"></app-icon><span>One verdict: the cheapest supermarket near you</span></div>
+      <div class="gate-point"><app-icon n="camera"></app-icon><span>Scan receipts — it learns your real prices</span></div>
+    </div>
+    <button class="acct-btn" @click="gateView='auth';auth.mode='signup';auth.error=null;auth.info=null">Create free account</button>
+    <button class="acct-btn alt" @click="gateView='auth';auth.mode='signin';auth.error=null;auth.info=null">Sign in</button>
+    <a class="gate-learn" href="/home">Learn more about DietAisle →</a>
+  </div>
+
+  <!-- Stage 2: the auth form -->
   <div v-else class="acct-card gate-card">
     <div class="acct-title">{{ auth.mode==='signup' ? 'Create your account' : 'Welcome back' }}</div>
     <div class="acct-sub">{{ auth.mode==='signup' ? 'Your plans, prices and product database live in your account, on every device.' : 'Sign in to open your meal plans.' }}</div>
@@ -526,6 +547,7 @@ html[data-theme=dark] .vd-btn,html[data-theme=dark] .ai-generate-btn,html[data-t
       {{ auth.mode==='signup' ? 'Already have an account? Sign in' : "New here? Create an account" }}
     </button>
     <button v-if="auth.svcDown" class="acct-btn alt" style="margin-top:10px" @click="auth.offline=true">Continue offline on this device</button>
+    <button class="acct-toggle" @click="gateView='welcome';auth.error=null;auth.info=null">← Back</button>
   </div>
   <a class="gate-privacy" href="/privacy">Privacy policy</a>
 </div>
@@ -1732,6 +1754,7 @@ data(){return{
   restockFreqDraft:'',
   restockHidden:[],
   hiddenPresets:[],
+  gateView:'welcome',
   activePresetId:'af1',
   customPresets:[],
   allChecks:{},

@@ -2,6 +2,10 @@
 
 Work log for every release. Newest first. The SW cache version (`sw.js`) is the release number — bump it whenever `index.html` changes.
 
+## v34 — 2026-07-18 · Welcome stage before the login form
+
+- Alex: "there must be a landing page prior to the login page." The gate is now two-stage: stage 1 is a welcome screen — brand, tagline, three value points (AI plans to your macros / cheapest store near you / receipt scanning), **Create free account** and **Sign in** buttons, plus "Learn more" (→ /home marketing page) and the privacy-policy link. The email/password form only appears after choosing, with a ← Back to return. Signed-in users never see any of it.
+
 ## v33 — 2026-07-18 · Privacy policy page + Vercel Web Analytics
 
 - **Privacy policy page** (`privacy.html`, clean URL `/privacy` via vercel.json rewrite) — Phase 6 item. Quiet Ledger-styled plain-English policy covering exactly what the code does: localStorage-first storage, Supabase account/sync, receipt photos → Claude API via our proxy, barcode → Open Food Facts + Open Prices, food names → USDA, one-shot Overpass geolocation, Vercel hosting/analytics, Google Fonts + jsDelivr CDN requests, UK GDPR rights with deletion by email (no in-app account deletion exists — the policy doesn't claim one). Linked from the landing footer (the old link pointed at #faq) and a new "Privacy policy" link under the sign-in gate card.
