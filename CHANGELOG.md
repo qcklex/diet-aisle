@@ -2,6 +2,11 @@
 
 Work log for every release. Newest first. The SW cache version (`sw.js`) is the release number — bump it whenever `index.html` changes.
 
+## v32 — 2026-07-18 · Emoji sweep completed
+
+- Alex flagged leftover emojis after v30 — a second, full-codepoint audit found six the first pass missed: 📡 (Scan a Barcode title), ⏱/💰 (nearby-stores mode toggle), 🚶/🚗 (travel mode), 👋 (dashboard greeting), plus the ↺ refresh glyph. All now Material inline-SVG icons (`scanner`, `timer`, `payments`, `walk`, `car`, `refresh`); the greeting wave is simply gone. Emoji audit across all pictographic Unicode ranges: zero remaining (✓ ✎ ✕ ✦ are typographic glyphs, kept deliberately).
+- Note: Supabase project restored by Alex — sign-ins work again as of this release.
+
 ## 2026-07-17 · INCIDENT: edge middleware crashed the root URL (no SW bump)
 
 - The `middleware.js` shipped earlier today for dietaisle.com host routing threw `MIDDLEWARE_INVOCATION_FAILED` at the edge, intermittently returning 500 for `/` on production. Existing PWA users were shielded by the service-worker cache; fresh visitors got an error page. Found while E2E-testing v31; middleware deleted.

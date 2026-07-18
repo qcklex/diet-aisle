@@ -714,7 +714,7 @@ html[data-theme=dark] .vd-btn,html[data-theme=dark] .ai-generate-btn,html[data-t
 
     <!-- ── Barcode scanner -->
     <div class="bc-card">
-      <div class="bc-title">📡 Scan a Barcode</div>
+      <div class="bc-title"><app-icon n="scanner"></app-icon> Scan a Barcode</div>
       <div class="bc-sub">At the store? Scan a product barcode with your camera, or type the number — instant nutrition lookup via Open Food Facts.</div>
       <video v-show="barcode.scanning" ref="bcVideo" class="bc-video" autoplay playsinline muted aria-label="Barcode camera preview"></video>
       <div class="bc-row">
@@ -851,16 +851,16 @@ html[data-theme=dark] .vd-btn,html[data-theme=dark] .ai-generate-btn,html[data-t
         <template v-if="userLocation && nearbyStores.length">
           <!-- Mode toggle -->
           <div class="nearby-mode-row">
-            <button :class="['nearby-mode-btn',{active:nearbyMode==='time'}]" @click="nearbyMode='time'">⏱ Less time</button>
-            <button :class="['nearby-mode-btn',{active:nearbyMode==='money'}]" @click="nearbyMode='money'">💰 Less money</button>
+            <button :class="['nearby-mode-btn',{active:nearbyMode==='time'}]" @click="nearbyMode='time'"><app-icon n="timer"></app-icon> Less time</button>
+            <button :class="['nearby-mode-btn',{active:nearbyMode==='money'}]" @click="nearbyMode='money'"><app-icon n="payments"></app-icon> Less money</button>
           </div>
 
           <!-- Travel mode -->
           <div class="nearby-travel-row">
             <span class="nearby-travel-lbl">Travel by:</span>
-            <button :class="['store-pill',{active:travelMode==='walk'}]" @click="travelMode='walk'" style="font-size:11px">🚶 Walk / Bus</button>
-            <button :class="['store-pill',{active:travelMode==='drive'}]" @click="travelMode='drive'" style="font-size:11px">🚗 Drive</button>
-            <button class="store-pill" @click="requestLocation" style="font-size:11px;margin-left:auto">↺ Refresh</button>
+            <button :class="['store-pill',{active:travelMode==='walk'}]" @click="travelMode='walk'" style="font-size:11px"><app-icon n="walk"></app-icon> Walk / Bus</button>
+            <button :class="['store-pill',{active:travelMode==='drive'}]" @click="travelMode='drive'" style="font-size:11px"><app-icon n="car"></app-icon> Drive</button>
+            <button class="store-pill" @click="requestLocation" style="font-size:11px;margin-left:auto"><app-icon n="refresh"></app-icon> Refresh</button>
           </div>
 
           <!-- Store cards -->
@@ -957,7 +957,7 @@ html[data-theme=dark] .vd-btn,html[data-theme=dark] .ai-generate-btn,html[data-t
   <!-- ── Dashboard tab -->
   <div v-show="activeTab==='dash'">
     <div class="dash-card dash-hero">
-      <div class="dash-greet">{{ dashGreeting }}{{ auth.user ? ', ' + (auth.user.email.split('@')[0]) : '' }} 👋</div>
+      <div class="dash-greet">{{ dashGreeting }}{{ auth.user ? ', ' + (auth.user.email.split('@')[0]) : '' }}</div>
       <div class="dash-sub">{{ todayLabel }} · {{ activePreset.name }}</div>
     </div>
 
@@ -1298,6 +1298,12 @@ const ICONS={
   cloud:'M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z',
   lock:'M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z',
   pin:'M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z',
+  scanner:'M9.5 6.5v3h-3v-3h3M11 5H5v6h6V5zm-1.5 9.5v3h-3v-3h3M11 13H5v6h6v-6zm6.5-6.5v3h-3v-3h3M19 5h-6v6h6V5zm-6 8h1.5v1.5H13V13zm1.5 1.5H16V16h-1.5v-1.5zM16 13h1.5v1.5H16V13zm-3 3h1.5v1.5H13V16zm1.5 1.5H16V19h-1.5v-1.5zM16 16h1.5v1.5H16V16zm1.5-1.5H19V16h-1.5v-1.5zm0 3H19V19h-1.5v-1.5zM22 7h-2V4h-3V2h5v5zm0 15v-5h-2v3h-3v2h5zM2 22h5v-2H4v-3H2v5zM2 2v5h2V4h3V2H2z',
+  timer:'M15 1H9v2h6V1zm-4 13h2V8h-2v6zm8.03-6.61 1.42-1.42c-.43-.51-.9-.99-1.41-1.41l-1.42 1.42C16.07 4.74 14.12 4 12 4c-4.97 0-9 4.03-9 9s4.02 9 9 9 9-4.03 9-9c0-2.12-.74-4.07-1.97-5.61zM12 20c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z',
+  payments:'M19 14V6c0-1.1-.9-2-2-2H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zm-9-1c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm13-6v11c0 1.1-.9 2-2 2H4v-2h17V7h2z',
+  walk:'M13.5 5.5c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zM9.8 8.9 7 23h2.1l1.8-8 2.1 2v6h2v-7.5l-2.1-2 .6-3C14.8 12 16.8 13 19 13v-2c-1.9 0-3.5-1-4.3-2.4l-1-1.6c-.4-.6-1-1-1.7-1-.3 0-.5.1-.8.1L6 8.3V13h2V9.6l1.8-.7',
+  car:'M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z',
+  refresh:'M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-8 8s3.57 8 8 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z',
   receipt:'M19.5 3.5 18 2l-1.5 1.5L15 2l-1.5 1.5L12 2l-1.5 1.5L9 2 7.5 3.5 6 2v20l1.5-1.5L9 22l1.5-1.5L12 22l1.5-1.5L15 22l1.5-1.5L18 22l1.5-1.5L21 22V2l-1.5 1.5zM19 19.09H5V4.91h14v14.18zM6 15h12v2H6zm0-4h12v2H6zm0-4h12v2H6z'
 };
 
