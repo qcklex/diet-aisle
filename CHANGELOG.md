@@ -2,6 +2,15 @@
 
 Work log for every release. Newest first. The SW cache version (`sw.js`) is the release number — bump it whenever `index.html` changes.
 
+## v36 — 2026-07-20 · First-impression fixes from fresh-account QA
+
+Found by a full signed-in QA pass on a brand-new account (first possible since auth went live):
+
+- **£NaN price fixed** — `fmtP()` did `(+p).toFixed(2)` on prices that are strings ('~£12.00', 'in stock'), producing '~£NaN' for any item without a default edit (visible on "Myprotein Whey Isolate" in every new account's shop list). It now passes £-strings through untouched, formats real numbers, extracts a number from other strings, and falls back to the raw text ('in stock') instead of NaN.
+- **Protein bar no longer red on first open** — the default Intermittent Fasting preset totals 186g protein vs its 150g goal, so a new user's first dashboard showed a red "over" bar. Protein targets are floors, not caps: `dashMacros` now marks protein `floor:true` and the over-110% red styling only applies to cap macros (calories/fat/carbs).
+- **"Sample plan" first-run hint** — new dashboard card (dismissible ✕, persisted `da_hint_sample_v1`) shown while the account only has shipped sample data (`!productDb.length && !aiPlan`): explains the pre-filled plan is a sample and links to AI Plan. Fixes the confusing first-run mix of "1,742 kcal today" + "0 products in your database".
+- SW cache → `dietaisle-v36`.
+
 ## v35 — 2026-07-20 · Signed-out root is now a full landing page with the login on it
 
 - Alex: "The main page should ask for a login, it should be a landing page too." The gate is no longer a bare centred card: the signed-out root is a scrollable landing page in Quiet Ledger — sticky brand nav (with theme toggle), a hero with the headline/lede/three value points on the left and the **auth card right beside it** (stacked on mobile, form visible immediately — the v34 welcome interstitial and ← Back are gone), then a trust strip, three feature sections with HTML product visuals (day plan, cheapest-store verdict, receipt scan — adapted from landing.html), the three-step "how it works", a final create-account CTA (scrolls back to the form), and a footer with About (→ /home) + Privacy links.

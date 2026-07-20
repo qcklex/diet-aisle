@@ -251,6 +251,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;backg
 .dash-hero .dash-card-title{color:rgba(255,255,255,.6);}
 .dash-greet{font-size:18px;font-weight:800;margin-bottom:2px;}
 .dash-sub{font-size:12px;color:rgba(255,255,255,.7);}
+.hint-card{display:flex;gap:10px;align-items:flex-start;}
+.hint-txt{font-size:13px;color:var(--t2);line-height:1.55;flex:1;}
+.hint-x{background:none;border:none;color:var(--t4);cursor:pointer;font-size:14px;padding:2px;min-width:24px;min-height:24px;border-radius:6px;flex-shrink:0;}
+.hint-x:hover{color:var(--t1);}
 .dash-macro-row{display:flex;justify-content:space-between;align-items:baseline;font-size:13px;margin-top:10px;}
 .dash-macro-lbl{color:var(--t2);font-weight:600;}
 .dash-macro-val{font-weight:700;color:var(--t1);font-variant-numeric:tabular-nums;}
@@ -1140,6 +1144,12 @@ html[data-theme=dark] .vd-btn,html[data-theme=dark] .ai-generate-btn,html[data-t
       <button class="lnk" @click="activeTab='account'">{{ auth.user ? 'Account' : 'Sign in' }}</button>
     </div>
 
+    <!-- First-run: the pre-filled preset confuses new users into thinking it's their data -->
+    <div v-if="showSampleHint" class="dash-card hint-card">
+      <div class="hint-txt"><strong>You're looking at a sample plan.</strong> It shows how DietAisle works — generate a week built around your own macros in <button class="lnk" @click="activeTab='aiplan'">AI Plan</button>, or edit any meal directly.</div>
+      <button class="hint-x" @click="dismissSampleHint" aria-label="Dismiss sample plan note">✕</button>
+    </div>
+
     <div class="dash-card">
       <div class="dash-card-title">Today's macros vs goals</div>
       <div v-for="m in dashMacros" :key="m.label">
@@ -1147,7 +1157,7 @@ html[data-theme=dark] .vd-btn,html[data-theme=dark] .ai-generate-btn,html[data-t
           <span class="dash-macro-lbl">{{ m.label }}</span>
           <span class="dash-macro-val">{{ m.value }}{{ m.unit }} / {{ m.target }}{{ m.unit }}</span>
         </div>
-        <div class="dash-bar"><div class="dash-bar-fill" :class="{over:m.pct>110}" :style="{width:Math.min(m.pct,100)+'%'}"></div></div>
+        <div class="dash-bar"><div class="dash-bar-fill" :class="{over:m.pct>110&&!m.floor}" :style="{width:Math.min(m.pct,100)+'%'}"></div></div>
       </div>
       <div v-if="!todayMacros.kcal" style="font-size:12px;color:var(--t3);margin-top:10px">No meals planned for today — pick a day tab to see its meals.</div>
     </div>
@@ -1940,6 +1950,7 @@ data(){return{
   aiError:null,
   aiStream:'',
   aiPlan:null,
+  hintSampleDismissed:(()=>{try{return localStorage.getItem('da_hint_sample_v1')==='1'}catch(e){return false}})(),
   aiShopFilter:'all',
   recentlyRemoved:[],
   showRecents:false,
@@ -2127,19 +2138,24 @@ computed:{
     const pct=(v,t)=>t?Math.round(v/t*100):0;
     return[
       {label:'Calories',value:m.kcal||0,target:g.calories,unit:' kcal',pct:pct(m.kcal,g.calories)},
-      {label:'Protein',value:m.p||0,target:g.protein,unit:'g',pct:pct(m.p,g.protein)},
+      // Protein target is a floor, not a cap — going over is a win, never flagged red
+      {label:'Protein',value:m.p||0,target:g.protein,unit:'g',pct:pct(m.p,g.protein),floor:true},
       {label:'Fat',value:m.f||0,target:g.fat,unit:'g',pct:pct(m.f,g.fat)},
       {label:'Carbs',value:m.c||0,target:g.carbs,unit:'g',pct:pct(m.c,g.carbs)},
     ];
   },
   realPriceCount(){return this.productDb.filter(p=>p.prices?.length).length;},
+  // Show while the account still only has the shipped sample data: no scans, no AI plan
+  showSampleHint(){return !this.hintSampleDismissed&&!this.productDb.length&&!this.aiPlan;},
   // Vue 3 gives v-if priority over v-for on the same element, so the skip
   // filter has to live here rather than inline on the scan-item template.
   visibleScanItems(){return this.scanResult?.items?.filter(i=>!i.skipped)||[];},
 },
 methods:{
 gateCta(mode){this.auth.mode=mode;this.auth.error=null;this.auth.info=null;window.scrollTo({top:0,behavior:'smooth'});},
-  fmtP(p){return'~£'+(+p).toFixed(2);},
+  dismissSampleHint(){this.hintSampleDismissed=true;try{localStorage.setItem('da_hint_sample_v1','1')}catch(e){}},
+  // Prices can be strings ('~£12.00', 'in stock') or numbers — only format real numbers, never render NaN
+  fmtP(p){if(typeof p==='number'&&isFinite(p))return'~£'+p.toFixed(2);const s=String(p??'');if(/£/.test(s))return s;const n=parseFloat(s.replace(/[^0-9.]/g,''));return isNaN(n)?s:'~£'+n.toFixed(2);},
   getEd(id,field){return(this.curEdits[id]||{})[field]||'';},
   sectionItems(key){return this.activeItems.filter(i=>i.section===key);},
   isChecked(id){return!!this.curChecks[id];},
