@@ -11,5 +11,6 @@ In QA mode, flag any code that doesn't match DESIGN.md.
 ## Workflow rules
 - After editing inline JS in index.html: extract the script and run `node --check` before considering the change done.
 - Bump the SW cache version in sw.js whenever index.html changes, and add a matching CHANGELOG.md entry.
-- Stage specific files only — never `git add -A`; never commit node_modules, .env, api/keto.json.
+- Stage specific files only — never `git add -A`; never commit node_modules, .env, legacy-server/keto.json.
+- The Claude proxy lives at `api/chat.js` (Vercel auto-detects functions ONLY in top-level `api/`); `legacy-server/` is the dead Express app, excluded from deploys via .vercelignore.
 - After deploy: verify the live site, then sync the Desktop mirror at `/Users/alex/Desktop/A1. PROJECTS TO DO  - PROGRAMING /0.  MAIN PROJECT/DietAisle/`.

@@ -2,6 +2,12 @@
 
 Work log for every release. Newest first. The SW cache version (`sw.js`) is the release number — bump it whenever `index.html` changes.
 
+## 2026-07-20 · INCIDENT FIX: /api/chat was never a function — AI plan + receipt scan dead on prod (no SW bump)
+
+- Alex hit "AI plan failed: API error 405". Root cause: the Claude proxy lived at `api-routes/chat.js` with a vercel.json rewrite `/api/chat → /api-routes/chat.js` — but rewrites can't execute a file as a function, and Vercel only auto-builds functions from the top-level `api/` directory, which was occupied by the dead legacy Express app. Vercel served chat.js as a **static file** (`content-disposition: filename="chat.js"`), which rejects POST with 405. Every feature needing the proxy (AI plan generation, receipt scanning) was broken on production — likely since the original proxy commit (`688af6d`); the config was plausible-looking enough that nothing flagged it.
+- Fix: legacy Express app moved `api/` → `legacy-server/` (excluded from deploys via new `.vercelignore`), edge function moved to `api/chat.js` (native `/api/chat` routing), rewrite removed, .gitignore paths updated.
+- Verified live: POST /api/chat now executes the edge function and returns a real Claude completion end-to-end.
+
 ## v36 — 2026-07-20 · First-impression fixes from fresh-account QA
 
 Found by a full signed-in QA pass on a brand-new account (first possible since auth went live):

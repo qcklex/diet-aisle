@@ -4,7 +4,6 @@
     { "source": "/", "has": [{ "type": "host", "value": "www.dietaisle.com" }], "destination": "/home", "permanent": false }
   ],
   "rewrites": [
-    { "source": "/api/chat", "destination": "/api-routes/chat.js" },
     { "source": "/home", "destination": "/landing.html" },
     { "source": "/privacy", "destination": "/privacy.html" }
   ]

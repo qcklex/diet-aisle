@@ -1,7 +1,8 @@
 .vercel
 node_modules/
-api/node_modules/
-api/.env
-api/keto.json
+legacy-server/node_modules/
+legacy-server/.env
+legacy-server/keto.json
+legacy-server/uploads/
 .DS_Store
 .gstack/
