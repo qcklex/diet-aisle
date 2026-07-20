@@ -2,6 +2,11 @@
 
 Work log for every release. Newest first. The SW cache version (`sw.js`) is the release number — bump it whenever `index.html` changes.
 
+## v37 — 2026-07-20 · AI plan generation: raise max_tokens 5000 → 24000
+
+- With /api/chat finally executing (see below), the AI plan hit its second latent bug: `max_tokens:5000` truncated the response mid-JSON (~15.6k chars ≈ exactly 5k tokens) → "The plan came back in an unexpected format". A 7-day plan with real recipe steps + the priced shopping list needs 15–20k output tokens. Raised to 24000 (Sonnet 4.6 default model, streamed, so no function timeout). Note: a full 7-day generation now costs roughly £0.20–0.30 of Claude API per run.
+- SW cache → `dietaisle-v37`.
+
 ## 2026-07-20 · INCIDENT FIX: /api/chat was never a function — AI plan + receipt scan dead on prod (no SW bump)
 
 - Alex hit "AI plan failed: API error 405". Root cause: the Claude proxy lived at `api-routes/chat.js` with a vercel.json rewrite `/api/chat → /api-routes/chat.js` — but rewrites can't execute a file as a function, and Vercel only auto-builds functions from the top-level `api/` directory, which was occupied by the dead legacy Express app. Vercel served chat.js as a **static file** (`content-disposition: filename="chat.js"`), which rejects POST with 405. Every feature needing the proxy (AI plan generation, receipt scanning) was broken on production — likely since the original proxy commit (`688af6d`); the config was plausible-looking enough that nothing flagged it.

@@ -2737,7 +2737,8 @@ Return ONLY this JSON structure (no markdown, no explanation):
 }`;
 
     try{
-      const res=await this.claudeCall([{role:'user',content:USER}],{system:SYSTEM,max_tokens:5000,stream:true});
+      // 7 days × 3-4 real recipes + priced shopping list runs 15-20k tokens; 5000 truncated mid-JSON
+      const res=await this.claudeCall([{role:'user',content:USER}],{system:SYSTEM,max_tokens:24000,stream:true});
       const reader=res.body.getReader();
       const dec=new TextDecoder();
       let buf='';
