@@ -2,6 +2,12 @@
 
 Work log for every release. Newest first. The SW cache version (`sw.js`) is the release number — bump it whenever `index.html` changes.
 
+## v35 — 2026-07-20 · Signed-out root is now a full landing page with the login on it
+
+- Alex: "The main page should ask for a login, it should be a landing page too." The gate is no longer a bare centred card: the signed-out root is a scrollable landing page in Quiet Ledger — sticky brand nav (with theme toggle), a hero with the headline/lede/three value points on the left and the **auth card right beside it** (stacked on mobile, form visible immediately — the v34 welcome interstitial and ← Back are gone), then a trust strip, three feature sections with HTML product visuals (day plan, cheapest-store verdict, receipt scan — adapted from landing.html), the three-step "how it works", a final create-account CTA (scrolls back to the form), and a footer with About (→ /home) + Privacy links.
+- Auth form now defaults to **sign-up** (landing audience is new visitors); "Already have an account? Sign in" toggle unchanged, magic link and the service-down offline escape unchanged. Signed-in users still never see any of it.
+- SW cache → `dietaisle-v35`.
+
 ## v34 — 2026-07-18 · Welcome stage before the login form
 
 - Alex: "there must be a landing page prior to the login page." The gate is now two-stage: stage 1 is a welcome screen — brand, tagline, three value points (AI plans to your macros / cheapest store near you / receipt scanning), **Create free account** and **Sign in** buttons, plus "Learn more" (→ /home marketing page) and the privacy-policy link. The email/password form only appears after choosing, with a ← Back to return. Signed-in users never see any of it.

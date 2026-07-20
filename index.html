@@ -469,22 +469,72 @@ html[data-theme=dark] .vd-btn,html[data-theme=dark] .ai-generate-btn,html[data-t
 .mi{width:1.15em;height:1.15em;fill:currentColor;display:inline-block;vertical-align:-0.22em;flex-shrink:0;}
 .bbi .mi{width:21px;height:21px;display:block;vertical-align:0;margin:0 auto 1px;}
 .theme-btn .mi{width:17px;height:17px;display:block;vertical-align:0;}
-.gate{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 18px;position:relative;}
-.gate-brand{display:flex;align-items:center;gap:11px;font-size:22px;font-weight:700;letter-spacing:-.02em;color:var(--t1);}
-.gate-brand img{border-radius:11px;}
-.gate-sub{font-size:14px;color:var(--t3);margin:10px 0 24px;text-align:center;max-width:34ch;line-height:1.5;}
-.gate-card{width:100%;max-width:380px;}
-.gate-theme{position:absolute;top:calc(14px + var(--st));right:16px;margin:0;}
-.gate-loading{color:var(--t3);font-size:14px;padding:20px;}
-.gate-points{display:flex;flex-direction:column;gap:14px;margin-bottom:22px;}
+/* Signed-out gate — the root is a landing page AND the login ask (one page, both jobs) */
+.gate{min-height:100vh;}
+.lp-nav{position:sticky;top:0;z-index:50;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--bd);padding-top:var(--st);}
+.lp-nav-in{max-width:1040px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:10px 18px;}
+.gate-brand{display:flex;align-items:center;gap:9px;font-size:17px;font-weight:700;letter-spacing:-.02em;color:var(--t1);}
+.gate-brand img{border-radius:8px;}
+.lp-wrap{max-width:1040px;margin:0 auto;padding:0 18px;}
+.lp-hero{display:grid;grid-template-columns:1.05fr .95fr;gap:44px;align-items:start;padding:48px 0 44px;}
+@media(max-width:899px){.lp-hero{grid-template-columns:1fr;gap:26px;padding:26px 0 34px;}}
+.lp-eyebrow{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.09em;color:var(--g);margin-bottom:12px;}
+.lp-h1{font-size:38px;font-weight:700;letter-spacing:-.02em;line-height:1.12;color:var(--t1);margin-bottom:14px;}
+@media(max-width:640px){.lp-h1{font-size:29px;}}
+.lp-lede{font-size:16px;color:var(--t3);line-height:1.6;max-width:46ch;margin-bottom:22px;}
+.gate-points{display:flex;flex-direction:column;gap:13px;}
 .gate-point{display:flex;align-items:center;gap:12px;font-size:14px;color:var(--t2);}
 .gate-point .mi{width:19px;height:19px;color:var(--g);flex-shrink:0;}
-.gate-card>.acct-btn{width:100%;margin-top:0;}
-.gate-card>.acct-btn.alt{margin-top:10px;}
-.gate-learn{display:block;text-align:center;margin-top:16px;font-size:13px;color:var(--t3);text-decoration:none;}
-.gate-learn:hover{color:var(--t1);}
-.gate-privacy{margin-top:18px;font-size:13px;color:var(--t3);text-decoration:none;border-bottom:1px solid var(--line);padding-bottom:1px;}
+.gate-card{width:100%;max-width:400px;background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:20px 18px;box-shadow:var(--shadow);}
+@media(max-width:899px){.gate-card{max-width:460px;justify-self:start;}}
+.gate-card .acct-btn{width:100%;}
+.gate-loading{color:var(--t3);font-size:14px;padding:20px;text-align:center;}
+.gate-privacy{display:inline-block;margin-top:14px;font-size:12px;color:var(--t4);text-decoration:none;}
 .gate-privacy:hover{color:var(--t1);}
+.lp-trust{border-top:1px solid var(--bd);border-bottom:1px solid var(--bd);padding:22px 0;}
+.lp-trust-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;text-align:center;}
+@media(max-width:640px){.lp-trust-grid{grid-template-columns:1fr;gap:14px;}}
+.lp-trust-grid strong{display:block;font-size:14px;font-weight:600;color:var(--t1);margin-bottom:2px;}
+.lp-trust-grid span{font-size:13px;color:var(--t3);}
+.lp-sec{padding:52px 0 4px;}
+.lp-label{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.09em;color:var(--g);margin-bottom:10px;}
+.lp-h2{font-size:26px;font-weight:700;letter-spacing:-.02em;line-height:1.2;color:var(--t1);margin-bottom:8px;}
+.lp-feature{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center;padding:34px 0;}
+.lp-feature:nth-child(even) .lp-visual{order:-1;}
+@media(max-width:820px){.lp-feature{grid-template-columns:1fr;gap:20px;padding:24px 0;}.lp-feature:nth-child(even) .lp-visual{order:0;}}
+.lp-feature h3{font-size:18px;font-weight:600;color:var(--t1);margin-bottom:8px;}
+.lp-feature p{font-size:15px;color:var(--t3);line-height:1.6;max-width:44ch;}
+.lp-visual .lp-card{max-width:360px;margin:0 auto;}
+.lp-card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:16px;box-shadow:var(--shadow);}
+.lp-card-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.09em;color:var(--t3);margin-bottom:10px;}
+.lp-vtop{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px;}
+.lp-vtop .store{font-weight:600;font-size:16px;color:var(--t1);}
+.lp-vtop .price{font-family:'Geist Mono',monospace;font-variant-numeric:tabular-nums;font-size:22px;font-weight:600;color:var(--t1);}
+.lp-vsave{color:var(--g);font-weight:500;font-size:13px;margin-bottom:12px;}
+.lp-srow{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--bdl);font-size:13px;color:var(--t1);}
+.lp-srow .name{width:64px;flex-shrink:0;}
+.lp-srow .bar{flex:1;height:4px;background:var(--bdl);border-radius:99px;overflow:hidden;}
+.lp-srow .bar i{display:block;height:100%;background:var(--t3);opacity:.45;border-radius:99px;}
+.lp-srow.win .bar i{background:var(--g);opacity:1;}
+.lp-srow .p{font-family:'Geist Mono',monospace;font-variant-numeric:tabular-nums;width:56px;text-align:right;}
+.lp-srow .tick{color:var(--g);font-weight:600;width:14px;}
+.lp-line{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-top:1px solid var(--bdl);font-size:13px;color:var(--t1);}
+.lp-line:first-of-type{border-top:none;}
+.lp-line .n{color:var(--t3);font-family:'Geist Mono',monospace;font-variant-numeric:tabular-nums;font-size:12px;text-align:right;flex-shrink:0;}
+.lp-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin:28px 0 12px;}
+@media(max-width:820px){.lp-steps{grid-template-columns:1fr;}}
+.lp-step{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:20px 18px;box-shadow:var(--shadow);}
+.lp-step .num{font-family:'Geist Mono',monospace;font-size:12px;font-weight:600;color:var(--g);display:inline-block;background:var(--gbg);padding:3px 10px;border-radius:999px;margin-bottom:12px;}
+.lp-step h3{font-size:15px;font-weight:600;color:var(--t1);margin-bottom:5px;}
+.lp-step p{font-size:14px;color:var(--t3);line-height:1.55;}
+.lp-final{text-align:center;padding:52px 18px 56px;border-top:1px solid var(--bd);margin-top:44px;}
+.lp-final .lp-h2{margin-bottom:8px;}
+.lp-final p{color:var(--t3);margin-bottom:22px;}
+.lp-final .acct-btn{width:auto;padding:13px 26px;}
+.lp-foot{border-top:1px solid var(--bd);padding:22px 18px calc(26px + var(--sb));font-size:13px;color:var(--t3);}
+.lp-foot-in{max-width:1040px;margin:0 auto;display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;}
+.lp-foot a{color:var(--t3);text-decoration:none;}
+.lp-foot a:hover{color:var(--t1);}
 /* Header pill rows must swipe reliably on iOS: pan-x stops vertical-scroll hijack,
    overscroll containment stops the swipe bleeding into page/back-gesture, and the
    spacer below works around Safari collapsing trailing padding in scroll containers. */
@@ -514,42 +564,138 @@ html[data-theme=dark] .vd-btn,html[data-theme=dark] .ai-generate-btn,html[data-t
 <!-- ── Auth gate: the app is account-based — nothing renders before sign-in.
      Data lives in the user's row (Supabase app_state); this device only caches it. -->
 <div v-if="!authed" class="gate">
-  <button class="theme-btn gate-theme" @click="toggleTheme" :aria-label="'Switch to '+(theme==='dark'?'light':'dark')+' mode'"><app-icon :n="theme==='dark'?'sun':'moon'"></app-icon></button>
-  <div class="gate-brand"><img src="icon-192.png" alt="" width="44" height="44">DietAisle</div>
-  <div class="gate-sub">Weekly meals planned to your macros — priced at the supermarkets near you.</div>
-  <div v-if="!auth.ready" class="gate-loading" role="status">Loading…</div>
-
-  <!-- Stage 1: welcome/landing — the login form only appears after a choice -->
-  <div v-else-if="gateView==='welcome'" class="gate-card">
-    <div class="gate-points">
-      <div class="gate-point"><app-icon n="sparkle"></app-icon><span>AI weekly plans that hit your macros</span></div>
-      <div class="gate-point"><app-icon n="payments"></app-icon><span>One verdict: the cheapest supermarket near you</span></div>
-      <div class="gate-point"><app-icon n="camera"></app-icon><span>Scan receipts — it learns your real prices</span></div>
+  <nav class="lp-nav">
+    <div class="lp-nav-in">
+      <div class="gate-brand"><img src="icon-192.png" alt="" width="28" height="28">DietAisle</div>
+      <button class="theme-btn" style="margin-left:0" @click="toggleTheme" :aria-label="'Switch to '+(theme==='dark'?'light':'dark')+' mode'"><app-icon :n="theme==='dark'?'sun':'moon'"></app-icon></button>
     </div>
-    <button class="acct-btn" @click="gateView='auth';auth.mode='signup';auth.error=null;auth.info=null">Create free account</button>
-    <button class="acct-btn alt" @click="gateView='auth';auth.mode='signin';auth.error=null;auth.info=null">Sign in</button>
-    <a class="gate-learn" href="/home">Learn more about DietAisle →</a>
+  </nav>
+
+  <!-- Hero: landing copy on the left, the login ask right beside it -->
+  <div class="lp-wrap">
+    <header class="lp-hero">
+      <div>
+        <p class="lp-eyebrow">AI meal planning · UK supermarket prices</p>
+        <h1 class="lp-h1">Plan the week's meals. Pay the least for them.</h1>
+        <p class="lp-lede">DietAisle builds a weekly plan around your macros, then works out which supermarket near you sells the lot for less.</p>
+        <div class="gate-points">
+          <div class="gate-point"><app-icon n="sparkle"></app-icon><span>AI weekly plans that hit your macros</span></div>
+          <div class="gate-point"><app-icon n="payments"></app-icon><span>One verdict: the cheapest supermarket near you</span></div>
+          <div class="gate-point"><app-icon n="camera"></app-icon><span>Scan receipts — it learns your real prices</span></div>
+        </div>
+      </div>
+      <div class="gate-card">
+        <div v-if="!auth.ready" class="gate-loading" role="status">Loading…</div>
+        <template v-else>
+          <div class="acct-title">{{ auth.mode==='signup' ? 'Create your free account' : 'Welcome back' }}</div>
+          <div class="acct-sub">{{ auth.mode==='signup' ? 'Your plans, prices and product database live in your account, on every device.' : 'Sign in to open your meal plans.' }}</div>
+          <div v-if="auth.error" class="acct-err" role="alert">{{ auth.error }}</div>
+          <div v-if="auth.info" class="acct-info" role="status">{{ auth.info }}</div>
+          <div class="acct-field"><input class="ai-inp" type="email" v-model.trim="auth.email" placeholder="Email" autocomplete="email" aria-label="Email address" @keyup.enter="auth.mode==='signup'?signUp():signIn()"></div>
+          <div class="acct-field"><input class="ai-inp" type="password" v-model="auth.password" placeholder="Password (min 6 characters)" :autocomplete="auth.mode==='signup'?'new-password':'current-password'" aria-label="Password" @keyup.enter="auth.mode==='signup'?signUp():signIn()"></div>
+          <button class="acct-btn" :disabled="auth.loading" @click="auth.mode==='signup'?signUp():signIn()">
+            {{ auth.loading ? 'Working…' : (auth.mode==='signup' ? 'Create account' : 'Sign in') }}
+          </button>
+          <button class="acct-btn alt" :disabled="auth.loading" @click="magicLink" aria-label="Email me a magic sign-in link"><app-icon n="mail"></app-icon> Email me a magic link instead</button>
+          <button class="acct-toggle" @click="auth.mode=auth.mode==='signup'?'signin':'signup';auth.error=null;auth.info=null">
+            {{ auth.mode==='signup' ? 'Already have an account? Sign in' : "New here? Create a free account" }}
+          </button>
+          <button v-if="auth.svcDown" class="acct-btn alt" style="margin-top:10px" @click="auth.offline=true">Continue offline on this device</button>
+        </template>
+        <a class="gate-privacy" href="/privacy">Privacy policy</a>
+      </div>
+    </header>
   </div>
 
-  <!-- Stage 2: the auth form -->
-  <div v-else class="acct-card gate-card">
-    <div class="acct-title">{{ auth.mode==='signup' ? 'Create your account' : 'Welcome back' }}</div>
-    <div class="acct-sub">{{ auth.mode==='signup' ? 'Your plans, prices and product database live in your account, on every device.' : 'Sign in to open your meal plans.' }}</div>
-    <div v-if="auth.error" class="acct-err" role="alert">{{ auth.error }}</div>
-    <div v-if="auth.info" class="acct-info" role="status">{{ auth.info }}</div>
-    <div class="acct-field"><input class="ai-inp" type="email" v-model.trim="auth.email" placeholder="Email" autocomplete="email" aria-label="Email address" @keyup.enter="auth.mode==='signup'?signUp():signIn()"></div>
-    <div class="acct-field"><input class="ai-inp" type="password" v-model="auth.password" placeholder="Password (min 6 characters)" :autocomplete="auth.mode==='signup'?'new-password':'current-password'" aria-label="Password" @keyup.enter="auth.mode==='signup'?signUp():signIn()"></div>
-    <button class="acct-btn" :disabled="auth.loading" @click="auth.mode==='signup'?signUp():signIn()">
-      {{ auth.loading ? 'Working…' : (auth.mode==='signup' ? 'Create account' : 'Sign in') }}
-    </button>
-    <button class="acct-btn alt" :disabled="auth.loading" @click="magicLink" aria-label="Email me a magic sign-in link"><app-icon n="mail"></app-icon> Email me a magic link instead</button>
-    <button class="acct-toggle" @click="auth.mode=auth.mode==='signup'?'signin':'signup';auth.error=null;auth.info=null">
-      {{ auth.mode==='signup' ? 'Already have an account? Sign in' : "New here? Create an account" }}
-    </button>
-    <button v-if="auth.svcDown" class="acct-btn alt" style="margin-top:10px" @click="auth.offline=true">Continue offline on this device</button>
-    <button class="acct-toggle" @click="gateView='welcome';auth.error=null;auth.info=null">← Back</button>
-  </div>
-  <a class="gate-privacy" href="/privacy">Privacy policy</a>
+  <section class="lp-trust">
+    <div class="lp-wrap lp-trust-grid">
+      <div><strong>Free to use</strong><span>No ads, no paywall on the basics</span></div>
+      <div><strong>Your data, your account</strong><span>Plans and prices sync to every device you sign in on</span></div>
+      <div><strong>No app store needed</strong><span>Installs from the browser in two taps</span></div>
+    </div>
+  </section>
+
+  <section class="lp-sec">
+    <div class="lp-wrap">
+      <p class="lp-label">What it does</p>
+      <h2 class="lp-h2">Eating to your goals, without the spreadsheet</h2>
+
+      <div class="lp-feature">
+        <div>
+          <h3>AI plans built around your macros</h3>
+          <p>Tell DietAisle your calorie and macro targets — or pick a preset like Intermittent Fasting or Bulking — and it generates a full week of meals that actually add up. Swap anything you don't fancy.</p>
+        </div>
+        <div class="lp-visual">
+          <div class="lp-card" aria-hidden="true">
+            <div class="lp-card-label">Monday · 1,742 kcal target</div>
+            <div class="lp-line"><span>Greek yoghurt &amp; berries</span><span class="n">52P · 482 kcal</span></div>
+            <div class="lp-line"><span>Chicken &amp; rice batch box</span><span class="n">68P · 660 kcal</span></div>
+            <div class="lp-line"><span>Salmon, potatoes, greens</span><span class="n">66P · 600 kcal</span></div>
+            <div class="lp-line" style="border-top:1px solid var(--bd)"><strong>Day total</strong><span class="n" style="color:var(--g)">186P · 1,742 kcal ✓</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="lp-feature">
+        <div>
+          <h3>It knows where's cheapest</h3>
+          <p>Your whole shopping list, priced per store — Lidl, Aldi, Tesco, ASDA and more — with the stores actually near you. One verdict: where to go and what you'll save.</p>
+        </div>
+        <div class="lp-visual">
+          <div class="lp-card" aria-hidden="true">
+            <div class="lp-card-label">Cheapest for your list · near you</div>
+            <div class="lp-vtop"><span class="store">Lidl</span><span class="price">£24.61</span></div>
+            <div class="lp-vsave">Save £4.60 vs Tesco · 0.8 mi</div>
+            <div class="lp-srow win"><span class="name">Lidl</span><span class="bar"><i style="width:78%"></i></span><span class="p">£24.61</span><span class="tick">✓</span></div>
+            <div class="lp-srow"><span class="name">Aldi</span><span class="bar"><i style="width:83%"></i></span><span class="p">£26.14</span><span class="tick"></span></div>
+            <div class="lp-srow"><span class="name">ASDA</span><span class="bar"><i style="width:89%"></i></span><span class="p">£27.92</span><span class="tick"></span></div>
+            <div class="lp-srow"><span class="name">Tesco</span><span class="bar"><i style="width:93%"></i></span><span class="p">£29.21</span><span class="tick"></span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="lp-feature">
+        <div>
+          <h3>Scan a receipt, learn your real prices</h3>
+          <p>Point your camera at a receipt and DietAisle reads every line, matches the nutrition, and remembers what you actually paid. Barcode scanning fills in the rest. The more you scan, the sharper its price comparisons get.</p>
+        </div>
+        <div class="lp-visual">
+          <div class="lp-card" aria-hidden="true">
+            <div class="lp-card-label">Receipt · scanned just now</div>
+            <div class="lp-line"><span>Chicken breast 1kg</span><span class="n">£5.49 · 31P/100g</span></div>
+            <div class="lp-line"><span>Basmati rice 1kg</span><span class="n">£1.89 · 78C/100g</span></div>
+            <div class="lp-line"><span>Greek yoghurt 1kg</span><span class="n">£2.25 · 10P/100g</span></div>
+            <div class="lp-line"><span>Frozen broccoli 900g</span><span class="n">£1.15 · 3P/100g</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="lp-sec" style="padding-top:16px">
+    <div class="lp-wrap">
+      <p class="lp-label">How it works</p>
+      <h2 class="lp-h2">Three steps, once a week</h2>
+      <div class="lp-steps">
+        <div class="lp-step"><span class="num">1 · Plan</span><h3>Generate the week</h3><p>Set your macros or pick a preset. The AI builds seven days of meals that hit your numbers.</p></div>
+        <div class="lp-step"><span class="num">2 · Shop</span><h3>Follow the verdict</h3><p>One list, priced per store. DietAisle tells you the cheapest shop near you and what you save.</p></div>
+        <div class="lp-step"><span class="num">3 · Scan</span><h3>Close the loop</h3><p>Scan the receipt on the way out. Real prices and nutrition flow back into next week's plan.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="lp-final">
+    <h2 class="lp-h2">Eat to your goals. Keep the difference.</h2>
+    <p>Your first weekly plan takes about a minute.</p>
+    <button class="acct-btn" @click="gateCta('signup')">Create free account</button>
+  </section>
+
+  <footer class="lp-foot">
+    <div class="lp-foot-in">
+      <span>© 2026 DietAisle</span>
+      <span><a href="/home">About DietAisle</a> · <a href="/privacy">Privacy</a></span>
+    </div>
+  </footer>
 </div>
 
 <!-- ── Semantic <header> tag (HTML5 sectioning element) -->
@@ -1754,7 +1900,6 @@ data(){return{
   restockFreqDraft:'',
   restockHidden:[],
   hiddenPresets:[],
-  gateView:'welcome',
   activePresetId:'af1',
   customPresets:[],
   allChecks:{},
@@ -1803,7 +1948,7 @@ data(){return{
   // Barcode scanner
   barcode:{input:'',loading:false,error:null,product:null,price:null,store:'lidl',scanning:false,saved:false,community:null},
   // Cloud accounts + sync
-  auth:{user:null,email:'',password:'',mode:'signin',loading:false,error:null,info:null,ready:false,offline:false,svcDown:false},
+  auth:{user:null,email:'',password:'',mode:'signup',loading:false,error:null,info:null,ready:false,offline:false,svcDown:false},
   sync:{lastSync:null,busy:false,timer:null},
   batchShopList:BATCH_SHOP_LIST,
   restockRules:RESTOCK_RULES.map(r=>({...r})),
@@ -1993,6 +2138,7 @@ computed:{
   visibleScanItems(){return this.scanResult?.items?.filter(i=>!i.skipped)||[];},
 },
 methods:{
+gateCta(mode){this.auth.mode=mode;this.auth.error=null;this.auth.info=null;window.scrollTo({top:0,behavior:'smooth'});},
   fmtP(p){return'~£'+(+p).toFixed(2);},
   getEd(id,field){return(this.curEdits[id]||{})[field]||'';},
   sectionItems(key){return this.activeItems.filter(i=>i.section===key);},
