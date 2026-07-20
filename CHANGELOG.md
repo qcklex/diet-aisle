@@ -2,6 +2,12 @@
 
 Work log for every release. Newest first. The SW cache version (`sw.js`) is the release number — bump it whenever `index.html` changes.
 
+## v38 — 2026-07-20 · No more raw JSON on screen while generating + real recipe sourcing
+
+- Alex: the AI Plan screen was dumping the raw streaming JSON straight into a scrollbox while generating — looked broken, not a loading state. Replaced with an approximate progress bar (`aiProgressPct`, estimated against expected output size for the requested day count) and a status label that changes as the JSON keys appear (`"Sourcing real recipes…"` → `"Building your meals…"` → `"Pricing your shopping list…"` → `"Working out where's cheapest…"`). `.ai-stream` raw box removed.
+- **Recipe sourcing widened beyond the model's own memory** per Alex ("get from other sources depending on the kind of food, but always of good quality"): `fetchRecipeSources()` pulls real, tested dish names from TheMealDB (free, keyless, CORS-open) across 6 categories — Chicken, Seafood, Vegetarian, Pasta, Beef, Breakfast — before generation starts, and the system prompt tells Claude to prefer adapting one of these sourced dishes where it fits the day's macros, while still allowed to draw on its own knowledge for anything not covered. Best-effort with a 4s per-category timeout — a slow/failed fetch just falls back to the previous (already good, BBC Good Food-calibre) behaviour, generation never blocks on it.
+- SW cache → `dietaisle-v38`.
+
 ## v37 — 2026-07-20 · AI plan generation: raise max_tokens 5000 → 24000
 
 - With /api/chat finally executing (see below), the AI plan hit its second latent bug: `max_tokens:5000` truncated the response mid-JSON (~15.6k chars ≈ exactly 5k tokens) → "The plan came back in an unexpected format". A 7-day plan with real recipe steps + the priced shopping list needs 15–20k output tokens. Raised to 24000 (Sonnet 4.6 default model, streamed, so no function timeout). Note: a full 7-day generation now costs roughly £0.20–0.30 of Claude API per run.

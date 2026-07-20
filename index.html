@@ -300,8 +300,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;backg
 .ai-inp:focus{border-color:var(--g);}
 .ai-generate-btn{width:100%;padding:12px;background:var(--gdk);color:#fff;font-size:14px;font-weight:700;border:none;border-radius:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;}
 .ai-generate-btn:disabled{opacity:.5;cursor:not-allowed;}
-.ai-stream{background:var(--bdl);border-radius:10px;padding:12px 14px;font-size:12px;color:var(--t2);margin-top:10px;max-height:200px;overflow-y:auto;font-family:monospace;white-space:pre-wrap;display:none;}
-.ai-stream.active{display:block;}
+/* Approximate progress — real generations are 20-40s; showing raw streaming JSON read like a broken page, so this gives a graphic estimate instead */
+.ai-progress{margin-top:12px;}
+.ai-progress-label{font-size:12.5px;color:var(--t2);margin-bottom:8px;}
+.ai-progress-bar{height:6px;background:var(--bdl);border-radius:99px;overflow:hidden;}
+.ai-progress-fill{height:100%;background:var(--g);border-radius:99px;transition:width .7s ease-out;}
 .ai-plan-ready{background:var(--gbg);border-radius:10px;padding:13px 15px;margin-top:10px;font-size:13px;color:var(--gd);font-weight:600;}
 /* ── Price refresh */
 .ipr-live{font-size:11px;color:var(--gd);font-weight:600;}
@@ -968,7 +971,10 @@ html[data-theme=dark] .vd-btn,html[data-theme=dark] .ai-generate-btn,html[data-t
         <span v-if="aiLoading" class="scan-spinner" style="width:16px;height:16px;border-width:2px;margin:0"></span>
         <app-icon n="sparkle"></app-icon> {{ aiLoading ? 'Generating…' : 'Generate plan with AI' }}
       </button>
-      <div class="ai-stream" :class="{active: aiLoading}" ref="aiStreamEl">{{ aiStream }}</div>
+      <div v-if="aiLoading" class="ai-progress">
+        <div class="ai-progress-label">{{ aiProgressLabel }}</div>
+        <div class="ai-progress-bar"><div class="ai-progress-fill" :style="{width:aiProgressPct+'%'}"></div></div>
+      </div>
       <div v-if="aiError" class="nearby-error">{{ aiError }}</div>
     </div>
 
@@ -2145,6 +2151,9 @@ computed:{
     ];
   },
   realPriceCount(){return this.productDb.filter(p=>p.prices?.length).length;},
+  // No exact progress signal from a JSON stream — estimate against expected output size for the requested day count
+  aiProgressPct(){const target=4500+(this.aiGoals.days||7)*6200;return Math.max(5,Math.min(96,Math.round(this.aiStream.length/target*100)));},
+  aiProgressLabel(){const s=this.aiStream;if(s.length<400)return'Sourcing real recipes for your week…';if(!/"shopping_list"/.test(s))return'Building your meals and checking macros…';if(!/"recommendation"/.test(s))return'Pricing your shopping list per store…';return'Working out where\'s cheapest…';},
   // Show while the account still only has the shipped sample data: no scans, no AI plan
   showSampleHint(){return !this.hintSampleDismissed&&!this.productDb.length&&!this.aiPlan;},
   // Vue 3 gives v-if priority over v-for on the same element, so the skip
@@ -2660,6 +2669,23 @@ Rules: raw=exactly as printed, name=human readable, weight=pack size or null, pr
     this.showToast('Saved: '+target.name);
   },
 
+  // Grounds meal generation in real, tested recipes (not just the model's memory) — TheMealDB is
+  // free/keyless/CORS-open; categories give food-type variety (protein/veg/carb-led, plus breakfast).
+  // Best-effort: a slow or failed fetch just means Claude falls back to its own recipe knowledge.
+  async fetchRecipeSources(){
+    const cats=['Chicken','Seafood','Vegetarian','Pasta','Beef','Breakfast'];
+    try{
+      const results=await Promise.all(cats.map(c=>
+        fetch(`https://www.themealdb.com/api/json/v1/1/filter.php?c=${c}`,{signal:AbortSignal.timeout(4000)})
+          .then(r=>r.ok?r.json():null).catch(()=>null)
+      ));
+      return results.map((res,i)=>res?.meals?.length
+        ? `${cats[i]}: `+res.meals.slice(0,8).map(m=>m.strMeal).join(', ')
+        : null
+      ).filter(Boolean).join('\n');
+    }catch(e){return'';}
+  },
+
   // ── AI Meal Plan — direct Claude streaming with per-store price comparison
   async generatePlan(){
     this.aiError=null;
@@ -2668,6 +2694,7 @@ Rules: raw=exactly as printed, name=human readable, weight=pack size or null, pr
 
     // Build context from user's local price DB so AI can use real prices where known
     const knownPrices=this.productDb.filter(p=>p.prices?.length).map(p=>`${p.name}: ${p.prices.map(pr=>`${pr.store} £${pr.price}`).join(', ')}`).join('\n');
+    const recipeSources=await this.fetchRecipeSources();
 
     const SYSTEM=`You are a UK meal planning and grocery shopping expert and a skilled recipe developer. You know current UK supermarket prices well, especially Lidl, Aldi, Tesco, and ASDA.
 
@@ -2677,7 +2704,7 @@ RECIPE QUALITY — the most important rule:
 - Name each meal as the recognisable dish it is based on ("Chicken shawarma bowl", not "Spiced chicken with rice").
 - Steps must carry the flavour of the original: real seasoning (spices, garlic, acid, herbs), real technique. Never "season and cook the chicken".
 - Variety across the week: different proteins and cuisines, no dinner repeated.
-
+${recipeSources?`\nREAL RECIPES SOURCED FOR YOU (from a recipe database, grouped by food type) — prefer adapting one of these where it fits a day's macros and cuisine variety; you're not limited to this list, but every one of these is a genuine, tested dish so lean on them for grounding and authenticity:\n${recipeSources}\n`:''}
 PRACTICALITY:
 - Every ingredient must be available at UK discount supermarkets. Prefer air fryer cooking where suitable. Use exact gram weights.
 - Calculate macros accurately from the actual ingredient quantities: protein×4 + fat×9 + carbs×4 = kcal.`;
@@ -2756,7 +2783,6 @@ Return ONLY this JSON structure (no markdown, no explanation):
             const ev=JSON.parse(raw);
             if(ev.type==='content_block_delta'&&ev.delta?.type==='text_delta'){
               this.aiStream+=ev.delta.text;
-              if(this.$refs.aiStreamEl)this.$refs.aiStreamEl.scrollTop=9999;
             }
           }catch{}
         }
